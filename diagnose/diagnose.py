@@ -21,7 +21,7 @@ LOGLOG_HEAVY_TAIL     = -0.75
 CATS_FREQ_HEAD = 10
 
 # temporal analysis
-PSEUDO_COUNT = 0.01
+EPS_GREEDY = 0.01
 TIMEDELTA_REFERENCES = [
     ('min', 60), ('hour',3600), ('day',3600*24),
     ('week',3600*24*7), ('month',3600*24*31),
@@ -90,17 +90,17 @@ def describe_dataframe(df, name=''):
     return summary
 
 
-def compute_daily_divergence(daily_count, alpha, rolling, pseudo_count):
-    X = daily_count.rolling(rolling, min_periods=1).sum().iloc[(rolling-1):-1]
-    Y = daily_count.iloc[rolling:]
+def compute_daily_divergence(daily_count, alpha, hist_len, eps_greedy):
+    X = daily_count.rolling(hist_len, min_periods=1).sum().iloc[:-1]
+    Y = daily_count.iloc[1:]
     index = Y.index
 
     # data (observed)
     gz = (X > 0).values
-    p  = (X + pseudo_count).apply(lambda x:x/sum(x), axis=1).values
+    p  = (X + eps_greedy / X.shape[1]).apply(lambda x:x/sum(x), axis=1).values
 
     # target (unobserved)
-    q  = (Y + pseudo_count).apply(lambda x:x/sum(x), axis=1).values
+    q  = (Y + eps_greedy / Y.shape[1]).apply(lambda x:x/sum(x), axis=1).values
 
     if alpha==1:
         daily_divergence = (p * (np.log(p) - np.log(q))).sum(axis=1)
@@ -208,22 +208,20 @@ def diagnose_interactions(df):
     date_range  = pd.date_range(daily_count.index.min(), daily_count.index.max())
     daily_count = daily_count.reindex(date_range, fill_value=0)
 
-    for hist_days in [1, 7, 31, 365]:
-        if hist_days < len(daily_count):
-            daily_renyi = compute_daily_divergence(daily_count, 0, hist_days, PSEUDO_COUNT)
-            pl.plot(1-np.exp(-daily_renyi),
-                    label='history={} days'.format(hist_days))
+    for hist_len in [1, 7, 31, 365]:
+        daily_renyi = compute_daily_divergence(daily_count, 0, hist_len, EPS_GREEDY)
+        pl.plot(1-np.exp(-daily_renyi),
+                label='history={} days'.format(hist_len))
     pl.title('Daily percent new items with rolling history')
     pl.gcf().autofmt_xdate()
     pl.legend()
     pl.show()
 
 
-    for hist_days in [1, 7, 31, 365]:
-        if hist_days < len(daily_count):
-            daily_renyi = compute_daily_divergence(daily_count, 1, hist_days, PSEUDO_COUNT)
-            pl.plot(daily_renyi,
-                    label='history={} days'.format(hist_days))
+    for hist_len in [1, 7, 31, 365]:
+        daily_renyi = compute_daily_divergence(daily_count, 1, hist_len, EPS_GREEDY)
+        pl.plot(daily_renyi,
+                label='history={} days'.format(hist_len))
     pl.title('Daily KL divergence with rolling history')
     pl.gcf().autofmt_xdate()
     pl.legend()
