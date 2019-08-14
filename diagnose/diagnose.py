@@ -90,17 +90,18 @@ def describe_dataframe(df, name=''):
     return summary
 
 
-def compute_daily_divergence(daily_count, alpha, hist_len, eps_greedy):
+def compute_daily_divergence(daily_count, alpha, hist_len):
+    N = daily_count.shape[1]
     X = daily_count.rolling(hist_len, min_periods=1).sum().iloc[:-1]
     Y = daily_count.iloc[1:]
     index = Y.index
 
     # data (observed)
     gz = (X > 0).values
-    p  = (X + eps_greedy / X.shape[1]).apply(lambda x:x/sum(x), axis=1).values
+    p  = X.apply(lambda x:x/(sum(x) + 1e-20), axis=1).values * (1-EPS_GREEDY) + (EPS_GREEDY / N)
 
     # target (unobserved)
-    q  = (Y + eps_greedy / Y.shape[1]).apply(lambda x:x/sum(x), axis=1).values
+    q  = Y.apply(lambda x:x/(sum(x) + 1e-20), axis=1).values * (1-EPS_GREEDY) + (EPS_GREEDY / N)
 
     if alpha==1:
         daily_divergence = (p * (np.log(p) - np.log(q))).sum(axis=1)
@@ -209,7 +210,7 @@ def diagnose_interactions(df):
     daily_count = daily_count.reindex(date_range, fill_value=0)
 
     for hist_len in [1, 7, 31, 365]:
-        daily_renyi = compute_daily_divergence(daily_count, 0, hist_len, EPS_GREEDY)
+        daily_renyi = compute_daily_divergence(daily_count, 0, hist_len)
         pl.plot(1-np.exp(-daily_renyi),
                 label='history={} days'.format(hist_len))
     pl.title('Daily percent new items with rolling history')
@@ -219,7 +220,7 @@ def diagnose_interactions(df):
 
 
     for hist_len in [1, 7, 31, 365]:
-        daily_renyi = compute_daily_divergence(daily_count, 1, hist_len, EPS_GREEDY)
+        daily_renyi = compute_daily_divergence(daily_count, 1, hist_len)
         pl.plot(daily_renyi,
                 label='history={} days'.format(hist_len))
     pl.title('Daily KL divergence with rolling history')
