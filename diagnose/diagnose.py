@@ -26,6 +26,7 @@ TIMEDELTA_REFERENCES = [
     ('min', 60), ('hour',3600), ('day',3600*24),
     ('week',3600*24*7), ('month',3600*24*31),
     ('year',3600*24*365)]
+ROLLING_HISTORY_LEN = [1, 7, 31, 365]
 
 
 def plot_loglog(val, name='', show=True):
@@ -209,9 +210,9 @@ def diagnose_interactions(df):
     date_range  = pd.date_range(daily_count.index.min(), daily_count.index.max())
     daily_count = daily_count.reindex(date_range, fill_value=0)
 
-    for hist_len in [1, 7, 31, 365]:
+    for hist_len in ROLLING_HISTORY_LEN:
         daily_renyi = compute_daily_divergence(daily_count, 0, hist_len)
-        pl.plot(1-np.exp(-daily_renyi),
+        pl.plot(1-np.exp(-daily_renyi), '.-',
                 label='history={} days'.format(hist_len))
     pl.title('Daily percent new items with rolling history')
     pl.gcf().autofmt_xdate()
@@ -219,9 +220,9 @@ def diagnose_interactions(df):
     pl.show()
 
 
-    for hist_len in [1, 7, 31, 365]:
+    for hist_len in ROLLING_HISTORY_LEN:
         daily_renyi = compute_daily_divergence(daily_count, 1, hist_len)
-        pl.plot(daily_renyi,
+        pl.plot(daily_renyi, '.-',
                 label='history={} days'.format(hist_len))
     pl.title('Daily KL divergence with rolling history')
     pl.gcf().autofmt_xdate()
