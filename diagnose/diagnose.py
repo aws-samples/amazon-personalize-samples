@@ -42,7 +42,7 @@ def plot_loglog(val, name='', show=True):
     pl.grid()
     pl.title(name + ' loglog, %.2e * x^(%.2f), rmse=%.2f' %(10**intercept, slope, rmse))
     pl.ylabel('value threshold')
-    pl.xlabel('number of examples with value <= threshold')
+    pl.xlabel('number of examples with value >= threshold')
     if show:
         pl.show()
     return (slope, intercept, rmse)
