@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "personalize:*",
+                "s3:*",
+                "iam:AttachRolePolicy",
+                "iam:GetRole",
+                "iam:GetUser",
+                "iam:ListRoles",
+                "iam:ListUsers",
+                "iam:ListGroups",
+                "iam:CreateRole",
+                "iam:PassRole",
+                "iam:PutRolePolicy",
+                "iam:PutUserPolicy",
+                "iam:UpdateAssumeRolePolicy",
+                "kms:List*",
+                "kms:Get*",
+                "kms:Describe*",
+                "kms:Create*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
