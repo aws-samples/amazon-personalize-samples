@@ -1,66 +1,115 @@
-## Amazon Personalize Samples
+# Amazon Personalize Samples
 
-Notebooks and examples on how to onboard and use various features of Amazon Personalize
+This repository contains a collection of notebooks and examples to help you learn how to utilize Amazon Personalize. It begins with a CloudFormation template that deploys an S3 bucket, IAM Role, and SageMaker Notebook instance in order to execute the demos and to act as a getting started guide for a POC.
+
+## Prerequisites
+
+Only applies if you are deploying with the CloudFormation template below, otherwise consult the IAM permissions needed for your specific task.
+
+1. AWS Account
+2. User with administrator access to the AWS Account
+
+## Process
+
+1. First you will deploy a CloudFormation template that will do the following:
+    1. Create an S3 bucket for all of your data storage.
+    1. Create a SageMaker Notebook Instance for you to complete the workshop.
+    1. Create the IAM policies needed for your notebook.
+    1. Clone this repository into the notebook so you are ready to work.
+1. Open the notebook and follow the instructions below.
+
+In this workshop you will build your very own recommendation model that will recommend movies to users based on their past preferences. You will further improve the recommendation model to take into account a user's interactions with movie items to provide accurate recommendations.  This workshop will use the publicly available movie lens dataset.
+
+## FAQs
+
+See [FAQs.md](FAQs.md)
+
+## Building Your Environment
+
+As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
+
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/PersonalizeDemo.yaml)
+
+Follow along with the screenshots if you have any questions about these steps.
+
+### Cloud Formation Wizard
+
+Start by clicking `Next` at the bottom like shown:
+
+![StackWizard](static/imgs/img1.png)
+
+In the next page you need to provide a unique S3 bucket name for your file storage, it is recommended to simply add your first name and last name to the end of the default option as shown below, after that update click `Next` again.
+
+![StackWizard2](static/imgs/img3.png)
+
+This page is a bit longer so scroll to the bottom to click `Next`.
+
+![StackWizard3](static/imgs/img4.png)
+
+Again scroll to the bottom, check the box to enable the template to create new IAM resources and then click `Create Stack`.
+
+![StackWizard4](static/imgs/img5.png)
+
+For a few minutes CloudFormation will be creating the resources described above on your behalf it will look like this while it is provisioning:
+
+![StackWizard5](static/imgs/img6.png)
+
+Once it has completed you'll see green text like below indicating that the work has been completed:
+
+![StackWizard5](static/imgs/img7.png)
+
+Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
+
+![StackWizard5](static/imgs/img8.png)
+
+
+## Agenda
+
+The steps below outline the process of building your own recommendation model, improving it, and then cleaning up all of your resources to prevent any unwanted charges. To get started executing these follow the steps in the next section.
+
+1. `Personalize_BuildCampaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
+2. `View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
+3. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
+
+
+## Using the Notebooks
+
+Start by navigating to the SageMaker serivce page by clicking the `Services` link in the top navigation bar of the AWS console.
+
+![StackWizard5](static/imgs/img9.png)
+
+In the search field enter `SageMaker` and then click for the service when it appears, from the service page click the `Notebook Instances` link on the far left menu bar.
+
+![StackWizard5](static/imgs/img10.png)
+
+To get to the Jupyter interface, simply click `Open JupyterLab` on the far right next to your notebook instance.
+
+![StackWizard5](static/imgs/img11.png)
+
+Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. Get started by clicking on `Personalize_BuildCampaign.ipynb`.
+
+![StackWizard5](static/imgs/img12.png)
+
+The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor or if you are working independently this is a pretty good video to get started:
+
+https://www.youtube.com/watch?v=Gzun8PpyBCo
+
+## After the Notebooks
+
+Once you have completed all of the work in the Notebooks and have completed the cleanup steps there as well, the last thing to do is to delete the stack you created with CloudFormation. To do that, inside the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it.
+
+![StackWizard5](static/imgs/img9.png)
+
+Click the `Delete` button on the demo stack you created:
+
+![StackWizard5](static/imgs/img13.png)
+
+Lastly click the `Delete Stack` button that shows up on the popup:
+
+![StackWizard5](static/imgs/img14.png)
+
+You'll now notice that the stack is in progress of being deleted. Once you see `Delete Completed` you know that everything has been deleted and you are 100% done with this lab.
 
 ## License Summary
 
 This sample code is made available under a modified MIT license. See the LICENSE file.
-
-## Demos of typical usage scenarios.
-
-Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
-
-1. [Offline evaluation with 'hrnn' user-based recommendation.](#hrnn)
-
-1. [Example of 'sims' item-based recommendation.](#sims)
-
-1. [How recommendation changes after 'put_events'.](#put_events)
-
-Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
-
-1. [How to use user, item, and event 'meta-data'.](#metadata)
-
-1. [Exploring 'cold-start' or 'future' items.](#item_cold_start)
-
-## Offline evaluation with 'hrnn' user-based recommendation.<a name="hrnn"/>
-
-You have some historical data and you want to know how personalize performs on your data. Here is what we suggest:
-
-1. Temporally split your data into a 'past' training set and a 'future' testing set.
-2. Upload the 'past' data to Amazon Personalize, train a solution, and deploy a campaign.
-3. Use your campaign to get recommendation for all of your users, and compare with the 'future' testing set.
-
-This is [an example](personalize_temporal_holdout/personalize_temporal_holdout.ipynb) to complete the steps above. We include a basic popularity-based recommendation, which should be easy to beat. This is for sanity checking purposes. A common next-step is to kepp the same training and testing splits, but train different models for more serious offline comparisons.
-
-## Example of 'sims' item-based recommendation.<a name="sims"/>
-
-The 'sims' recipe allows next-item recommendation based on a single previous item. It is faster to train and easier to interpret, e.g., in the form of "you see these recommendations because you watched A". (On the contrary, 'hrnn' considers the entire user consumption histories as the recommendation contexts and can therefore be more personalized).
-
-Similar to the 'hrnn' example, [this example](personalize_temporal_holdout/personalize_metadata_example.ipynb) uploads the 'past' data from temporal splitting and evaluates the recommendation against the held-out 'future' ground truth. The results compare favorably with a popularity-based recommendation baseline. We also include examples showing that different "cause" items would lead to different 'sims' results.
-
-## How recommendation changes after 'put_events'.<a name="put_events"/>
-
-Real-time personalization should respond to new click events by the user. For 'hrnn' sequence model, this is straightforward. After you 'put_events' to our system, the user states get updated and the corresponding recommendations change.
-
-Here is an [example](personalize_temporal_holdout/personalize_putEvents_demo.ipynb) showing how User A's recommendation will eventually look like User B's recommendation, if User B's events are appended after User A.
-
-## How to use user, item, and event 'meta-data'.<a name="metadata"/>
-
-Meta-data is ubiquitous. User zipcodes and device types can be useful indicators of preference; item categories and tags can be useful patterns in decision making; click and purchase events may imply different utilities to the user.
-
-[This example](personalize_temporal_holdout/personalize_metadata_example.ipynb) shows how these useful information can be uploaded to our system to aid recommendation. A caveat is that the improvements of meta-data recipes depend on how much information can be extracted from the provided meta-data. Movie genres may be less useful compared with movie ratings, or better, directors and stars.
-
-## Exploring 'cold-start' or 'future' items.<a name="item_cold_start"/>
-
-An important functionality that meta-data, particularly item meta-data, provides is to generalize to new 'cold-start' items. Examples include new releases, new products, or live items. Without personalization, a global policy to introduce these new items may incur large promotional costs. Personalized 'cold-start' helps reduce these costs.
-
-[This example](personalize_temporal_holdout/personalize_coldstart_demo.ipynb) shows how we may personalize item 'cold-start' by exploring only in the same movie genres that the user would be interested in. The steps are:
-
-1. Randomly hold out 50% of all items to simulate an item 'cold-start' scenario.
-2. Remove these items from the interactions table.
-3. Use temporal splitting, train a solution, and deploy a campaign with the remaining training data.
-4. Compute metrics on the held out items in the testing data split; these items never show up in the training split.
-
-We can see that the cold-start recipe indeed recommends new movies in the same genres that the user prefers. As a baseline and without personalization, new movies would have a lower click rate, which implies larger promotional costs.
-
--

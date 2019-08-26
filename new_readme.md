@@ -1,8 +1,10 @@
-# Amazon Personalize Workshop
+# Amazon Personalize Samples
 
-In this workshop you will build your very own recommendation model that will recommend movies to users based on their past preferences. You will further improve the recommendation model to take into account a user's interactions with movie items to provide accurate recommendations.  This workshop will use the publicly available movie lens dataset.
+This repository contains a collection of notebooks and examples to help you learn how to utilize Amazon Personalize. It begins with a CloudFormation template that deploys an S3 bucket, IAM Role, and SageMaker Notebook instance in order to execute the demos and to act as a getting started guide for a POC.
 
 ## Prerequisites
+
+Only applies if you are deploying with the CloudFormation template below, otherwise consult the IAM permissions needed for your specific task.
 
 1. AWS Account
 2. User with administrator access to the AWS Account
@@ -15,6 +17,12 @@ In this workshop you will build your very own recommendation model that will rec
     1. Create the IAM policies needed for your notebook.
     1. Clone this repository into the notebook so you are ready to work.
 1. Open the notebook and follow the instructions below.
+
+In this workshop you will build your very own recommendation model that will recommend movies to users based on their past preferences. You will further improve the recommendation model to take into account a user's interactions with movie items to provide accurate recommendations.  This workshop will use the publicly available movie lens dataset.
+
+## FAQs
+
+See [FAQs.md](FAQs.md)
 
 ## Building Your Environment
 
@@ -102,3 +110,6 @@ Lastly click the `Delete Stack` button that shows up on the popup:
 
 You'll now notice that the stack is in progress of being deleted. Once you see `Delete Completed` you know that everything has been deleted and you are 100% done with this lab.
 
+## License Summary
+
+This sample code is made available under a modified MIT license. See the LICENSE file.
