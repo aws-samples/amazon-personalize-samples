@@ -2,6 +2,9 @@ import pandas as pd
 import pylab as pl
 import numpy as np
 import warnings
+import traceback
+import scipy.sparse as ss
+import time
 
 
 INTERACTIONS_REQUIRED_FIELDS = ["USER_ID", "ITEM_ID", "TIMESTAMP"]
@@ -26,6 +29,9 @@ TIMEDELTA_REFERENCES = [
     ('min', 60), ('hour',3600), ('day',3600*24),
     ('week',3600*24*7), ('month',3600*24*31),
     ('year',3600*24*365)]
+ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
+TEMPORAL_FREQUENCY = ['1d', '3h']
+TEMPORAL_PLOT_LIMIT = 50
 
 
 def plot_loglog(val, name='', show=True):
@@ -90,30 +96,93 @@ def describe_dataframe(df, name=''):
     return summary
 
 
-def compute_daily_divergence(daily_count, alpha, hist_len):
-    N = daily_count.shape[1]
-    X = daily_count.rolling(hist_len, min_periods=1).sum().iloc[:-1]
-    Y = daily_count.iloc[1:]
-    index = Y.index
+def compute_temporal_loss(df, freq, method, hist_len):
+    tic = time.time()
+
+    df_cnt = df.groupby([pd.Grouper(freq=freq), 'ITEM_ID']).size()
+    df_cnt = df_cnt.to_frame('_cnt').reset_index(level=1)
+
+    index = pd.date_range(
+        df_cnt.index.min(),
+        df_cnt.index.max(),
+        freq=freq)
+
+    df_cnt['_i'] = np.searchsorted(index, df_cnt.index)
+    df_cnt['_j'] = df_cnt['ITEM_ID'].astype('category').cat.codes
+
+    # sparse data
+    Y = ss.coo_matrix((
+        df_cnt['_cnt'], (df_cnt['_i'], df_cnt['_j'])
+    )).tocsr()
+    N = Y.shape[1]
+
+    try: # binary rolling sum
+        B = Y
+        X = 0
+        c = 1
+        for p,b in enumerate(reversed('{0:b}'.format(hist_len))):
+            if b == '1' and c < len(index):
+                X = X + ss.vstack([ss.csr_matrix((c, N)), B[:-c]])
+                c = c + 2**p
+            if 2**p < len(index):
+                B = B + ss.vstack([ss.csr_matrix((2**p, N)), B[:-2**p]]) # sum 0 .. 2**(p+1)-1
+
+        assert np.allclose(X[-1:].sum(axis=0), Y[-hist_len-1:-1].sum(axis=0))
+
+    except Exception:
+        traceback.print_exc()
+        warnings.warn("falling back to plain rolling sum")
+
+        rolling = 0
+        for t in range(hist_len):
+            rolling = rolling + ss.eye(len(index), k=-t-1)
+        X = rolling .dot( Y )
 
     # data (observed)
-    gz = (X > 0).values
-    p  = X.apply(lambda x:x/(sum(x) + 1e-20), axis=1).values * (1-EPS_GREEDY) + (EPS_GREEDY / N)
+    X_sum = np.ravel(X.sum(axis=1))
+    X_data = np.hstack([d/(s+1e-20) for s,d in
+                        zip(X_sum, np.split(X.data, X.indptr[1:-1]))])
+    q = ss.csr_matrix((X_data, X.indices, X.indptr), shape=(len(index), N))
 
     # target (unobserved)
-    q  = Y.apply(lambda x:x/(sum(x) + 1e-20), axis=1).values * (1-EPS_GREEDY) + (EPS_GREEDY / N)
+    Y_sum = np.ravel(Y.sum(axis=1))
+    Y_data = np.hstack([d/(s+1e-20) for s,d in
+                        zip(Y_sum, np.split(Y.data, Y.indptr[1:-1]))])
+    p = ss.csr_matrix((Y_data, Y.indices, Y.indptr), shape=(len(index), N))
 
-    if alpha==1:
-        daily_divergence = (p * (np.log(p) - np.log(q))).sum(axis=1)
-    elif alpha==0:
-        Q = np.sum( q * gz, axis=1)
-        daily_divergence = np.log(np.clip(Q, 1e-20, np.inf)) / (alpha-1)
+    if method.lower() in ['kl', 'kl-divergence']:
+        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        log_p = (p * eps_ratio).log1p()
+        log_q = (q * eps_ratio).log1p()
+        temporal_loss = (p .multiply (log_p - log_q)).sum(axis=1)
+        loss_fmt = '{:.2f}'
+
+    elif method.lower() in ['ce', 'cross-entropy']:
+        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        log_q = (q * eps_ratio).log1p()
+        temporal_loss = -((p .multiply (log_q)).sum(axis=1) + np.log(EPS_GREEDY/N))
+        loss_fmt = '{:.2f}'
+
+    elif method.lower() in ['oov', 'out-sample items']:
+        temporal_loss = 1.0 - (p .multiply (q>0)).sum(axis=1)
+        loss_fmt = '{:.1%}'
+
+    elif method.lower() in ['tv', 'total variation']:
+        temporal_loss = 0.5 * abs(q - p).sum(axis=1)
+        loss_fmt = '{:.1%}'
+
     else:
-        daily_divergence = np.log( (p ** alpha / q ** (alpha-1)).sum(axis=1) ) / (alpha-1)
+        raise NotImplementedError
 
+    temporal_loss = pd.Series(np.ravel(temporal_loss), index=index)
+    df_wgt = df.groupby(pd.Grouper(freq=freq)).size().reindex(index, fill_value=0)
 
-    daily_divergence = pd.Series(daily_divergence, index=index)
-    return daily_divergence
+    avg_loss = np.average(temporal_loss.values, weights=df_wgt.values**0.5)
+
+    print('temporal {}, freq={}, hist_len={}, avg_loss={}, time={:.1f}s'.format(
+        method, freq, hist_len, loss_fmt.format(avg_loss), time.time() - tic,
+    ))
+    return temporal_loss, df_wgt, avg_loss, loss_fmt
 
 
 def diagnose_interactions(df):
@@ -122,12 +191,13 @@ def diagnose_interactions(df):
     df = df.copy()
     df['ITEM_ID'] = df['ITEM_ID'].astype(str)
     df['USER_ID'] = df['USER_ID'].astype(str)
+    df.index = df["TIMESTAMP"].values.astype("datetime64[s]")
 
 
     na_rate = df[INTERACTIONS_REQUIRED_FIELDS].isnull().any(axis=1).mean()
     print("missing rate in fields", INTERACTIONS_REQUIRED_FIELDS, na_rate)
     if na_rate > NA_RATE_THRESHOLD:
-        warnings.warn("High data missing rate for required fields!")
+        warnings.warn("High data missing rate for required fields ({:.1%})!".format(na_rate))
     df = df.dropna(subset=INTERACTIONS_REQUIRED_FIELDS)
     print("dropna shape", df.shape)
 
@@ -157,10 +227,6 @@ def diagnose_interactions(df):
     summary = describe_dataframe(df, 'interactions table')
 
 
-    print("\n=== Sequence analysis ===\n")
-    df.index = df["TIMESTAMP"].values.astype("datetime64[s]")
-    df.sort_index(inplace=True)
-
     print("\n=== Hourly activity pattern ===")
     print(df.groupby(df.index.hour).size())
 
@@ -173,13 +239,37 @@ def diagnose_interactions(df):
         "dayofweek": df.index.dayofweek}
 
     for k,v in plot_patterns.items():
-        pl.plot(df.groupby(v).size())
+        pl.plot(df.groupby(v).size(), '.-')
         pl.gcf().autofmt_xdate()
         pl.title("Activity pattern by %s" %k)
         pl.grid()
         pl.show()
 
+
+    print("\n=== Temporal shift analysis ===\n")
+
+    for freq in TEMPORAL_FREQUENCY:
+        for method in ['out-sample items', 'cross-entropy']:
+            for hist_len in ROLLING_HISTORY_LEN:
+                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df, freq, method, hist_len)
+
+                pl.plot(temporal_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.-',
+                        label = 'hist={} * {}, avg={}'.format(hist_len, freq, loss_fmt.format(avg_loss)))
+
+            pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
+
+            pl.title('{} {} from rolling history (lower is better)'.format(freq, method))
+            pl.grid()
+            pl.gcf().autofmt_xdate()
+            pl.legend(loc='upper left')
+            pl.twinx()
+            pl.plot(df_wgt.iloc[-TEMPORAL_PLOT_LIMIT:], color='grey', lw=3, ls='--', alpha=0.5)
+            pl.legend(['event density'], loc='upper right')
+            pl.show()
+
     print("\n=== session time delta describe ===")
+    df.sort_index(inplace=True)
+
     user_time_delta = df.groupby('USER_ID')["TIMESTAMP"].transform(pd.Series.diff).dropna()
     user_time_delta.sort_values(ascending=False, inplace=True)
     print(user_time_delta.describe())
@@ -203,44 +293,19 @@ def diagnose_interactions(df):
     pl.show()
 
 
-    print("\n=== Temporal shift analysis ===\n")
-    daily_count = df.groupby([df.index.date, 'ITEM_ID']).size().unstack().fillna(0)
-    daily_count.index = daily_count.index.astype('datetime64[ns]')
-    date_range  = pd.date_range(daily_count.index.min(), daily_count.index.max())
-    daily_count = daily_count.reindex(date_range, fill_value=0)
+#     date_and_item_size = df.groupby([pd.Grouper(freq='1D'), 'ITEM_ID']).size()
+#     date_and_item_size = date_and_item_size.to_frame(
+#         'size').reset_index('ITEM_ID').sort_values('size', ascending=False)
 
-    for hist_len in [1, 7, 31, 365]:
-        daily_renyi = compute_daily_divergence(daily_count, 0, hist_len)
-        pl.plot(1-np.exp(-daily_renyi),
-                label='history={} days'.format(hist_len))
-    pl.title('Daily percent new items with rolling history')
-    pl.gcf().autofmt_xdate()
-    pl.legend()
-    pl.show()
+#     print("=== number of days when an item stays as daily top-1 ===")
+#     daily_top_1s = date_and_item_size.groupby(level=0).head(
+#         1).groupby('ITEM_ID').size().sort_values(ascending=False)
+#     print(daily_top_1s.head(10))
 
-
-    for hist_len in [1, 7, 31, 365]:
-        daily_renyi = compute_daily_divergence(daily_count, 1, hist_len)
-        pl.plot(daily_renyi,
-                label='history={} days'.format(hist_len))
-    pl.title('Daily KL divergence with rolling history')
-    pl.gcf().autofmt_xdate()
-    pl.legend()
-    pl.show()
-
-
-    date_and_item_size = df.groupby([df.index.date, 'ITEM_ID']).size().to_frame(
-        'size').reset_index('ITEM_ID').sort_values('size', ascending=False)
-
-    print("=== number of days when an item stays as daily top-1 ===")
-    daily_top_1s = date_and_item_size.groupby(level=0).head(
-        1).groupby('ITEM_ID').size().sort_values(ascending=False)
-    print(daily_top_1s.head(10))
-
-    print("=== number of days when an item stays in daily top-5 ===")
-    daily_top_5s = date_and_item_size.groupby(level=0).head(
-        5).groupby('ITEM_ID').size().sort_values(ascending=False)
-    print(daily_top_5s.head(10))
+#     print("=== number of days when an item stays in daily top-5 ===")
+#     daily_top_5s = date_and_item_size.groupby(level=0).head(
+#         5).groupby('ITEM_ID').size().sort_values(ascending=False)
+#     print(daily_top_5s.head(10))
 
 
 def diagnose_users(df, users):
