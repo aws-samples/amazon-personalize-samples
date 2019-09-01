@@ -2,9 +2,12 @@
 
 Notebooks and examples on how to onboard and use various features of Amazon Personalize
 
-## License Summary
+## Getting Started Workshop
 
-This sample code is made available under a modified MIT license. See the LICENSE file.
+Open the `getting_started` folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. The notebooks provided can also serve as a template to building your own models with your own data. 
+
+This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
+
 
 ## Demos of typical usage scenarios.
 
@@ -63,4 +66,6 @@ An important functionality that meta-data, particularly item meta-data, provides
 
 We can see that the cold-start recipe indeed recommends new movies in the same genres that the user prefers. As a baseline and without personalization, new movies would have a lower click rate, which implies larger promotional costs.
 
--
+## License Summary
+
+This sample code is made available under a modified MIT license. See the LICENSE file.
