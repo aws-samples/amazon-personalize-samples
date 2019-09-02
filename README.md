@@ -8,6 +8,8 @@ Open the `getting_started` folder to find a CloudFormation template that will de
 
 This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
 
+If you just want a simple walkthrough to explore later you can execute `personalize_sample_notebook.ipynb`, it works well inside the same Jupyter environments.
+
 
 ## Demos of typical usage scenarios.
 
