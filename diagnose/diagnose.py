@@ -31,6 +31,7 @@ TIMEDELTA_REFERENCES = [
     ('year',3600*24*365)]
 ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
 TEMPORAL_FREQUENCY = ['5d', '1d', '3h']
+TEMPORAL_LOSS_METHODS = ['total variation']
 TEMPORAL_PLOT_LIMIT = 50
 
 
@@ -108,47 +109,6 @@ def _normalize_distribution(X, jitter=1e-20):
         shape=X.shape)
 
 
-def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None, tic=0):
-    """ p:target (unobserved), q:data (observed) """
-
-    N = p.shape[1]
-    p = _normalize_distribution(p)
-    q = _normalize_distribution(q)
-
-    if method.lower() in ['kl', 'kl-divergence']:
-        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
-        log_p = (p * eps_ratio).log1p()
-        log_q = (q * eps_ratio).log1p()
-        temporal_loss = (p .multiply (log_p - log_q)).sum(axis=1)
-        loss_fmt = '{:.2f}'
-
-    elif method.lower() in ['ce', 'cross-entropy']:
-        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
-        log_q = (q * eps_ratio).log1p()
-        temporal_loss = -((p .multiply (log_q)).sum(axis=1) + np.log(EPS_GREEDY/N))
-        loss_fmt = '{:.2f}'
-
-    elif method.lower() in ['oov', 'out-sample items']:
-        temporal_loss = 1.0 - (p .multiply (q>0)).sum(axis=1)
-        loss_fmt = '{:.1%}'
-
-    elif method.lower() in ['tv', 'total variation']:
-        temporal_loss = 0.5 * abs(q - p).sum(axis=1)
-        loss_fmt = '{:.1%}'
-
-    else:
-        raise NotImplementedError
-
-    temporal_loss = pd.Series(np.ravel(temporal_loss), index=index)
-
-    avg_loss = np.average(temporal_loss.values, weights=df_wgt.values)
-
-    print('temporal {}, freq={}, hist_len={}, avg_loss={}, time={:.1f}s'.format(
-        method, freq, hist_len, loss_fmt.format(avg_loss), time.time() - tic,
-    ))
-    return temporal_loss, df_wgt, avg_loss, loss_fmt
-
-
 def compute_bootstrap_loss(df, freq, method):
     tic = time.time()
 
@@ -223,6 +183,47 @@ def compute_temporal_loss(df, freq, method, hist_len):
     return compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq, tic)
 
 
+def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None, tic=0):
+    """ p:target (unobserved), q:data (observed) """
+
+    N = p.shape[1]
+    p = _normalize_distribution(p)
+    q = _normalize_distribution(q)
+
+    if method.lower() in ['kl', 'kl-divergence']:
+        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        log_p = (p * eps_ratio).log1p()
+        log_q = (q * eps_ratio).log1p()
+        temporal_loss = (p .multiply (log_p - log_q)).sum(axis=1)
+        loss_fmt = '{:.2f}'
+
+    elif method.lower() in ['ce', 'cross-entropy']:
+        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        log_q = (q * eps_ratio).log1p()
+        temporal_loss = -((p .multiply (log_q)).sum(axis=1) + np.log(EPS_GREEDY/N))
+        loss_fmt = '{:.2f}'
+
+    elif method.lower() in ['oov', 'out-sample items']:
+        temporal_loss = 1.0 - (p .multiply (q>0)).sum(axis=1)
+        loss_fmt = '{:.1%}'
+
+    elif method.lower() in ['tv', 'total variation']:
+        temporal_loss = 0.5 * abs(q - p).sum(axis=1)
+        loss_fmt = '{:.1%}'
+
+    else:
+        raise NotImplementedError
+
+    temporal_loss = pd.Series(np.ravel(temporal_loss), index=index)
+
+    avg_loss = np.average(temporal_loss.values, weights=df_wgt.values)
+
+    print('temporal {}, freq={}, hist_len={}, avg_loss={}, time={:.1f}s'.format(
+        method, freq, hist_len, loss_fmt.format(avg_loss), time.time() - tic,
+    ))
+    return temporal_loss, df_wgt, avg_loss, loss_fmt
+
+
 def diagnose_interactions(df):
     print("\n=== Interactions table, original shape={} ===\n"
           .format(df.shape))
@@ -287,10 +288,10 @@ def diagnose_interactions(df):
     print("\n=== Temporal shift analysis ===\n")
 
     for freq in TEMPORAL_FREQUENCY:
-        for method in ['out-sample items', 'total variation']:
+        for method in TEMPORAL_LOSS_METHODS:
             bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df, freq, method)
             pl.plot(bootstrap_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.--',
-                        label = 'boostrap, avg={}'.format(loss_fmt.format(avg_loss)))
+                        label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
 
             for hist_len in ROLLING_HISTORY_LEN:
                 temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df, freq, method, hist_len)
@@ -300,7 +301,7 @@ def diagnose_interactions(df):
 
             pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
 
-            pl.title('{} {} from rolling history (lower than bootstrap is better)'.format(freq, method))
+            pl.title('{} {} from rolling history (lower is better)'.format(freq, method))
             pl.grid()
             pl.gcf().autofmt_xdate()
             pl.legend(loc='upper left')
