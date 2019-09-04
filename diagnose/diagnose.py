@@ -152,9 +152,8 @@ def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None,
 def compute_bootstrap_loss(df, freq, method):
     tic = time.time()
 
-    df = df.join(
-        df.groupby('USER_ID').apply(lambda x:np.random.rand()<0.5).to_frame('_bs'),
-        on='USER_ID')
+    df = df.copy()
+    df['_bs'] = np.random.rand(len(df))<0.5
 
     df_cnt = df.groupby(['_bs', pd.Grouper(freq=freq), 'ITEM_ID']).size()
     df_cnt = df_cnt.to_frame('_cnt').reset_index(level=(0,2))
@@ -301,7 +300,7 @@ def diagnose_interactions(df):
 
             pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
 
-            pl.title('{} {} from rolling history (lower is better)'.format(freq, method))
+            pl.title('{} {} from rolling history (lower than bootstrap is better)'.format(freq, method))
             pl.grid()
             pl.gcf().autofmt_xdate()
             pl.legend(loc='upper left')
