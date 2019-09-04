@@ -30,7 +30,8 @@ TIMEDELTA_REFERENCES = [
     ('week',3600*24*7), ('month',3600*24*31),
     ('year',3600*24*365)]
 ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
-TEMPORAL_FREQUENCY = ['1d', '3h']
+TEMPORAL_FREQUENCY = ['5d', '1d', '3h']
+TEMPORAL_LOSS_METHODS = ['total variation']
 TEMPORAL_PLOT_LIMIT = 50
 
 
@@ -96,6 +97,46 @@ def describe_dataframe(df, name=''):
     return summary
 
 
+def _normalize_distribution(X, jitter=1e-20):
+    sums = np.ravel(X.sum(axis=1))
+    rows = np.split(X.data, X.indptr[1:-1])
+    X_data = np.hstack([
+        x/(s+jitter) for s,x in
+        zip(sums, rows)
+    ])
+    return ss.csr_matrix(
+        (X_data, X.indices, X.indptr),
+        shape=X.shape)
+
+
+def compute_bootstrap_loss(df, freq, method):
+    tic = time.time()
+
+    df = df.copy()
+    df['_bs'] = np.random.rand(len(df))<0.5
+
+    df_cnt = df.groupby(['_bs', pd.Grouper(freq=freq), 'ITEM_ID']).size()
+    df_cnt = df_cnt.to_frame('_cnt').reset_index(level=(0,2))
+
+    index = pd.date_range(
+        df_cnt.index.min(),
+        df_cnt.index.max(),
+        freq=freq)
+    df_wgt = df.groupby(pd.Grouper(freq=freq)).size().reindex(index, fill_value=0)
+
+    df_cnt['_i'] = np.searchsorted(index, df_cnt.index)
+    df_cnt['_j'] = df_cnt['ITEM_ID'].astype('category').cat.codes
+    N = len(df_cnt['ITEM_ID'].unique())
+
+    Y, X = [ss.coo_matrix((
+        df_cnt[df_cnt['_bs'] == split]['_cnt'],
+        (df_cnt[df_cnt['_bs'] == split]['_i'],
+         df_cnt[df_cnt['_bs'] == split]['_j'])
+    ), shape=(len(index), N)).tocsr() for split in [0, 1]]
+
+    return compute_distribution_shift(index, df_wgt, Y, X, method, 0, freq, tic)
+
+
 def compute_temporal_loss(df, freq, method, hist_len):
     tic = time.time()
 
@@ -106,15 +147,16 @@ def compute_temporal_loss(df, freq, method, hist_len):
         df_cnt.index.min(),
         df_cnt.index.max(),
         freq=freq)
+    df_wgt = df.groupby(pd.Grouper(freq=freq)).size().reindex(index, fill_value=0)
 
     df_cnt['_i'] = np.searchsorted(index, df_cnt.index)
     df_cnt['_j'] = df_cnt['ITEM_ID'].astype('category').cat.codes
+    N = len(df_cnt['ITEM_ID'].unique())
 
     # sparse data
     Y = ss.coo_matrix((
         df_cnt['_cnt'], (df_cnt['_i'], df_cnt['_j'])
-    )).tocsr()
-    N = Y.shape[1]
+    ), shape=(len(index), N)).tocsr()
 
     try: # binary rolling sum
         B = Y
@@ -138,17 +180,15 @@ def compute_temporal_loss(df, freq, method, hist_len):
             rolling = rolling + ss.eye(len(index), k=-t-1)
         X = rolling .dot( Y )
 
-    # data (observed)
-    X_sum = np.ravel(X.sum(axis=1))
-    X_data = np.hstack([d/(s+1e-20) for s,d in
-                        zip(X_sum, np.split(X.data, X.indptr[1:-1]))])
-    q = ss.csr_matrix((X_data, X.indices, X.indptr), shape=(len(index), N))
+    return compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq, tic)
 
-    # target (unobserved)
-    Y_sum = np.ravel(Y.sum(axis=1))
-    Y_data = np.hstack([d/(s+1e-20) for s,d in
-                        zip(Y_sum, np.split(Y.data, Y.indptr[1:-1]))])
-    p = ss.csr_matrix((Y_data, Y.indices, Y.indptr), shape=(len(index), N))
+
+def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None, tic=0):
+    """ p:target (unobserved), q:data (observed) """
+
+    N = p.shape[1]
+    p = _normalize_distribution(p)
+    q = _normalize_distribution(q)
 
     if method.lower() in ['kl', 'kl-divergence']:
         eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
@@ -175,9 +215,8 @@ def compute_temporal_loss(df, freq, method, hist_len):
         raise NotImplementedError
 
     temporal_loss = pd.Series(np.ravel(temporal_loss), index=index)
-    df_wgt = df.groupby(pd.Grouper(freq=freq)).size().reindex(index, fill_value=0)
 
-    avg_loss = np.average(temporal_loss.values, weights=df_wgt.values**0.5)
+    avg_loss = np.average(temporal_loss.values, weights=df_wgt.values)
 
     print('temporal {}, freq={}, hist_len={}, avg_loss={}, time={:.1f}s'.format(
         method, freq, hist_len, loss_fmt.format(avg_loss), time.time() - tic,
@@ -249,7 +288,11 @@ def diagnose_interactions(df):
     print("\n=== Temporal shift analysis ===\n")
 
     for freq in TEMPORAL_FREQUENCY:
-        for method in ['out-sample items', 'cross-entropy']:
+        for method in TEMPORAL_LOSS_METHODS:
+            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df, freq, method)
+            pl.plot(bootstrap_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.--',
+                        label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
+
             for hist_len in ROLLING_HISTORY_LEN:
                 temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df, freq, method, hist_len)
 
@@ -264,7 +307,7 @@ def diagnose_interactions(df):
             pl.legend(loc='upper left')
             pl.twinx()
             pl.plot(df_wgt.iloc[-TEMPORAL_PLOT_LIMIT:], color='grey', lw=3, ls='--', alpha=0.5)
-            pl.legend(['event density'], loc='upper right')
+            pl.legend(['activity density'], loc='upper right')
             pl.show()
 
     print("\n=== session time delta describe ===")
@@ -281,7 +324,7 @@ def diagnose_interactions(df):
     pl.show()
 
 
-    user_time_span = df.groupby('USER_ID')["TIMESTAMP"].apply(np.ptp)
+    user_time_span = df.groupby('USER_ID')["TIMESTAMP"].apply(lambda x:max(x)-min(x))
     user_time_span.sort_values(ascending=False, inplace=True)
     print("=== user time span describe ===")
     print(user_time_span.describe())
