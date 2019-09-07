@@ -63,6 +63,9 @@ It serves as a baseline, higher than which indicates statistically-significant b
 The other curves show the prediction losses with rolling histories up to lag-X.
 The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
 
+For customers with large amount of TV loss, please also consider the [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb) 
+
+
 session time delta describe
 ---
 
