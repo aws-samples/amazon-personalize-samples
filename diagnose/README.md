@@ -3,7 +3,7 @@ Diagnostic / data visualization tools
 Please use [diagnose.py](diagnose.py) to probe the dataset for any obvious issues such as missing data or item features.
 Some examples about how to use diagnose.py are provided in [example_ml_100k.ipynb](example_ml_100k.ipynb), [example_ml_1m.ipynb](example_ml_1m.ipynb), [example_ml_20m.ipynb](example_ml_20m.ipynb).
 
-We explain some examples outputs from the interactions table. The tool also examines users and items tables in similar manners.
+We explain some example outputs from the interactions table. The tool also examines users and items tables in similar manners.
 
 Interactions table, original shape=(20000263, 4)
 ---
@@ -62,6 +62,8 @@ The dashed blue line suggests a bootstrap TV loss, where the training and testin
 It serves as a baseline, higher than which indicates statistically-significant benefits to retrain every X periods of time.
 The other curves show the prediction losses with rolling histories up to lag-X.
 The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
+
+In the example, the minimal retraining frequency is every 500 days (movielens is a rather static dataset) and the optimal history retention is from the last 50 days. However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
 
 For customers with large amount of TV loss, please also consider the [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb) 
 
