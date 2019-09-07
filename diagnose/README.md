@@ -8,14 +8,14 @@ We explain some examples outputs from the interactions table. The tool also exam
 Interactions table, original shape=(20000263, 4)
 ---
 
-First, we check for missing data and duplications in the interactions table. We expect large number of interactions and insignificant (<10%) missing data in all fields.
+First, we check for missing data and duplications in the interactions table. We expect large number of interactions and insignificant (<10%) missing data in all fields. Duplications in all of (USER_ID, ITEM_ID, TIMESTAMP) are dropped by the system.
 ```
 missing rate in fields ['USER_ID', 'ITEM_ID', 'TIMESTAMP'] 0.0
 dropna shape (20000263, 4)
 duplication rate 0.0
 drop_duplicates shape (20000263, 4)
 ```
-We also check for repeated user-item activities throughout user histories. High repeat rates (>50%) usually indicate long user histories and it may be beneficial to consider either retaining last items (dropping all others) or use hierarchical models (TODO).
+We also check for repeated user-item activities throughout user histories. High repeat rates (>50%) usually indicate long user histories and it may be beneficial to consider either retaining only the last interactions (dropping all others) or using hierarchical models (TODO).
 ```
 user item repeat rate 0.0
 ```
@@ -71,7 +71,7 @@ We use time-delta to decide the begin-of-session (BoS) signals.
 Our [research work](https://openreview.net/forum?id=ByzxsrrkJ4) shows that these signals significantly improve recommendation quality.
 The following plot shows the power-law distribution of the time-deltas between all pairs of adjacent activities.
 
-![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
+![time-delta.png](imgs/time-delta.png "Example time-delta plot.")
 
 From the plot, we may read that less than 10% of all time-deltas have more than 1-minute intervals and less than 1% have more than 1-month intervals.
 If we set a session threshold at 1-minute, we are left with 10% of BoS signals at the inter-session level.
