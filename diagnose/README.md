@@ -71,7 +71,7 @@ session time delta describe
 
 For users with long histories, it is often useful to group user histories into short sessions, within each of which the users tend to keep similar interests.
 We use time-delta to decide the begin-of-session (BoS) signals.
-Our [research paper](https://openreview.net/forum?id=ByzxsrrkJ4) shows that these signals significantly improve recommendation quality.
+Our research paper [1] shows that these signals significantly improve recommendation quality.
 The following plot shows the power-law distribution of the time-deltas between all pairs of adjacent activities.
 
 ![time-delta.png](imgs/time-delta.png "Example time-delta plot.")
@@ -82,3 +82,6 @@ Combining with USER_ID power-law plot, this indicates that users have an average
 
 As a side note, the movielens dataset has an rather short session threshold because it is from a movie survey website.
 Other types of datasets usually have larger and more spread-out BoS thresholds, where we may additional define multiple session hierarchies.
+
+#### References
+[1] Yifei Ma, Balakrishnan (Murali) Narayanaswamy. Hierarchical Temporal-Contextual Recommenders. NIPS 2018 Workshop on Modeling and Decision-Making in Spatiotemporal Domains. [link](https://openreview.net/forum?id=ByzxsrrkJ4)
