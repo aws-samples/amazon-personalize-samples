@@ -58,8 +58,8 @@ The analysis computes weighted averages by the activity density but only present
 
 ![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
 
-The dashed blue line suggests a bootstrap TV loss, where the training and testing data are a random split of the same "future" period without temporal lags.
-It serves as a baseline, higher than which indicates statistically-significant benefits to retrain every X periods of time.
+The dashed blue curve suggests a bootstrap TV loss, where the training and testing data are a random split of the same "future" period without temporal lags.
+It serves as a baseline, lower than which indicates statistically-significant benefits by frequent retraining.
 The other curves show the prediction losses with rolling histories up to lag-X.
 The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
 
