@@ -83,7 +83,7 @@ If we set a session threshold at 1-minute, we are left with 10% of BoS signals a
 Combining with USER_ID power-law plot, this indicates that users have an average of 10 sessions throughput their activity histories.
 
 As a side note, the movielens dataset has an rather short session threshold because it is from a movie survey website.
-Other types of datasets usually have larger and more spread-out BoS thresholds, where we may additional define multiple session hierarchies.
+Other types of datasets usually have larger and more spread-out BoS thresholds, where we may additional define multiple session hierarchies (TODO).
 
 #### References
 [1] Yifei Ma, Balakrishnan (Murali) Narayanaswamy. Hierarchical Temporal-Contextual Recommenders. NIPS 2018 Workshop on Modeling and Decision-Making in Spatiotemporal Domains. [link](https://openreview.net/forum?id=ByzxsrrkJ4)
