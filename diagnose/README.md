@@ -65,7 +65,7 @@ The optimal configuration should be set as the hard threshold of historical data
 
 In the example, the minimal retraining frequency is every 500 days (movielens is a rather static dataset) and the optimal history retention is from the last 50 days. However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
 
-For customers with large amount of TV loss, please also consider the [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb) 
+For customers with large amounts of TV loss, please also consider a [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
 
 
 session time delta describe
