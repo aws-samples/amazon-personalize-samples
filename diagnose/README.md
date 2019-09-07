@@ -76,5 +76,6 @@ The following plot shows the power-law distribution of the time-deltas between a
 From the plot, we may read that less than 10% of all time-deltas have more than 1-minute intervals and less than 1% have more than 1-month intervals.
 If we set a session threshold at 1-minute, we are left with 10% of BoS signals at the inter-session level.
 Combining with USER_ID power-law plot, this indicates that users have an average of 10 sessions throughput their activity histories.
+
 As a side note, the movielens dataset has an rather short session threshold because it is from a movie survey website.
 Other types of datasets usually have larger and more spread-out BoS thresholds, where we may additional define multiple session hierarchies.
