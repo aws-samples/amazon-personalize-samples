@@ -71,7 +71,7 @@ session time delta describe
 
 For users with long histories, it is often useful to group user histories into short sessions, within each of which the users tend to keep similar interests.
 We use time-delta to decide the begin-of-session (BoS) signals.
-Our [research work](https://openreview.net/forum?id=ByzxsrrkJ4) shows that these signals significantly improve recommendation quality.
+Our [research paper](https://openreview.net/forum?id=ByzxsrrkJ4) shows that these signals significantly improve recommendation quality.
 The following plot shows the power-law distribution of the time-deltas between all pairs of adjacent activities.
 
 ![time-delta.png](imgs/time-delta.png "Example time-delta plot.")
