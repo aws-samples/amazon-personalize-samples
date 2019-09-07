@@ -1,11 +1,12 @@
 Diagnostic / data visualization tools
----
+===
 Please use [diagnose.py](diagnose.py) to probe the dataset for any obvious issues such as missing data or item features.
 Some examples about how to use diagnose.py are provided in [example_ml_100k.ipynb](example_ml_100k.ipynb), [example_ml_1m.ipynb](example_ml_1m.ipynb), [example_ml_20m.ipynb](example_ml_20m.ipynb).
 
-We explain the example outputs in the following.
+We explain some examples outputs from the interactions table. The tool also examines users and items tables in similar manners.
 
-=== Interactions table, original shape=(20000263, 4) ===
+Interactions table, original shape=(20000263, 4)
+---
 
 First, we check for missing data and duplications in the interactions table. We expect large number of interactions and insignificant (<10%) missing data in all fields.
 ```
@@ -19,7 +20,8 @@ We also check for repeated user-item activities throughout user histories. High 
 user item repeat rate 0.0
 ```
 
-=== Describe interactions table ===
+Describe interactions table
+---
 
 For every data column, we report a description of the key statistics.
 For numerical variables, sufficient diversity/independence is usually a good sign that the variable may be a cause factor that we can utilize in the model, rather than an effect factor that is less informative of our learning tasks.
@@ -45,7 +47,8 @@ All of these corrections through personalization can work up to a limit.
 We post warning guidelines to indicate a very general estimate of the limits of modeling capability.
 They could be wrong in a specific use case. Please use with caution.
 
-=== Temporal shift analysis ===
+Temporal shift analysis
+---
 
 Recommendation happens in a dynamic world where new content is rapidly created and old content outdated.
 This creates two challenges: the recommender must frequently be retrained with new information and it must hard-threshold or reweigh old examples with recency_mask.
@@ -60,7 +63,8 @@ It serves as a baseline, higher than which indicates statistically-significant b
 The other curves show the prediction losses with rolling histories up to lag-X.
 The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
 
-=== session time delta describe ===
+session time delta describe
+---
 
 For users with long histories, it is often useful to group user histories into short sessions, within each of which the users tend to keep similar interests.
 We use time-delta to decide the begin-of-session (BoS) signals.
