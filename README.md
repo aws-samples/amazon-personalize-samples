@@ -13,6 +13,8 @@ If you just want a simple walkthrough to explore later you can execute `personal
 
 ## Demos of typical usage scenarios.
 
+You may want to explore how to leverage Lambda to push events to Amazon Personalize, a simple example is inside the `lambda_examples` folder.
+
 Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
 
 1. [Offline evaluation with 'hrnn' user-based recommendation.](#hrnn)
