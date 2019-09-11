@@ -13,19 +13,15 @@ If you just want a simple walkthrough to explore later you can execute [personal
 
 ## Demos and Ablation Studies with Temporal Holdout Evaluation
 
-The following codes are accessible in the folder
-[personalize_temporal_holdout/](personalize_temporal_holdout/)
+Open the [personalize_temporal_holdout/](personalize_temporal_holdout/) folder to see detailed descriptions of the following typical use cases.
 
-Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
-
-1. [Offline evaluation with 'hrnn' user-based recommendation.](personalize_temporal_holdout/personalize_temporal_holdout.ipynb)
-2. [Example of 'sims' item-based recommendation.](personalize_temporal_holdout/personalize_sims_smell_tests.ipynb)
-3. [How recommendation changes after 'put_events'.](personalize_temporal_holdout/personalize_putEvents_demo.ipynb)
-
-Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
-
-1. [How to use user, item, and event 'meta-data'.](personalize_temporal_holdout/personalize_metadata_example.ipynb)
-2. [Exploring 'cold-start' or 'future' items.](personalize_temporal_holdout/personalize_coldstart_demo.ipynb)
+* Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
+  - [Offline evaluation with 'hrnn' user-based recommendation.](personalize_temporal_holdout/personalize_temporal_holdout.ipynb)
+  - [Example of 'sims' item-based recommendation.](personalize_temporal_holdout/personalize_sims_smell_tests.ipynb)
+  - [How recommendation changes after 'put_events'.](personalize_temporal_holdout/personalize_putEvents_demo.ipynb)
+* Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
+  - [How to use user, item, and event 'meta-data'.](personalize_temporal_holdout/personalize_metadata_example.ipynb)
+  - [Exploring 'cold-start' or 'future' items.](personalize_temporal_holdout/personalize_coldstart_demo.ipynb)
 
 ## Diagnostic / Data Visualizatoin Tools
 
