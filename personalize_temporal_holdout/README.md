@@ -1,4 +1,5 @@
-## Demos of typical usage scenarios.
+Demos and Ablation Studies with Temporal Holdout Evaluation
+---
 
 Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
 
@@ -54,7 +55,3 @@ This [personalize_coldstart_demo.ipynb](personalize_coldstart_demo.ipynb) shows 
 4. Compute metrics on the held out items in the testing data split; these items never show up in the training split.
 
 We can see that the cold-start recipe indeed recommends new movies in the same genres that the user prefers. As a baseline and without personalization, new movies would have a lower click rate, which implies larger promotional costs.
-
-## License Summary
-
-This sample code is made available under a modified MIT license. See the LICENSE file.
