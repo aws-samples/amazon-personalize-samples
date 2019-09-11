@@ -18,22 +18,23 @@ The following codes are accessible in the folder
 
 Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
 
-1. Offline evaluation with 'hrnn' user-based recommendation.
-2. Example of 'sims' item-based recommendation.
-3. How recommendation changes after 'put_events'.
+1. [Offline evaluation with 'hrnn' user-based recommendation.](personalize_temporal_holdout/personalize_temporal_holdout.ipynb)
+2. [Example of 'sims' item-based recommendation.](personalize_temporal_holdout/personalize_sims_smell_tests.ipynb)
+3. [How recommendation changes after 'put_events'.](personalize_temporal_holdout/personalize_putEvents_demo.ipynb)
 
 Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
 
-1. How to use user, item, and event 'meta-data'.
-2. Exploring 'cold-start' or 'future' items.
+1. [How to use user, item, and event 'meta-data'.](personalize_temporal_holdout/personalize_metadata_example.ipynb)
+2. [Exploring 'cold-start' or 'future' items.](personalize_temporal_holdout/personalize_coldstart_demo.ipynb)
 
 ## Diagnostic / Data Visualizatoin Tools
 
-The key components to diagnose include: missing data, duplications, and repeated
-events; power-law distribution of categorical fields; temporal drift analysis
-for cold-start applicability; and an analysis for session-based hierarchical
-models. The details are available in the folder [diagnose/](diagnose/).
-
+Open the [diagnose/](diagnose/) folder to have a visualization of the key properties of your input datasets.
+The key components we look out for include:
+missing data, duplicated events, and repeated item consumptions;
+power-law distribution of categorical fields;
+temporal drift analysis for cold-start applicability;
+and an analysis on user-session distribution.
 
 ## License Summary
 
