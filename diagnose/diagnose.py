@@ -160,8 +160,9 @@ def compute_temporal_loss(df, freq, method, hist_len):
 
     try: # binary rolling sum
         B = Y
-        X = 0
         c = 1
+        X = Y*0
+        X.eliminate_zeros()
         for p,b in enumerate(reversed('{0:b}'.format(hist_len))):
             if b == '1' and c < len(index):
                 X = X + ss.vstack([ss.csr_matrix((c, N)), B[:-c]])
@@ -287,14 +288,17 @@ def diagnose_interactions(df):
 
     print("\n=== Temporal shift analysis ===\n")
 
+    df.sort_index(inplace=True, kind='mergesort')
+    df_shift = df.drop_duplicates(['USER_ID','ITEM_ID'], keep='last')
+
     for freq in TEMPORAL_FREQUENCY:
         for method in TEMPORAL_LOSS_METHODS:
-            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df, freq, method)
+            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df_shift, freq, method)
             pl.plot(bootstrap_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.--',
                         label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
 
             for hist_len in ROLLING_HISTORY_LEN:
-                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df, freq, method, hist_len)
+                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df_shift, freq, method, hist_len)
 
                 pl.plot(temporal_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.-',
                         label = 'hist={} * {}, avg={}'.format(hist_len, freq, loss_fmt.format(avg_loss)))
@@ -311,7 +315,6 @@ def diagnose_interactions(df):
             pl.show()
 
     print("\n=== session time delta describe ===")
-    df.sort_index(inplace=True)
 
     user_time_delta = df.groupby('USER_ID')["TIMESTAMP"].transform(pd.Series.diff).dropna()
     user_time_delta.sort_values(ascending=False, inplace=True)
