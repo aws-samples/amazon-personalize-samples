@@ -31,7 +31,7 @@ TIMEDELTA_REFERENCES = [
     ('year',3600*24*365)]
 ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
 TEMPORAL_FREQUENCY = ['5d', '1d', '3h']
-TEMPORAL_LOSS_METHODS = ['total variation']
+TEMPORAL_LOSS_METHODS = ['total variation', 'out-sample items']
 TEMPORAL_PLOT_LIMIT = 50
 
 
