@@ -210,7 +210,7 @@ def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None,
         loss_fmt = '{:.1%}'
 
     elif method.lower() in ['tv', 'total variation']:
-        temporal_loss = 0.5 * abs(q - p).sum(axis=1)
+        temporal_loss = (p-q).multiply(p>q).sum(axis=1)
         loss_fmt = '{:.1%}'
 
     else:
