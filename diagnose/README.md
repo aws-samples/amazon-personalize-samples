@@ -69,7 +69,7 @@ However, the Personalize solutions already have built-in recency_mask and, when 
 ![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
 
 The primary loss we consider is Total Variation (TV) loss, though we also include percentage of traffic loss due to out-sample items, which partially explains large TV loss.
-For customers with large amounts of TV loss, please consider our [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
+For customers with large loss due to out-sample items, please consider our [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
 
 
 session time delta describe
