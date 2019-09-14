@@ -35,13 +35,13 @@ A straight line in the log-log plot implies that a relative change in the thresh
 We fit the proportion coefficient, in this case, -2.48, and the root mean square error (rmse) for goodness of fit in the log-log space.
 The coefficient must be negative.
 
-    A large-magnitude coefficient (<-2) indicates that the distribution is head-heavy, i.e., activities are skewed towards very few categories.
-    In this case, we should pay attention to the coverage of the categories. For example, the ITEM_ID count may be skewed toward a few categories when the existing system has a non-personalized layout and the top few are often clicked due to positional bias.
-    Including the positional contexts in the models may diversify the results, leading to better personalization.
+   A large-magnitude coefficient (<-2) indicates that the distribution is head-heavy, i.e., activities are skewed towards very few categories.
+   In this case, we should pay attention to the coverage of the categories. For example, the ITEM_ID count may be skewed toward a few categories when the existing system has a non-personalized layout and the top few are often clicked due to positional bias.
+   Including the positional contexts in the models may diversify the results, leading to better personalization.
 
-    A small-magnitude coefficient (>-0.5) implies a heavy-tail distribution, i.e., the counts are rather uniform.
-    A uniform ITEM_ID distribution may still be a good case, because it is not considering the correlation between activities.
-    We may expect that through user/item-based recommendation, the past item(s) may narrow down the number of ITEM_IDs to recommend in the future.
+   A small-magnitude coefficient (>-0.5) implies a heavy-tail distribution, i.e., the counts are rather uniform.
+   A uniform ITEM_ID distribution may still be a good case, because it is not considering the correlation between activities.
+   We may expect that through user/item-based recommendation, the past item(s) may narrow down the number of ITEM_IDs to recommend in the future.
 
 All of these corrections through personalization can work up to a limit.
 We post warning guidelines to indicate a very general estimate of the limits of modeling capability.
@@ -68,7 +68,7 @@ However, the Personalize solutions already have built-in recency_mask and, when 
 
 ![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
 
-The primary loss we consider is Total Variation (TV) loss, though we also include percentage of traffic loss due to out-sample items, which explains part of the TV loss.
+The primary loss we consider is Total Variation (TV) loss, though we also include percentage of traffic loss due to out-sample items, which partially explains large TV loss.
 For customers with large amounts of TV loss, please consider our [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
 
 
