@@ -35,13 +35,13 @@ A straight line in the log-log plot implies that a relative change in the thresh
 We fit the proportion coefficient, in this case, -2.48, and the root mean square error (rmse) for goodness of fit in the log-log space.
 The coefficient must be negative.
 
-   A large-magnitude coefficient (<-2) indicates that the distribution is head-heavy, i.e., activities are skewed towards very few categories.
-   In this case, we should pay attention to the coverage of the categories. For example, the ITEM_ID count may be skewed toward a few categories when the existing system has a non-personalized layout and the top few are often clicked due to positional bias.
-   Including the positional contexts in the models may diversify the results, leading to better personalization.
+    A large-magnitude coefficient (<-2) indicates that the distribution is head-heavy, i.e., activities are skewed towards very few categories.
+    In this case, we should pay attention to the coverage of the categories. For example, the ITEM_ID count may be skewed toward a few categories when the existing system has a non-personalized layout and the top few are often clicked due to positional bias.
+    Including the positional contexts in the models may diversify the results, leading to better personalization.
 
-   A small-magnitude coefficient (>-0.5) implies a heavy-tail distribution, i.e., the counts are rather uniform.
-   A uniform ITEM_ID distribution may still be a good case, because it is not considering the correlation between activities.
-   We may expect that through user/item-based recommendation, the past item(s) may narrow down the number of ITEM_IDs to recommend in the future.
+    A small-magnitude coefficient (>-0.5) implies a heavy-tail distribution, i.e., the counts are rather uniform.
+    A uniform ITEM_ID distribution may still be a good case, because it is not considering the correlation between activities.
+    We may expect that through user/item-based recommendation, the past item(s) may narrow down the number of ITEM_IDs to recommend in the future.
 
 All of these corrections through personalization can work up to a limit.
 We post warning guidelines to indicate a very general estimate of the limits of modeling capability.
@@ -52,20 +52,24 @@ Temporal shift analysis
 
 Recommendation happens in a dynamic world where new content is rapidly created and old content outdated.
 This creates two challenges: the recommender must frequently be retrained with new information and it must hard-threshold or reweigh old examples with recency_mask.
-The following temporal shift analysis aims to predict the marginal item distribution in the next periods of time using rolling history of past X periods.
-The prediction error is measured by Total-Variation (TV) loss between the predicted distributions and the true distributions.
+
+The following retrain frequency analysis aims to predict the marginal item popularity distribution in each period of time using bootstrap popularity from the same period and popularity from the last period, respectively.
+Every data point is the weighted average over all periods at the specified frequency.
+When the lagged popularity causes significantly larger loss than the same-period bootstrap, a retraining should happen.
+In this plot, the optimal retrain frequency is at least once every month (movielens is a survey dataset so the content is slow-moving).
+
+![retrain-freq.png](imgs/retrain-freq.png "Retrain frequency plot")
+
+Similarly, the following temporal shift analysis aims to predict the marginal item distribution in the next periods of time using rolling history of past X periods.
 The analysis computes weighted averages by the activity density but only presents the last 100 points for clarity.
+The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
+In the example, the optimal history retention is from the last 50 days.
+However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
 
 ![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
 
-The dashed blue curve suggests a bootstrap TV loss, where the training and testing data are a random split of the same "future" period without temporal lags.
-It serves as a baseline, lower than which indicates statistically-significant benefits by frequent retraining.
-The other curves show the prediction losses with rolling histories up to lag-X.
-The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
-
-In the example, the minimal retraining frequency is every 500 days (movielens is a rather static dataset) and the optimal history retention is from the last 50 days. However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
-
-For customers with large amounts of TV loss, please also consider a [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
+The primary loss we consider is Total Variation (TV) loss, though we also include percentage of traffic loss due to out-sample items, which explains part of the TV loss.
+For customers with large amounts of TV loss, please consider our [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
 
 
 session time delta describe
