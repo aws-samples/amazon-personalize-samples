@@ -30,8 +30,9 @@ TIMEDELTA_REFERENCES = [
     ('week',3600*24*7), ('month',3600*24*31),
     ('year',3600*24*365)]
 ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
-TEMPORAL_FREQUENCY = ['5d', '1d', '3h']
-TEMPORAL_LOSS_METHODS = ['total variation']
+RETRAIN_FREQUENCY = ['1y','1q','1m','5d','1d','6h']
+TEMPORAL_FREQUENCY = ['5d', '1d', '6h']
+TEMPORAL_LOSS_METHODS = ['total variation', 'out-sample items']
 TEMPORAL_PLOT_LIMIT = 50
 
 
@@ -160,8 +161,9 @@ def compute_temporal_loss(df, freq, method, hist_len):
 
     try: # binary rolling sum
         B = Y
-        X = 0
         c = 1
+        X = Y*0
+        X.eliminate_zeros()
         for p,b in enumerate(reversed('{0:b}'.format(hist_len))):
             if b == '1' and c < len(index):
                 X = X + ss.vstack([ss.csr_matrix((c, N)), B[:-c]])
@@ -183,12 +185,12 @@ def compute_temporal_loss(df, freq, method, hist_len):
     return compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq, tic)
 
 
-def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None, tic=0):
-    """ p:target (unobserved), q:data (observed) """
+def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None, tic=0):
+    """ Y:target (unobserved), X:data (observed) """
 
-    N = p.shape[1]
-    p = _normalize_distribution(p)
-    q = _normalize_distribution(q)
+    N = Y.shape[1]
+    p = _normalize_distribution(Y)
+    q = _normalize_distribution(X)
 
     if method.lower() in ['kl', 'kl-divergence']:
         eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
@@ -208,7 +210,7 @@ def compute_distribution_shift(index, df_wgt, p, q, method, hist_len, freq=None,
         loss_fmt = '{:.1%}'
 
     elif method.lower() in ['tv', 'total variation']:
-        temporal_loss = 0.5 * abs(q - p).sum(axis=1)
+        temporal_loss = (p-q).multiply(p>q).sum(axis=1)
         loss_fmt = '{:.1%}'
 
     else:
@@ -286,15 +288,40 @@ def diagnose_interactions(df):
 
 
     print("\n=== Temporal shift analysis ===\n")
+    print("Sorting and removing repeated user-items for temporal shift analysis...")
+    df.sort_index(inplace=True, kind='mergesort')
+    df_dedup = df.drop_duplicates(['USER_ID','ITEM_ID'], keep='last')
 
-    for freq in TEMPORAL_FREQUENCY:
-        for method in TEMPORAL_LOSS_METHODS:
-            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df, freq, method)
+    print("\n=== Temporal shift - retrain frequency ===\n")
+
+    for method in TEMPORAL_LOSS_METHODS:
+        bootstrap_avg = []
+        past_fut_avg  = []
+        for freq in RETRAIN_FREQUENCY:
+            _, _, _bs_avg, loss_fmt = compute_bootstrap_loss(df_dedup, freq, method)
+            _, _, _ts_avg, loss_fmt = compute_temporal_loss(df_dedup, freq, method, 1)
+            bootstrap_avg.append(_bs_avg)
+            past_fut_avg.append(_ts_avg)
+        pl.plot(RETRAIN_FREQUENCY, bootstrap_avg, '.--', label='same-period bootstrap')
+        pl.plot(RETRAIN_FREQUENCY, past_fut_avg, '.-', label='lagged popularity')
+        pl.legend()
+        pl.xlabel('retrain frequency')
+        pl.title(method + ' loss at different frequencies')
+        pl.grid()
+        pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
+        pl.show()
+
+
+    print("\n=== Temporal shift - history cutoffs ===\n")
+
+    for method in TEMPORAL_LOSS_METHODS:
+        for freq in TEMPORAL_FREQUENCY:
+            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df_dedup, freq, method)
             pl.plot(bootstrap_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.--',
                         label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
 
             for hist_len in ROLLING_HISTORY_LEN:
-                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df, freq, method, hist_len)
+                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df_dedup, freq, method, hist_len)
 
                 pl.plot(temporal_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.-',
                         label = 'hist={} * {}, avg={}'.format(hist_len, freq, loss_fmt.format(avg_loss)))
@@ -311,7 +338,6 @@ def diagnose_interactions(df):
             pl.show()
 
     print("\n=== session time delta describe ===")
-    df.sort_index(inplace=True)
 
     user_time_delta = df.groupby('USER_ID')["TIMESTAMP"].transform(pd.Series.diff).dropna()
     user_time_delta.sort_values(ascending=False, inplace=True)

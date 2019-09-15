@@ -52,20 +52,24 @@ Temporal shift analysis
 
 Recommendation happens in a dynamic world where new content is rapidly created and old content outdated.
 This creates two challenges: the recommender must frequently be retrained with new information and it must hard-threshold or reweigh old examples with recency_mask.
-The following temporal shift analysis aims to predict the marginal item distribution in the next periods of time using rolling history of past X periods.
-The prediction error is measured by Total-Variation (TV) loss between the predicted distributions and the true distributions.
+
+The following retrain frequency analysis aims to predict the marginal item popularity distribution in each period of time using bootstrap popularity from the same period and popularity from the last period, respectively.
+Every data point is the weighted average over all periods at the specified frequency.
+When the lagged popularity causes significantly larger loss than the same-period bootstrap, a retraining should happen.
+In this plot, the optimal retrain frequency is at least once every month (movielens is a survey dataset so the content is slow-moving).
+
+![retrain-freq.png](imgs/retrain-freq.png "Retrain frequency plot")
+
+Similarly, the following temporal shift analysis aims to predict the marginal item distribution in the next periods of time using rolling history of past X periods.
 The analysis computes weighted averages by the activity density but only presents the last 100 points for clarity.
+The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
+In the example, the optimal history retention is from the last 50 days.
+However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
 
 ![temporal-drift.png](imgs/temporal-drift.png "Example temporal-drift plot.")
 
-The dashed blue curve suggests a bootstrap TV loss, where the training and testing data are a random split of the same "future" period without temporal lags.
-It serves as a baseline, lower than which indicates statistically-significant benefits by frequent retraining.
-The other curves show the prediction losses with rolling histories up to lag-X.
-The optimal configuration should be set as the hard threshold of historical data or the half-life of recency-weighting (TODO).
-
-In the example, the minimal retraining frequency is every 500 days (movielens is a rather static dataset) and the optimal history retention is from the last 50 days. However, the Personalize solutions already have built-in recency_mask and, when in doubts, it is beneficial to retain longer user histories.
-
-For customers with large amounts of TV loss, please also consider a [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
+The primary loss we consider is Total Variation (TV) loss, though we also include percentage of traffic loss due to out-sample items, which partially explains large TV loss.
+For customers with large loss due to out-sample items, please consider our [COLD-START recipe](../personalize_temporal_holdout/personalize_coldstart_demo.ipynb).
 
 
 session time delta describe
