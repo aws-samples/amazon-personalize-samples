@@ -54,7 +54,8 @@ The steps below outline the process of building your own recommendation model, i
 
 1. `1.Building_Your_First_Campaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
 2. `2.View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
-3. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
+3. `lambda_examples` - Showcases how a Lambda function can send events with Personalize.
+4. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
 
 
 ## Using the Notebooks
