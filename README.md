@@ -23,7 +23,7 @@ Open the [personalize_temporal_holdout/](personalize_temporal_holdout/) folder t
   - [How to use user, item, and event 'meta-data'.](personalize_temporal_holdout/personalize_metadata_example.ipynb)
   - [Exploring 'cold-start' or 'future' items.](personalize_temporal_holdout/personalize_coldstart_demo.ipynb)
 
-## Diagnostic / Data Visualizatoin Tools
+## Diagnostic / Data Visualization Tools
 
 Open the [diagnose/](diagnose/) folder to have a visualization of the key properties of your input datasets.
 The key components we look out for include:
