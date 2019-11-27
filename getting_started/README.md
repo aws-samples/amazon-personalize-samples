@@ -9,6 +9,12 @@ Only applies if you are deploying with the CloudFormation template, otherwise co
 1. AWS Account
 2. User with administrator access to the AWS Account
 
+## Re:Invent 2019
+
+If you are building this workshop for Re:Invent 2019 simply click the Launch Stack button below, you can ignore the bits about S3 as it has been moved to a different part of the workshop. Simply get your Jupyter Notebook Instance running, and open the "getting_started" folder and `ReInvent2019_Workshop.ipynb`!
+
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/RI_PersonalizeWorkshop.yaml)
+
 ## Building Your Environment
 
 The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
