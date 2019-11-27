@@ -47,9 +47,3 @@ Resources:
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
       DefaultCodeRepository: https://github.com/aws-samples/amazon-personalize-samples.git
-
-Outputs:
-  S3Bucket:
-    Value: !Ref BucketName
-    Description: S3 Bucket for object storage
-
