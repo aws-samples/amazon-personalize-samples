@@ -36,11 +36,7 @@ def mean_reciprocal_rank(rs, k=None):
     """
     assert np.ndim(rs)<2, "generate one score for one set of recommendations at a time"
     rs = rs[:k]
-    if np.sum(rs)>0:
-        rank = 1+np.argmax(np.asarray(rs)>0)
-        return 1./rank
-    else:
-        return 0.
+    return max([float(r)/(1+i) for i,r in enumerate(rs)])
 
 
 def precision_at_k(r, k):
