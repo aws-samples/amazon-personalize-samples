@@ -26,6 +26,8 @@ def mean_reciprocal_rank(rs, k=None):
     0.5
     >>> rs = [0, 1, 0, 1]; mean_reciprocal_rank(rs, 1)
     0.0
+    >>> rs = [0, 0.1, 0, 1]; mean_reciprocal_rank(rs)
+    0.25
 
     Args:
         rs: Iterator of relevance scores (list or numpy) in rank order
@@ -36,11 +38,7 @@ def mean_reciprocal_rank(rs, k=None):
     """
     assert np.ndim(rs)<2, "generate one score for one set of recommendations at a time"
     rs = rs[:k]
-    if np.sum(rs)>0:
-        rank = 1+np.argmax(np.asarray(rs)>0)
-        return 1./rank
-    else:
-        return 0.
+    return np.max(np.asarray(rs) / (1.+np.arange(len(rs))))
 
 
 def precision_at_k(r, k):
