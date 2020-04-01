@@ -32,6 +32,12 @@ power-law distribution of categorical fields;
 temporal drift analysis for cold-start applicability;
 and an analysis on user-session distribution.
 
+## MLOps with AWS Step Functions
+
+This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions.
+
+To get started navigate to the [ml_ops](ml_ops/) folder and follow the README instructions.
+
 ## License Summary
 
 This sample code is made available under a modified MIT license. See the LICENSE file.

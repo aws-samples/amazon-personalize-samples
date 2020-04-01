@@ -1,0 +1,317 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  personalize-step-functions
+
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  EmailAddress:
+    Type: String
+    Description: Email Address to be notified on success
+    Default: empty
+
+Resources:
+  CreateSchema:
+    Type:  AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createschema
+      Handler: createschema.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdataset/
+      Handler: dataset.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdatasetgroup/
+      Handler: datasetgroup.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateDatasetImportJob:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdatasetimportjob/
+      Handler: datasetimport.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Environment:
+        Variables:
+          PERSONALIZE_ROLE: !GetAtt [PersonalizeRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createsolution/
+      Handler: solution.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateSolutionVersion:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createsolutionversion/
+      Handler: solutionversion.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CreateCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createcampaign/
+      Handler: campaign.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref CommonCodeLayer
+  CommonCodeLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: common-code-dependencies
+        Description: Dependencies for take action code
+        ContentUri: dependencies/
+        CompatibleRuntimes:
+          - python3.7
+        LicenseInfo: 'MIT'
+        RetentionPolicy: Retain
+  NotifyTopic:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/notify/
+      Handler: notify.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref SNSTopic
+  SNSTopic:  
+    Type: AWS::SNS::Topic
+    Properties: 
+      Subscription: 
+        - Endpoint: !Ref EmailAddress
+          Protocol: "email"
+      TopicName: !Join [ "-", [ "PersonalizeSuccessNotification", !Ref "AWS::StackName" ] ]
+      
+  LambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "personalize:*"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource: !GetAtt [PersonalizeRole, Arn]
+  PersonalizeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - personalize.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+  # ----- State Machine ------
+  DeployStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "Comment": "An automation Pipeline for Amazon Personalize",
+              "StartAt": "Create-Schema",
+              "States": {
+                "Create-Schema": {
+                  "Type": "Task",
+                  "Resource": "${CreateSchemaArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Create-DatasetGroup"
+                },
+                "Create-DatasetGroup": {
+                  "Type": "Task",
+                  "Resource": "${CreateDatasetGroupArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "BackoffRate": 2.0,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Create-Dataset"
+                },
+                "Create-Dataset": {
+                  "Type": "Task",
+                  "Resource": "${CreateDatasetArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Import-Data"
+                },
+                "Import-Data": {
+                  "Type": "Task",
+                  "Resource": "${ImportDataArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Create-Solution"
+                },
+                "Create-Solution": {
+                  "Type": "Task",
+                  "Resource": "${CreateSolutionArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Create-Solution-Version"
+                },
+                "Create-Solution-Version": {
+                  "Type": "Task",
+                  "Resource": "${CreateSolutionVersionArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Create-Campaign"
+                },
+                "Create-Campaign": {
+                  "Type": "Task",
+                  "Resource": "${CreateCampaignArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "Next": "Failure"
+                  }],
+                  "Next": "Notify-Success"
+                },
+                "Notify-Success": {
+                  "Type": "Task",
+                  "Resource": "${NotifyTopicArn}",
+                  "Next": "Done"
+                },
+                "Failure": {
+                  "Type": "Fail"
+                },
+                "Done": {
+                  "Type": "Succeed"
+                }
+              }
+            }
+          - CreateSchemaArn: !GetAtt [CreateSchema, Arn]
+            CreateDatasetGroupArn: !GetAtt [CreateDatasetGroup, Arn]
+            CreateDatasetArn: !GetAtt [CreateDataset, Arn]
+            ImportDataArn: !GetAtt [CreateDatasetImportJob, Arn]
+            CreateSolutionArn: !GetAtt [CreateSolution, Arn]
+            CreateSolutionVersionArn: !GetAtt [CreateSolutionVersion, Arn]
+            CreateCampaignArn: !GetAtt [CreateCampaign, Arn]
+            NotifyTopicArn: !GetAtt [NotifyTopic, Arn]
+
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
+
+
+# Outputs:
