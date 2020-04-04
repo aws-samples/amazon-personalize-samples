@@ -1,7 +1,7 @@
 
 # Getting Started
 
-ML Ops is gaining a lot of popularity nowadays. This example showcases a key peace you can use to construct your automation pipeline. As we can see in the following architecture diagram, you will be deploying an AWS Step Funciton Workflow containing lambda functions that will call S3, Amazon Personalize, and SNS APIs.
+ML Ops is gaining a lot of popularity. This example showcases a key piece you can use to construct your automation pipeline. As we can see in the following architecture diagram, you will be deploying an AWS Step Funciton Workflow containing AWS Lambda functions that call Amazon S3, Amazon Personalize, and Amazon SNS APIs.
 
 ![Architecture Diagram](images/personalize-stepfunctions.png)
 
