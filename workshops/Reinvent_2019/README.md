@@ -9,12 +9,11 @@ Only applies if you are deploying with the CloudFormation template, otherwise co
 1. AWS Account
 2. User with administrator access to the AWS Account
 
+## Re:Invent 2019
 
-## Building Your Environment
+If you are building this workshop for Re:Invent 2019 simply click the Launch Stack button below, you can ignore the bits about S3 as it has been moved to a different part of the workshop. Simply get your Jupyter Notebook Instance running, and open the "getting_started" folder and `ReInvent2019_Workshop.ipynb`!
 
-The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
-
-[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/PersonalizeDemo.yaml)
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/RI_PersonalizeWorkshop.yaml)
 
 Follow along with the screenshots if you have any questions about these steps.
 
@@ -53,10 +52,7 @@ Now that you have your environment created, you need to save the name of your S3
 
 The steps below outline the process of building your own recommendation model, improving it, and then cleaning up all of your resources to prevent any unwanted charges. To get started executing these follow the steps in the next section.
 
-1. `1.Building_Your_First_Campaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
-2. `2.View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
-4. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
-
+1. `ReInvent2019_Workshop.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
 
 ## Using the Notebooks
 
@@ -80,7 +76,7 @@ The rest of the lab will take place via the Jupyter notebooks, simply read each 
 
 https://www.youtube.com/watch?v=Gzun8PpyBCo
 
-## After the Notebooks
+## After the Notebook
 
 Once you have completed all of the work in the Notebooks and have completed the cleanup steps there as well, the last thing to do is to delete the stack you created with CloudFormation. To do that, inside the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it.
 
