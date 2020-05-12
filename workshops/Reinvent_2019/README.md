@@ -11,7 +11,7 @@ Only applies if you are deploying with the CloudFormation template, otherwise co
 
 ## Re:Invent 2019
 
-If you are building this workshop for Re:Invent 2019 simply click the Launch Stack button below, you can ignore the bits about S3 as it has been moved to a different part of the workshop. Simply get your Jupyter Notebook Instance running, and open the "getting_started" folder and `ReInvent2019_Workshop.ipynb`!
+If you are building this workshop for Re:Invent 2019 simply click the Launch Stack button below. Get your Jupyter Notebook Instance running, and open the "getting_started" folder and `ReInvent2019_Workshop.ipynb`!
 
 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/RI_PersonalizeWorkshop.yaml)
 
@@ -40,13 +40,6 @@ For a few minutes CloudFormation will be creating the resources described above 
 ![StackWizard5](static/imgs/img6.png)
 
 Once it has completed you'll see green text like below indicating that the work has been completed:
-
-![StackWizard5](static/imgs/img7.png)
-
-Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
-
-![StackWizard5](static/imgs/img8.png)
-
 
 ## Agenda
 
