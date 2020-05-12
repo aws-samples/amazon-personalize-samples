@@ -4,9 +4,9 @@ Notebooks and examples on how to onboard and use various features of Amazon Pers
 
 ## Getting Started with the Amazon Personalize
 
-Open the [getting_started/](getting_started/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. The notebooks provided can also serve as a template to building your own models with your own data.
+Open the [getting_started/](getting_started/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. 
 
-This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
+The notebooks provided can also serve as a template to building your own models with your own data. This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
 
 ## Amazon Personalize use case specific examples
 
