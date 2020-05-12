@@ -1,4 +1,4 @@
-## Amazon Personalize Samples
+# Amazon Personalize Samples
 
 Notebooks and examples on how to onboard and use various features of Amazon Personalize
 
