@@ -4,13 +4,13 @@ Notebooks and examples on how to onboard and use various features of Amazon Pers
 
 ## Getting Started with the Amazon Personalize
 
-Open the [getting_started/](getting_started/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. 
+The [getting_started/](getting_started/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. 
 
 The notebooks provided can also serve as a template to building your own models with your own data. This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
 
 ## Amazon Personalize use case specific examples
 
-Open the [core_use_cases/](core_use_cases/) folder to see detailed descriptions of the following typical use cases.
+The [core_use_cases/](core_use_cases/) folder to see detailed descriptions of the following typical use cases.
 
 * Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
   - [Offline evaluation with 'hrnn' user-based recommendation.](core_use_cases/personalize_temporal_holdout.ipynb)
@@ -22,7 +22,7 @@ Open the [core_use_cases/](core_use_cases/) folder to see detailed descriptions 
 
 ## Scalable Operations examples for your Amazon Personalize deployments
 
-Open the [operations/](operations/) folder to find examples on the following topics:
+The [operations/](operations/) folder to find examples on the following topics:
 
 * MLOps
     - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](opreations/ml_ops/) folder and follow the README instructions.
@@ -31,7 +31,7 @@ Open the [operations/](operations/) folder to find examples on the following top
 
 ## Reference Architectures
 
-Open the [reference_architectures/](reference_architectures/) folder to find reference architectures on for the following industries:
+The [reference_architectures/](reference_architectures/) folder to find reference architectures on for the following industries:
 
 * Retail
 * Media and Entertainment
@@ -39,14 +39,14 @@ Open the [reference_architectures/](reference_architectures/) folder to find ref
 
 ## Workshops
 
-Open the [workshops/](workshops/) folder to find a list of our workshops:
+The [workshops/](workshops/) folder to find a list of our workshops:
 
 * POC in a Box
 * Re:invent 2019
 
 ## Data Science Tools
 
-Open the [data_science/](data_science/) folder to explore a visualization approach of the key properties of your input datasets.
+The [data_science/](data_science/) folder to explore a visualization approach of the key properties of your input datasets.
 
 The key components we look out for include:
 - Missing data, duplicated events, and repeated item consumptions
