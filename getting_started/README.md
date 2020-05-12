@@ -8,7 +8,7 @@ Open the [getting_started/](getting_started/) folder to find a CloudFormation te
 
 This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
 
-## Amazon Personalize use case specific examples
+## Solving a specific use case with Amazon Personalize
 
 Open the [core_use_cases/](core_use_cases/) folder to see detailed descriptions of the following typical use cases.
 
@@ -20,39 +20,21 @@ Open the [core_use_cases/](core_use_cases/) folder to see detailed descriptions 
   - [How to use user, item, and event 'meta-data'.](core_use_cases/personalize_metadata_example.ipynb)
   - [Exploring 'cold-start' or 'future' items.](core_use_cases/personalize_coldstart_demo.ipynb)
 
-## Scalable Operations examples for your Amazon Personalize deployments
-
-Open the [operations/](operations/) folder to find examples on the following topics:
-
-* MLOps
-    - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](opreations/ml_ops/) folder and follow the README instructions.
-* Lambda Examples
-    - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](opreations/lambda_examples/) folder and follow the README instructions.
-
-## Reference Architectures
-
-Open the [reference_architectures/](reference_architectures/) folder to find reference architectures on for the following industries:
-
-* Retail
-* Media and Entertainment
-* Travel and Hospitality 
-
-## Workshops
-
-Open the [workshops/](workshops/) folder to find a list of our workshops:
-
-* POC in a Box
-* Re:invent 2019
-
 ## Data Science Tools
 
-Open the [data_science/](data_science/) folder to explore a visualization approach of the key properties of your input datasets.
+Open the [data_science/](data_science/) folder to have a visualization of the key properties of your input datasets.
 
 The key components we look out for include:
 - Missing data, duplicated events, and repeated item consumptions
 - Power-law distribution of categorical fields
 - Temporal drift analysis for cold-start applicability
 - Analysis on user-session distribution
+
+## MLOps with AWS Step Functions
+
+This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions.
+
+To get started navigate to the [ml_ops](ml_ops/) folder and follow the README instructions.
 
 ## License Summary
 
