@@ -1,6 +1,5 @@
 *.zip
 ml-100k
-*.csv
 .ipynb_checkpoints
 ml-1m
 json_input.*

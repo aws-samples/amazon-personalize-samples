@@ -1,19 +1,14 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: Creates an S3 Bucket, IAM Policies, and SageMaker Notebook to work with Personalize.
+Description: IAM Policies, and SageMaker Notebook to work with Personalize.
 
 Parameters:
 
-  BucketName:
-    Type: String
-    Default: personalizedemofirstnamelastname
-    Description: The name of the S3 Bucket to create, use only characters and numbers, no special characters or spaces.
-
   NotebookName:
     Type: String
-    Default: PersonalizeDemoLab
-    Description: Enter the name of the SageMaker notebook instance. Deafault is PersonalizeDemoLab.
+    Default: PersonalizePOC
+    Description: Enter the name of the SageMaker notebook instance. Deafault is PersonalizePOC.
 
   VolumeSize:
     Type: Number
@@ -23,19 +18,7 @@ Parameters:
     ConstraintDescription: Must be an integer between 5 (GB) and 16384 (16 TB).
     Description: Enter the size of the EBS volume in GB.
 
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterLabels:
-      BucketName:
-        default: S3 Bucket Name
-
 Resources:
-  # S3 First
-  S3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref BucketName
   # SageMaker Execution Role
   SageMakerIamRole:
     Type: "AWS::IAM::Role"
@@ -63,9 +46,4 @@ Resources:
       NotebookInstanceName: !Ref NotebookName
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
-      DefaultCodeRepository: https://github.com/aws-samples/amazon-personalize-samples.git
-
-Outputs:
-  S3Bucket:
-    Value: !Ref BucketName
-    Description: S3 Bucket for object storage
+      DefaultCodeRepository: https://github.com/chrisking/PersonalizePOC.git
