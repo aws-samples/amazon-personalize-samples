@@ -1,5 +1,17 @@
-Demos and Ablation Studies with Temporal Holdout Evaluation
+Amazon Personalize Core Use Cases
 ---
+
+| Feasible? | Recipe | Description 
+|-------- | -------- |:------------
+| Y | aws-popularity-count | Calculates popularity of items based on count of events against that item in user-item interactions dataset.
+| Y | aws-hrnn | Predicts items a user will interact with. A hierarchical recurrent neural network which can model the temporal order of user-item interactions.
+| N - requires meta data | aws-hrnn-metadata | Predicts items a user will interact with. HRNN with additional features derived from contextual (user-item interaction metadata), user medata (user dataset) and item metadata (item dataset)
+| N - for bandits and requires meta data | aws-hrnn-coldstart | Predicts items a user will interact with. HRNN-metadata with with personalized exploration of new items.
+| N - for item-based queries | aws-sims | Computes items similar to a given item based on co-occurrence of item in same user history in user-item interaction dataset
+| N - for reranking a short list | aws-personalized-ranking | Reranks a list of items for a user. Trains on user-item interactions dataset. 
+
+
+
 
 Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
 
@@ -15,15 +27,6 @@ Hybrid recommendation also considering user, item, and event meta-data. The resu
 
 1. [Exploring 'cold-start' or 'future' items.](#item_cold_start)
 
-## Offline evaluation with 'hrnn' user-based recommendation.<a name="hrnn"/>
-
-You have some historical data and you want to know how personalize performs on your data. Here is what we suggest:
-
-1. Temporally split your data into a 'past' training set and a 'future' testing set.
-2. Upload the 'past' data to Amazon Personalize, train a solution, and deploy a campaign.
-3. Use your campaign to get recommendation for all of your users, and compare with the 'future' testing set.
-
-This is an example, [personalize_temporal_holdout.ipynb](personalize_temporal_holdout.ipynb) to complete the steps above. We include a basic popularity-based recommendation, which should be easy to beat. This is for sanity checking purposes. A common next-step is to kepp the same training and testing splits, but train different models for more serious offline comparisons.
 
 ## Example of 'sims' item-based recommendation.<a name="sims"/>
 
