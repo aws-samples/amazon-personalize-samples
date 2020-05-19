@@ -33,3 +33,8 @@ An important functionality that meta-data, particularly item meta-data, provides
 
 This [personalize_coldstart_demo.ipynb](personalize_hrnn_coldstart_example.ipynb) shows how we may personalize item 'cold-start' by exploring only in the same movie genres that the user would be interested in. The steps are:
  
+### License Summary
+
+This sample code is made available under a modified MIT license. See the LICENSE file.
+
+
