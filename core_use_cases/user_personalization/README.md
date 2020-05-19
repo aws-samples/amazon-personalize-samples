@@ -2,7 +2,7 @@ Amazon Personalize User Personalization
 ---
 
 
-HRNN recipes provide you with collaborative filtering based recommendations.
+HRNN based recipes predict items a user will interact with. A hierarchical recurrent neural network which can model the temporal order of user-item interactions.
 
 In this examples, we have interactions data, so we will choose one from the basic recipes.
 
