@@ -26,13 +26,13 @@ As the developer, you only need to do the following:
 
 In this directory we have examples various use cases
 
-1. User Personalization
+1. [User Personalization](user_personalization/)
     - Predicts items a user will interact with. A hierarchical recurrent neural network which can model the temporal order of user-item interactions.
-2. Related Items
+2. [Related Items](related_items/)
     - Computes items similar to a given item based on co-occurrence of item in same user history in user-item interaction dataset 
-3. Personalized Ranking
+3. [Personalized Ranking](personalized_ranking/)
     - Reranks a list of items for a user.
-4. Batch Recommendations
+4. [Batch Recommendations](batch_recommendations/)
     - Create recommendations on a batch basis
 
 ### License Summary
