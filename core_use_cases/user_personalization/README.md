@@ -17,12 +17,17 @@ In this examples, we have interactions data, so we will choose one from the basi
 
 ## Content
 
+### HRNN
 
 The [personalize_hrnn_example.ipynb](personalize_hrnn_example.ipynb) uploads the 'past' data from temporal splitting and evaluates the recommendation against the held-out 'future' ground truth.
+
+### HRNN-METADATA
 
 Meta-data is ubiquitous. User zipcodes and device types can be useful indicators of preference; item categories and tags can be useful patterns in decision making; click and purchase events may imply different utilities to the user. 
 
 This [personalize_hrnn_metadata_example.ipynb](personalize_hrnn_metadata_example.ipynb) shows how these useful information can be uploaded to our system to aid recommendation. A caveat is that the improvements of meta-data recipes depend on how much information can be extracted from the provided meta-data. Movie genres may be less useful compared with movie ratings, or better, directors and stars.
+
+### HRNN-COLDSTART
 
 An important functionality that meta-data, particularly item meta-data, provides is to generalize to new 'cold-start' items. Examples include new releases, new products, or live items. Without personalization, a global policy to introduce these new items may incur large promotional costs. Personalized 'cold-start' helps reduce these costs.
 
