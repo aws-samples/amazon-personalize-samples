@@ -14,9 +14,7 @@ Use an asynchronous batch workflow to get recommendations from large datasets th
 
 ### Content
 
-The [personalize_batch_hrnn_example.ipynb](personalize_batch_hrnn_example.ipynb)
-The [personalize_batch_sims_example.ipynb](personalize_batch_hrnn_example.ipynb)
-The [personalize_batch_ranking_example.ipynb](personalize_batch_hrnn_example.ipynb)
+The [hrnn_batch_recommendations_example.ipynb](hrnn_batch_recommendations_example.ipynb)
 
 ### License Summary
 
