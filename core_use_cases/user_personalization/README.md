@@ -27,6 +27,13 @@ Meta-data is ubiquitous. User zipcodes and device types can be useful indicators
 
 This [personalize_hrnn_metadata_example.ipynb](personalize_hrnn_metadata_example.ipynb) shows how these useful information can be uploaded to our system to aid recommendation. A caveat is that the improvements of meta-data recipes depend on how much information can be extracted from the provided meta-data. Movie genres may be less useful compared with movie ratings, or better, directors and stars.
 
+### HRNN-METADATA + Contextual Recommendations + Even Tracker
+
+In this example we are going over how to leverage Metadata and Context to provide best airline recommendations for users based on historical ratings of such across multiple cabin types with user's location as user metadata
+
+This [personalize_hrnn_metadata_contextual_example.ipynb](personalize_hrnn_metadata_contextual_example.ipynb) shows how these useful information can be uploaded to our system to aid recommendation. A caveat is that the improvements of meta-data recipes depend on how much information can be extracted from the provided meta-data.
+
+
 ### HRNN-COLDSTART
 
 An important functionality that meta-data, particularly item meta-data, provides is to generalize to new 'cold-start' items. Examples include new releases, new products, or live items. Without personalization, a global policy to introduce these new items may incur large promotional costs. Personalized 'cold-start' helps reduce these costs.
