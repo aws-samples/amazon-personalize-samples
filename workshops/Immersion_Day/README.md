@@ -17,7 +17,6 @@ The steps below outline the process of building your own time-series prediction 
 1. Deploy the CloudFormation Template below or build a local Jupyter environment with the AWS CLI installed and configured for your IAM account.
 1. This [personalize_hrnn_metadata_contextual_example.ipynb](personalize_hrnn_metadata_contextual_example.ipynb) shows how these useful information can be uploaded to our system to aid recommendation. A caveat is that the improvements of meta-data recipes depend on how much information can be extracted from the provided meta-data.
 
-Each notebook can be found within the `notebooks` folder in this project.
 
 ## Prerequisites 
 
@@ -87,57 +86,6 @@ On this page you will see a list of any SageMaker notebooks you have running, si
 
 ![StackWizard5](static/imgs/img9.png)
 
-This will open the Jupyter environment for your POC; think of it as a web based data science IDE if you are not familiar with it. It should automatically open the `PersonalizePOC` folder for you, if not, just click on the folder icon in the browser on the left side of the screen and follow the documentation below to get started with your POC!
+This will open the Jupyter environment for your POC; think of it as a web based data science IDE if you are not familiar with it. 
 
-## Validating and Importing User-Item-Interaction Data
-
-The core data for every algorithm supported in Amazon Personalize is user-item-interaction data; this notebook will guide you through the process of identifying this data, then formatting it for the service, defining your schema, and lastly importing it. 
-
-Open `01_Validating_and_Importing_User_Item_Interaction_Data.ipynb` and follow along there.
-
-Once you have completed this, you can move on to creating and evaluating your first solutions.
-
-## Validating and Importing Item Metadata [in development]
-
-Amazon Personalize has several algorithms that can give you a results with no metadata. However, the HRNN-Metadata algorithm might be an interesting resource to deploy, depending your dataset. In case it is, there is an optional item metadata notebook below. It is similar to the process for users, and the only algorithm that supports either data type is HRNN-Metadata.
-
-Open `Validating_and_Importing_Item_Metadata.ipynb` and follow along there to prepare the dataset for the POC/Amazon Personalize.
-
-## Creating and Evaluating Your First Solutions
-
-In Amazon Personalize there is a concept of a solution, which is a trained model based on the data that you've provided to the service. All models are private and no data sharing occurs between accounts or even between dataset groups. This notebook will guide you through the process of training models; aka building a solution for:
-
-* HRNN
-* SIMS
-* Personalized-Ranking
-
-Something you may notice is that each of these algorithms or recipes solves a critically different problem. The goal is to show you how to build things that address a host of problems from a relatively simple dataset.
-
-Open `02_Creating_and_Evaluating_Solutions.ipynb` and follow along to build these solutions and see their results.
-
-### Deploying Your Campaigns and Interacting with Personalize
-
-Once you have a series of trained solutions the next step is to deploy them. This is done inside `03_Deploying_Campaigns_and_Interacting.ipynb`. Here you will learn:
-
-1. Deployment and capacity planning
-1. How to interact with a deployed solution (various approaches)
-1. Real-time interactions
-1. Batch exporting
-
-### Importing Item / User Metadata [in development]
-
-TBD
-
-### Creating and Evaluating Related Metadata Solutions [in development]
-
-TBD
-
-### Next Steps
-
-Following these notebooks should have left you with a series of working models for your customer. From here, you will look to leverage how the customer accomplishes AB testing today against their goals (coversions, clicks, etc) and then start sending traffic to these models and monitoring those metrics. Over time this should build confidence and will be your path to production at scale.
-
-More content on AB testing coming soon as well.
-
-### Cleaning Up
-
-Finished with the POC? If you want to delete all the resources created in your AWS account while following along with these notebooks, please see the `04_Clean_Up_Resources.ipynb` notebook. It will help you identify all of the Personalize resources deployed in your account and shows you how to delete them.
+On your left hand side please navigate to the following directory `amazon-personalize-samples/workshops/Immersion_Day/` and double click the `personalize_hrnn_metadata_contextual_example.ipynb` notebook.
