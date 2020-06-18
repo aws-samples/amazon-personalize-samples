@@ -35,7 +35,7 @@ The steps below outline the process of building your own time-series prediction 
 
 As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup work for you. In another browser window or tab, login to your AWS account. Once you have done that, open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
 
-[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizePOC&templateURL=https://chriskingpartnershare.s3.amazonaws.com/PersonalizePOC.yaml)
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizePOC&templateURL=https://luis-guides.s3.amazonaws.com/personalize-id/PersonalizeImmersionDay.yaml)
 
 Follow along with the screenshots below if you have any questions about deploying the stack.
 
@@ -47,7 +47,7 @@ Start by clicking `Next` at the bottom like this:
 
 On this page you have a few tasks:
 
-1. Change the Stack name to something relevant like `PersonalizePOC`
+1. Change the Stack name to something relevant like `PersonalizeImmersionDay`
 1. Change the Notebook Name (Optional)
 1. Alter the VolumeSize for the SageMaker EBS volume, default is 10GB, if your dataset is expected to be larger, please increase this accordingly.
 
