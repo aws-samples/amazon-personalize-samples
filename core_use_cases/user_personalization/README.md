@@ -9,8 +9,8 @@ In this examples, we have interactions data, so we will choose one from the basi
 | Feasible? | Recipe | Description 
 |-------- | -------- |:------------
 | Y - collaborative filtering based | aws-hrnn | Predicts items a user will interact with. A hierarchical recurrent neural network which can model the temporal order of user-item interactions.
-| Y - hrnn but requires meta data | aws-hrnn-metadata | Predicts items a user will interact with. HRNN with additional features derived from contextual (user-item interaction metadata), user medata (user dataset) and item metadata (item dataset)
-| Y - hrnn plus bandits and requires meta data | aws-hrnn-coldstart | Predicts items a user will interact with. HRNN-metadata with with personalized exploration of new items.
+| Y - hrnn but requires meta data | aws-hrnn-metadata | Predicts items a user will interact with. HRNN with additional features derived from contextual (user-item interaction metadata), user metadata (user dataset) and item metadata (item dataset)
+| Y - hrnn plus bandits and requires meta data | aws-hrnn-coldstart | Predicts items a user will interact with. HRNN-metadata with personalized exploration of new items.
 | N - used for reranking a short list | aws-personalized-ranking | Reranks a list of items for a user. Trains on user-item interactions dataset. 
 | N - used for related items | aws-sims | Computes items similar to a given item based on co-occurrence of item in same user history in user-item interaction dataset
 | N - used for popular items | aws-popularity-count | Calculates popularity of items based on count of events against that item in user-item interactions dataset.
