@@ -1,0 +1,37 @@
+---
+interactions_required_fields: [USER_ID, ITEM_ID, TIMESTAMP]
+
+# general
+na_rate_threshold: 0.1
+dup_rate_threshold: 0.1
+repeat_rate_threshold: 0.5
+coldstart_rate_threshold: 0.1
+
+# describe options
+num_top_categories_to_show: 10
+loglog_min_categories_to_show: 30
+loglog_rmse_threshold: 5
+loglog_min_threshold: 5
+loglog_head_heavy_threshold: -2.0
+loglog_tail_heavy_threshold: -0.75
+
+# temporal analysis
+cross_entropy_with_epsilon_greedy: 0.01
+rolling_history_lags: [1, 10, 100, 1000]
+retrain_frequencies: ['1y','1q','1m','1w','1d','6h']
+temporal_loss_methods: ['total variation', 'out-sample items']
+temporal_shift_dedup: true
+temporal_plot_limit: 50
+
+# misc
+describe_sessions: true
+describe_dataframe: true
+show_activity_patterns: true
+
+timedelta_references:
+  min: 60
+  hour: 3600
+  day: 86400
+  week: 604800
+  month: 2678400
+  year: 31536000

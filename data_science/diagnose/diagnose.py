@@ -5,35 +5,23 @@ import warnings
 import traceback
 import scipy.sparse as ss
 import time
+import argparse
+import os
+import re
+import yaml
 
+parser = argparse.ArgumentParser(description="""
+    A tool to provide dataset statistics.
+    If datasets are provided, conduct the analysis.
+    Otherwise, it will load the functions with the defaults provided in yaml.
+    This is useful if this function is called via jupyter magic `%run script`.
+    """)
+parser.add_argument('--yaml', default='diagnose.yaml')
+parser.add_argument('--datasets', nargs='*', help='interactions, users, items')
+args, _ = parser.parse_known_args()
 
-INTERACTIONS_REQUIRED_FIELDS = ["USER_ID", "ITEM_ID", "TIMESTAMP"]
-# general
-NA_RATE_THRESHOLD        = 0.1
-DUP_RATE_THRESHOLD       = 0.1
-REPEAT_RATE_THRESHOLD    = 0.5
-COLDSTART_RATE_THRESHOLD = 0.1
-
-# loglog warning thresholds
-LOGLOG_RMSE_THRESHOLD = 5
-LOGLOG_MIN_CATS       = 30
-LOGLOG_HEAD_HEAVY     = -2
-LOGLOG_HEAVY_TAIL     = -0.75
-
-# metadata
-CATS_FREQ_HEAD = 10
-
-# temporal analysis
-EPS_GREEDY = 0.01
-TIMEDELTA_REFERENCES = [
-    ('min', 60), ('hour',3600), ('day',3600*24),
-    ('week',3600*24*7), ('month',3600*24*31),
-    ('year',3600*24*365)]
-ROLLING_HISTORY_LEN = [1, 10, 100, 1000]
-RETRAIN_FREQUENCY = ['1y','1q','1m','5d','1d','6h']
-TEMPORAL_FREQUENCY = ['5d', '1d', '6h']
-TEMPORAL_LOSS_METHODS = ['total variation', 'out-sample items']
-TEMPORAL_PLOT_LIMIT = 50
+with open(args.yaml) as fp:
+    config = yaml.safe_load(fp)
 
 
 def plot_loglog(val, name='', show=True):
@@ -56,25 +44,27 @@ def plot_loglog(val, name='', show=True):
 
 
 def describe_categorical(sr, name=''):
-    print("\n=== {} top {} categories ===".format(name, CATS_FREQ_HEAD))
+    print("\n=== {} top {} categories ===".format(name, config['num_top_categories_to_show']))
     parts = sr.astype(str).apply(lambda x: x.split('|'))
     cats = pd.Series(np.hstack(parts.values))
     cats_freq = cats.groupby(cats).size().sort_values(ascending=False)
-    print(cats_freq.head(CATS_FREQ_HEAD))
+    print(cats_freq.head(config['num_top_categories_to_show']))
 
-    if len(cats_freq) <= LOGLOG_MIN_CATS:
+    if len(cats_freq) <= config['loglog_min_categories_to_show']:
         return None
 
     (slope, intercept, rmse) = plot_loglog(cats_freq, name)
 
-    if len(cats_freq) > LOGLOG_MIN_CATS and rmse < LOGLOG_RMSE_THRESHOLD:
-        if slope > LOGLOG_HEAVY_TAIL:
+    if len(cats_freq) > config['loglog_min_categories_to_show'] and \
+        rmse < config['loglog_rmse_threshold']:
+
+        if slope > config['loglog_tail_heavy_threshold']:
             warnings.warn("""
             Heavy-tail {0} distributions are usually hard to learn (slope={1})!
             Consider rolling up {0} or dropping its rare values.
             """.format(name, slope))
 
-        elif slope < LOGLOG_HEAD_HEAVY:
+        elif slope < config['loglog_head_heavy_threshold']:
             warnings.warn("""
             Head-heavy {0} distributions are usually uninteresting or spammy (slope={1})!
             Consider using finer-grade {0} or thresholding its dominate values.
@@ -85,9 +75,8 @@ def describe_categorical(sr, name=''):
 
 def describe_dataframe(df, name=''):
     print("\n=== Describe {} ===\n".format(name))
-    print(df.describe())
-    if object in df.dtypes:
-        print(df.describe(include=['O']))
+    with pd.option_context("display.max_rows", 100):
+        print(df.describe(include='all'))
 
     summary = {}
     for cn, dtype in df.dtypes.iteritems():
@@ -193,16 +182,19 @@ def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None,
     q = _normalize_distribution(X)
 
     if method.lower() in ['kl', 'kl-divergence']:
-        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        eps_ratio = (1-config['cross_entropy_with_epsilon_greedy']) / \
+                    (config['cross_entropy_with_epsilon_greedy'] / N)
         log_p = (p * eps_ratio).log1p()
         log_q = (q * eps_ratio).log1p()
         temporal_loss = (p .multiply (log_p - log_q)).sum(axis=1)
         loss_fmt = '{:.2f}'
 
     elif method.lower() in ['ce', 'cross-entropy']:
-        eps_ratio = (1-EPS_GREEDY) / (EPS_GREEDY / N)
+        eps_ratio = (1-config['cross_entropy_with_epsilon_greedy']) / \
+                    (config['cross_entropy_with_epsilon_greedy'] / N)
         log_q = (q * eps_ratio).log1p()
-        temporal_loss = -((p .multiply (log_q)).sum(axis=1) + np.log(EPS_GREEDY/N))
+        temporal_loss = -((p .multiply (log_q)).sum(axis=1) + \
+                        np.log(config['cross_entropy_with_epsilon_greedy'] / N))
         loss_fmt = '{:.2f}'
 
     elif method.lower() in ['oov', 'out-sample items']:
@@ -211,6 +203,15 @@ def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None,
 
     elif method.lower() in ['tv', 'total variation']:
         temporal_loss = (p-q).multiply(p>q).sum(axis=1)
+        loss_fmt = '{:.1%}'
+
+    elif method.lower().startswith('prec'):
+        topk = int(re.findall(r'\d+', method)[0])
+        q = q.toarray()
+        indices = np.argpartition(-q, topk)
+        q[:,:] = 0
+        q[np.arange(q.shape[0])[:,None], indices[:,:topk]] = 1
+        temporal_loss = -p.multiply(q).sum(axis=1)
         loss_fmt = '{:.1%}'
 
     else:
@@ -234,76 +235,85 @@ def diagnose_interactions(df):
     df['USER_ID'] = df['USER_ID'].astype(str)
     df.index = df["TIMESTAMP"].values.astype("datetime64[s]")
 
-
-    na_rate = df[INTERACTIONS_REQUIRED_FIELDS].isnull().any(axis=1).mean()
-    print("missing rate in fields", INTERACTIONS_REQUIRED_FIELDS, na_rate)
-    if na_rate > NA_RATE_THRESHOLD:
-        warnings.warn("High data missing rate for required fields ({:.1%})!".format(na_rate))
-    df = df.dropna(subset=INTERACTIONS_REQUIRED_FIELDS)
-    print("dropna shape", df.shape)
-
-
-    dup_rate = (df.groupby(INTERACTIONS_REQUIRED_FIELDS).size() - 1.0).sum() / df.shape[0]
-    print("duplication rate", dup_rate)
-    if dup_rate > DUP_RATE_THRESHOLD:
-        warnings.warn("""
-        High duplication rate ({:.1%})!
-        Only one event can be taken at the same (user,item,timestamp) index.
-        """.format(dup_rate))
-    df = df.drop_duplicates(subset=INTERACTIONS_REQUIRED_FIELDS)
-    print("drop_duplicates shape", df.shape)
+    if config['na_rate_threshold'] < 1:
+        na_rate = df[config['interactions_required_fields']].isnull().any(axis=1).mean()
+        print("missing rate in fields", config['interactions_required_fields'], na_rate)
+        if na_rate > config['na_rate_threshold']:
+            warnings.warn("High data missing rate for required fields ({:.1%})!".format(na_rate))
+        df = df.dropna(subset=config['interactions_required_fields'])
+        print("dropna shape", df.shape)
 
 
-    repeat_rate = (df.groupby(["USER_ID", "ITEM_ID"]).size() - 1.0).sum() / df.shape[0]
-    print("user item repeat rate", repeat_rate)
-    if repeat_rate > REPEAT_RATE_THRESHOLD:
-        warnings.warn("""
-        High rate of repeated consumptions ({:.1%})!
-        We would not do anything, but it may beneficial to
-        (1) consider keeping only the last interaction between the same user-item pair,
-        (2) consider if the ITEM_IDs have collisions, and/or
-        (3) use high-order hierarchical models.
-        """.format(repeat_rate))
+    if config['dup_rate_threshold'] < 1:
+        dup_rate = (df.groupby(config['interactions_required_fields']).size() - 1.0).sum() / df.shape[0]
+        print("duplication rate", dup_rate)
+        if dup_rate > config['dup_rate_threshold']:
+            warnings.warn("""
+            High duplication rate ({:.1%})!
+            Only one event can be taken at the same (user,item,timestamp) index.
+            """.format(dup_rate))
 
-    summary = describe_dataframe(df, 'interactions table')
+        df = df.drop_duplicates(subset=config['interactions_required_fields'])
+        print("drop_duplicates shape", df.shape)
 
 
-    print("\n=== Hourly activity pattern ===")
-    print(df.groupby(df.index.hour).size())
+    if config['repeat_rate_threshold'] < 1:
+        repeat_rate = (df.groupby(["USER_ID", "ITEM_ID"]).size() - 1.0).sum() / df.shape[0]
+        print("user item repeat rate", repeat_rate)
+        if repeat_rate > config['repeat_rate_threshold']:
+            warnings.warn("""
+            High rate of repeated consumptions ({:.1%})!
+            We would not do anything, but it may beneficial to
+            (1) consider keeping only the last interaction between the same user-item pair,
+            (2) consider if the ITEM_IDs have collisions, and/or
+            (3) use high-order hierarchical models.
+            """.format(repeat_rate))
 
-    print("\n=== Day of week activity pattern ===")
-    print(df.groupby(df.index.dayofweek).size())
+    if config['describe_dataframe']:
+        summary = describe_dataframe(df, 'interactions table')
 
-    plot_patterns = {
-        "date": df.index.date,
-        "hour": df.index.hour,
-        "dayofweek": df.index.dayofweek}
 
-    for k,v in plot_patterns.items():
-        pl.plot(df.groupby(v).size(), '.-')
-        pl.gcf().autofmt_xdate()
-        pl.title("Activity pattern by %s" %k)
-        pl.grid()
-        pl.show()
+    if config['show_activity_patterns']:
+        print("\n=== Hourly activity pattern ===")
+        print(df.groupby(df.index.hour).size())
+
+        print("\n=== Day of week activity pattern ===")
+        print(df.groupby(df.index.dayofweek).size())
+
+        plot_patterns = {
+            "date": df.index.date,
+            "hour": df.index.hour,
+            "dayofweek": df.index.dayofweek}
+
+        for k,v in plot_patterns.items():
+            pl.plot(df.groupby(v).size(), '.-')
+            pl.gcf().autofmt_xdate()
+            pl.title("Activity pattern by %s" %k)
+            pl.grid()
+            pl.show()
 
 
     print("\n=== Temporal shift analysis ===\n")
-    print("Sorting and removing repeated user-items for temporal shift analysis...")
+    print("Sorting...")
     df.sort_index(inplace=True, kind='mergesort')
-    df_dedup = df.drop_duplicates(['USER_ID','ITEM_ID'], keep='last')
+    if config['temporal_shift_dedup']:
+        print("Removing repeated user-items...")
+        df_dedup = df.drop_duplicates(['USER_ID','ITEM_ID'], keep='last')
+    else:
+        df_dedup = df.copy()
 
     print("\n=== Temporal shift - retrain frequency ===\n")
 
-    for method in TEMPORAL_LOSS_METHODS:
+    for method in config['temporal_loss_methods']:
         bootstrap_avg = []
         past_fut_avg  = []
-        for freq in RETRAIN_FREQUENCY:
+        for freq in config['retrain_frequencies']:
             _, _, _bs_avg, loss_fmt = compute_bootstrap_loss(df_dedup, freq, method)
             _, _, _ts_avg, loss_fmt = compute_temporal_loss(df_dedup, freq, method, 1)
             bootstrap_avg.append(_bs_avg)
             past_fut_avg.append(_ts_avg)
-        pl.plot(RETRAIN_FREQUENCY, bootstrap_avg, '.--', label='same-period bootstrap')
-        pl.plot(RETRAIN_FREQUENCY, past_fut_avg, '.-', label='lagged popularity')
+        pl.plot(config['retrain_frequencies'], bootstrap_avg, '.--', label='same-period bootstrap')
+        pl.plot(config['retrain_frequencies'], past_fut_avg, '.-', label='lagged popularity')
         pl.legend()
         pl.xlabel('retrain frequency')
         pl.title(method + ' loss at different frequencies')
@@ -314,52 +324,57 @@ def diagnose_interactions(df):
 
     print("\n=== Temporal shift - history cutoffs ===\n")
 
-    for method in TEMPORAL_LOSS_METHODS:
-        for freq in TEMPORAL_FREQUENCY:
-            bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df_dedup, freq, method)
-            pl.plot(bootstrap_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.--',
-                        label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
+    freq = config['retrain_frequencies'][-1]
+    for i,(p,b) in list(enumerate(zip(past_fut_avg, bootstrap_avg)))[::-1]:
+        if p<b:
+            freq = config['retrain_frequencies'][i]
 
-            for hist_len in ROLLING_HISTORY_LEN:
-                temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df_dedup, freq, method, hist_len)
+    for method in config['temporal_loss_methods']:
+        bootstrap_loss, _, avg_loss, loss_fmt = compute_bootstrap_loss(df_dedup, freq, method)
+        pl.plot(bootstrap_loss.iloc[-config['temporal_plot_limit']:], '.--',
+                    label = 'boostrap baseline={}'.format(loss_fmt.format(avg_loss)))
 
-                pl.plot(temporal_loss.iloc[-TEMPORAL_PLOT_LIMIT:], '.-',
-                        label = 'hist={} * {}, avg={}'.format(hist_len, freq, loss_fmt.format(avg_loss)))
+        for hist_len in config['rolling_history_lags']:
+            temporal_loss, df_wgt, avg_loss, loss_fmt = compute_temporal_loss(df_dedup, freq, method, hist_len)
 
-            pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
+            pl.plot(temporal_loss.iloc[-config['temporal_plot_limit']:], '.-',
+                    label = 'hist={} * {}, avg={}'.format(hist_len, freq, loss_fmt.format(avg_loss)))
 
-            pl.title('{} {} from rolling history (lower is better)'.format(freq, method))
-            pl.grid()
-            pl.gcf().autofmt_xdate()
-            pl.legend(loc='upper left')
-            pl.twinx()
-            pl.plot(df_wgt.iloc[-TEMPORAL_PLOT_LIMIT:], color='grey', lw=3, ls='--', alpha=0.5)
-            pl.legend(['activity density'], loc='upper right')
-            pl.show()
+        pl.gca().yaxis.set_major_formatter(pl.FuncFormatter(lambda y, _: loss_fmt.format(y)))
 
-    print("\n=== session time delta describe ===")
+        pl.title('{} {} from rolling history (lower is better)'.format(freq, method))
+        pl.grid()
+        pl.gcf().autofmt_xdate()
+        pl.legend(loc='upper left')
+        pl.twinx()
+        pl.plot(df_wgt.iloc[-config['temporal_plot_limit']:], color='grey', lw=3, ls='--', alpha=0.5)
+        pl.legend(['activity density'], loc='upper right')
+        pl.show()
 
-    user_time_delta = df.groupby('USER_ID')["TIMESTAMP"].transform(pd.Series.diff).dropna()
-    user_time_delta.sort_values(ascending=False, inplace=True)
-    print(user_time_delta.describe())
-    plot_loglog(user_time_delta, 'session time delta', show=False)
-    for k,v in TIMEDELTA_REFERENCES:
-        if pl.ylim()[0] < v < pl.ylim()[1]:
-            pl.plot(pl.xlim(), [v,v], '--')
-            pl.text(pl.xlim()[0], v, k)
-    pl.show()
+    if config['describe_sessions']:
+        print("\n=== describe sessions ===")
+
+        user_time_delta = df.groupby('USER_ID')["TIMESTAMP"].transform(pd.Series.diff).dropna()
+        user_time_delta.sort_values(ascending=False, inplace=True)
+        print(user_time_delta.describe())
+        plot_loglog(user_time_delta, 'session time delta', show=False)
+        for k,v in config['timedelta_references'].items():
+            if pl.ylim()[0] < v < pl.ylim()[1]:
+                pl.plot(pl.xlim(), [v,v], '--')
+                pl.text(pl.xlim()[0], v, k)
+        pl.show()
 
 
-    user_time_span = df.groupby('USER_ID')["TIMESTAMP"].apply(lambda x:max(x)-min(x))
-    user_time_span.sort_values(ascending=False, inplace=True)
-    print("=== user time span describe ===")
-    print(user_time_span.describe())
-    plot_loglog(user_time_span, 'user time span', show=False)
-    for k,v in TIMEDELTA_REFERENCES:
-        if pl.ylim()[0] < v < pl.ylim()[1]:
-            pl.plot(pl.xlim(), [v,v], '--')
-            pl.text(pl.xlim()[0], v, k)
-    pl.show()
+        user_time_span = df.groupby('USER_ID')["TIMESTAMP"].apply(lambda x:max(x)-min(x))
+        user_time_span.sort_values(ascending=False, inplace=True)
+        print("=== user time span describe ===")
+        print(user_time_span.describe())
+        plot_loglog(user_time_span, 'user time span', show=False)
+        for k,v in config['timedelta_references'].items():
+            if pl.ylim()[0] < v < pl.ylim()[1]:
+                pl.plot(pl.xlim(), [v,v], '--')
+                pl.text(pl.xlim()[0], v, k)
+        pl.show()
 
 
 #     date_and_item_size = df.groupby([pd.Grouper(freq='1D'), 'ITEM_ID']).size()
@@ -384,17 +399,19 @@ def diagnose_users(df, users):
     users['USER_ID'] = users['USER_ID'].astype(str)
     users = users.set_index('USER_ID')
 
-    missing_rate = 1 - df.USER_ID.astype(str).isin(set(users.index.values)).mean()
-    print("Missing rate of all user meta-data", missing_rate)
-    if missing_rate > NA_RATE_THRESHOLD:
-        warnings.warn("High missing rate of all user meta-data ({:%})!"
-                      .format(missing_rate))
+    if config['na_rate_threshold'] < 1:
+        missing_rate = 1 - df.USER_ID.astype(str).isin(set(users.index.values)).mean()
+        print("Missing rate of all user meta-data", missing_rate)
+        if missing_rate > config['na_rate_threshold']:
+            warnings.warn("High missing rate of all user meta-data ({:%})!"
+                          .format(missing_rate))
 
-    coldstart_rate = 1 - users.index.isin(set(df.USER_ID.astype(str).values)).mean()
-    print("User coldstart rate", coldstart_rate)
-    if coldstart_rate > COLDSTART_RATE_THRESHOLD:
-        warnings.warn("High user coldstart rate ({:%})!"
-                      .format(coldstart_rate))
+    if config['coldstart_rate_threshold'] < 1:
+        coldstart_rate = 1 - users.index.isin(set(df.USER_ID.astype(str).values)).mean()
+        print("User coldstart rate", coldstart_rate)
+        if coldstart_rate > config['coldstart_rate_threshold']:
+            warnings.warn("High user coldstart rate ({:%})!"
+                          .format(coldstart_rate))
 
     describe_dataframe(users)
 
@@ -406,17 +423,19 @@ def diagnose_items(df, items):
     items['ITEM_ID'] = items['ITEM_ID'].astype(str)
     items = items.set_index('ITEM_ID')
 
-    missing_rate = 1 - df.ITEM_ID.astype(str).isin(set(items.index.values)).mean()
-    print("Missing rate of all item meta-data", missing_rate)
-    if missing_rate > NA_RATE_THRESHOLD:
-        warnings.warn("High missing rate of all item meta-data ({:%})!"
-                      .format(missing_rate))
+    if config['na_rate_threshold'] < 1:
+        missing_rate = 1 - df.ITEM_ID.astype(str).isin(set(items.index.values)).mean()
+        print("Missing rate of all item meta-data", missing_rate)
+        if missing_rate > config['na_rate_threshold']:
+            warnings.warn("High missing rate of all item meta-data ({:%})!"
+                          .format(missing_rate))
 
-    coldstart_rate = 1 - items.index.isin(set(df.ITEM_ID.astype(str).values)).mean()
-    print("Item coldstart rate", coldstart_rate)
-    if coldstart_rate > NA_RATE_THRESHOLD:
-        warnings.warn("High item coldstart rate ({:%})!"
-                      .format(coldstart_rate))
+    if config['coldstart_rate_threshold'] < 1:
+        coldstart_rate = 1 - items.index.isin(set(df.ITEM_ID.astype(str).values)).mean()
+        print("Item coldstart rate", coldstart_rate)
+        if coldstart_rate > config['coldstart_rate_threshold']:
+            warnings.warn("High item coldstart rate ({:%})!"
+                          .format(coldstart_rate))
 
     describe_dataframe(items)
 
@@ -438,14 +457,14 @@ def diagnose(df, users=None, items=None):
     print("########################################")
     print("# DIAGNOSING INTERACTIONS TABLE, SAMPLE:")
     print("########################################")
-    print(df.sample(min(len(df), 10)))
+    print(df.sample(min(len(df), 10), random_state=42))
     diagnose_interactions(df)
 
     if users is not None:
         print("########################################")
         print("# DIAGNOSING USERS TABLE, SAMPLE:")
         print("########################################")
-        print(users.sample(min(len(users), 10)))
+        print(users.sample(min(len(users), 10), random_state=42))
         diagnose_users(df, users)
     else:
         print("########################################")
@@ -456,9 +475,12 @@ def diagnose(df, users=None, items=None):
         print("########################################")
         print("# DIAGNOSING ITEMS TABLE, SAMPLE:")
         print("########################################")
-        print(items.sample(min(len(items), 10)))
+        print(items.sample(min(len(items), 10), random_state=42))
         diagnose_items(df, items)
     else:
         print("########################################")
         print("# ITEMS TABLE NOT FOUND")
         print("########################################")
+
+if args.datasets is not None and len(args.datasets):
+    diagnose(*[pd.read_csv(d) for d in args.datasets])
