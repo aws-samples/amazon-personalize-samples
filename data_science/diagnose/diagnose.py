@@ -191,19 +191,17 @@ def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None,
     q = _normalize_distribution(X)
 
     if method.lower() in ['kl', 'kl-divergence']:
-        eps_ratio = (1-config['cross_entropy_with_epsilon_greedy']) / \
-                    (config['cross_entropy_with_epsilon_greedy'] / N)
+        eps_ratio = (1-config['eps_greedy']) / (config['eps_greedy'] / N)
         log_p = (p * eps_ratio).log1p()
         log_q = (q * eps_ratio).log1p()
         temporal_loss = (p .multiply (log_p - log_q)).sum(axis=1)
         loss_fmt = '{:.2f}'
 
     elif method.lower() in ['ce', 'cross-entropy']:
-        eps_ratio = (1-config['cross_entropy_with_epsilon_greedy']) / \
-                    (config['cross_entropy_with_epsilon_greedy'] / N)
+        eps_ratio = (1-config['eps_greedy']) / (config['eps_greedy'] / N)
         log_q = (q * eps_ratio).log1p()
         temporal_loss = -((p .multiply (log_q)).sum(axis=1) + \
-                        np.log(config['cross_entropy_with_epsilon_greedy'] / N))
+                        np.log(config['eps_greedy'] / N))
         loss_fmt = '{:.2f}'
 
     elif method.lower() in ['oov', 'out-sample items']:
@@ -468,14 +466,14 @@ def diagnose(df, users=None, items=None):
     print("########################################")
     print("# DIAGNOSING INTERACTIONS TABLE, SAMPLE:")
     print("########################################")
-    print(df.sample(min(len(df), 10), random_state=42))
+    print(df.sample(min(len(df), 10)))
     diagnose_interactions(df)
 
     if users is not None:
         print("########################################")
         print("# DIAGNOSING USERS TABLE, SAMPLE:")
         print("########################################")
-        print(users.sample(min(len(users), 10), random_state=42))
+        print(users.sample(min(len(users), 10)))
         diagnose_users(df, users)
     else:
         print("########################################")
@@ -486,7 +484,7 @@ def diagnose(df, users=None, items=None):
         print("########################################")
         print("# DIAGNOSING ITEMS TABLE, SAMPLE:")
         print("########################################")
-        print(items.sample(min(len(items), 10), random_state=42))
+        print(items.sample(min(len(items), 10)))
         diagnose_items(df, items)
     else:
         print("########################################")
