@@ -174,6 +174,15 @@ def compute_temporal_loss(df, freq, method, hist_len):
     return compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq, tic)
 
 
+def _fit_transform(method_at_k, q, p):
+    topk = int(method_at_k.split('@')[1])
+    indices = np.argsort(
+        -q.toarray() + np.random.rand(*q.shape)*1e-10,
+        axis=1)[:, :topk]
+    p_topk = np.take_along_axis(p.toarray(), indices, axis=1)
+    return p_topk
+
+
 def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None, tic=0):
     """ Y:target (unobserved), X:data (observed) """
 
@@ -205,13 +214,15 @@ def compute_distribution_shift(index, df_wgt, Y, X, method, hist_len, freq=None,
         temporal_loss = (p-q).multiply(p>q).sum(axis=1)
         loss_fmt = '{:.1%}'
 
-    elif method.lower().startswith('prec'):
-        topk = int(re.findall(r'\d+', method)[0])
-        q = q.toarray()
-        indices = np.argpartition(-q, topk)
-        q[:,:] = 0
-        q[np.arange(q.shape[0])[:,None], indices[:,:topk]] = 1
-        temporal_loss = -p.multiply(q).sum(axis=1)
+    elif method.lower().startswith('hit@'):
+        p_topk = _fit_transform(method, q, p)
+        temporal_loss = -p_topk.sum(axis=1)
+        loss_fmt = '{:.1%}'
+
+    elif method.lower().startswith('mrr@'):
+        topk = int(method.split('@')[1])
+        p_topk = _fit_transform(method, q, p)
+        temporal_loss = -(p_topk / (1+np.arange(topk))[None,:]).sum(axis=1)
         loss_fmt = '{:.1%}'
 
     else:
