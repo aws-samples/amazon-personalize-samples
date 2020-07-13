@@ -62,8 +62,6 @@ Once it has completed you'll see green text like below indicating that the work 
 
 Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
 
-![StackWizard5](static/imgs/img8.png)
-
 
 </details>
 
