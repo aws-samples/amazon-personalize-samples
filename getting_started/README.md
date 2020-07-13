@@ -34,35 +34,35 @@ Follow along with the screenshots if you have any questions about these steps.
 <details>
   <summary>Click to expand the instructions</summary>
   
-### Cloud Formation Wizard
-
-Start by clicking `Next` at the bottom like shown:
-
-![StackWizard](static/imgs/img1.png)
-
-In the next page you need to provide a unique S3 bucket name for your file storage, it is recommended to simply add your first name and last name to the end of the default option as shown below, after that update click `Next` again.
-
-![StackWizard2](static/imgs/img3.png)
-
-This page is a bit longer so scroll to the bottom to click `Next`.
-
-![StackWizard3](static/imgs/img4.png)
-
-Again scroll to the bottom, check the box to enable the template to create new IAM resources and then click `Create Stack`.
-
-![StackWizard4](static/imgs/img5.png)
-
-For a few minutes CloudFormation will be creating the resources described above on your behalf it will look like this while it is provisioning:
-
-![StackWizard5](static/imgs/img6.png)
-
-Once it has completed you'll see green text like below indicating that the work has been completed:
-
-![StackWizard5](static/imgs/img7.png)
-
-Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
-
-![StackWizard5](static/imgs/img8.png)
+    ### Cloud Formation Wizard
+    
+    Start by clicking `Next` at the bottom like shown:
+    
+    ![StackWizard](static/imgs/img1.png)
+    
+    In the next page you need to provide a unique S3 bucket name for your file storage, it is recommended to simply add your first name and last name to the end of the default option as shown below, after that update click `Next` again.
+    
+    ![StackWizard2](static/imgs/img3.png)
+    
+    This page is a bit longer so scroll to the bottom to click `Next`.
+    
+    ![StackWizard3](static/imgs/img4.png)
+    
+    Again scroll to the bottom, check the box to enable the template to create new IAM resources and then click `Create Stack`.
+    
+    ![StackWizard4](static/imgs/img5.png)
+    
+    For a few minutes CloudFormation will be creating the resources described above on your behalf it will look like this while it is provisioning:
+    
+    ![StackWizard5](static/imgs/img6.png)
+    
+    Once it has completed you'll see green text like below indicating that the work has been completed:
+    
+    ![StackWizard5](static/imgs/img7.png)
+    
+    Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
+    
+    ![StackWizard5](static/imgs/img8.png)
 
 
 </details>
@@ -70,11 +70,7 @@ Now that you have your environment created, you need to save the name of your S3
 
 ## Using the Notebooks
 
-Start by navigating to the SageMaker serivce page by clicking the `Services` link in the top navigation bar of the AWS console.
-
-![StackWizard5](static/imgs/img9.png)
-
-In the search field enter `SageMaker` and then click for the service when it appears, from the service page click the `Notebook Instances` link on the far left menu bar.
+Start by navigating to the Amazon SageMaker landing [page](https://console.aws.amazon.com/sagemaker/home?region=us-east-1#/). From the service page click the `Notebook Instances` link on the far left menu bar.
 
 ![StackWizard5](static/imgs/img10.png)
 
@@ -82,9 +78,7 @@ To get to the Jupyter interface, simply click `Open JupyterLab` on the far right
 
 ![StackWizard5](static/imgs/img11.png)
 
-Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. Get started by clicking on `1.Building_Your_First_Campaign.ipynb`.
-
-![StackWizard5](static/imgs/img12.png)
+Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. To get started navigate to the `amazon-personalize-samples/getting_started/notebooks/1.Building_Your_First_Campaign.ipynb` notebook.
 
 The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor or if you are working independently this is a pretty good video to get started:
 
