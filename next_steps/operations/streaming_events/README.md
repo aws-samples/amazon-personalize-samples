@@ -1,7 +1,3 @@
-# amazon-personalize-streaming-events
-This is a repo that contains code to deploy a sample UI and infrastructure to stream events into an Amazon Personalize event tracker
-
-
 # Getting Started
 
 This example showcases a key piece you can use to construct your API Layer to consume Amazon Personalize recommendations and produce real time events
