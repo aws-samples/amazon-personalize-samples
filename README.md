@@ -8,51 +8,36 @@ The [getting_started/](getting_started/) folder contains a CloudFormation templa
 
 The notebooks provided can also serve as a template to building your own models with your own data. This repository is cloned into the environment so you can explore the more advanced notebooks with this approach as well.
 
-## Amazon Personalize Use Cases examples
+## Amazon Personalize Next Steps
 
-The [core_use_cases/](core_use_cases/) folder contains detailed examples of the following typical use cases.
+The [next_steps/](next_steps/) folder contains detailed examples of the following typical next steps in your Amazon Personalize journey. This folder contains the following advanced content:
 
-* Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
-  - [Offline evaluation with 'hrnn' user-based recommendation.](core_use_cases/personalize_temporal_holdout.ipynb)
-  - [Example of 'sims' item-based recommendation.](core_use_cases/personalize_sims_smell_tests.ipynb)
-  - [How recommendation changes after 'put_events'.](core_use_cases/personalize_putEvents_demo.ipynb)
-* Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
-  - [How to use user, item, and event 'meta-data'.](core_use_cases/personalize_metadata_example.ipynb)
-  - [Exploring 'cold-start' or 'future' items.](core_use_cases/personalize_coldstart_demo.ipynb)
 
-## Scalable Operations examples for your Amazon Personalize deployments
+* Core Use Cases.
+  - [User Personalization](/next_steps/core_use_cases/user_personalization)
+  - [Personalize Ranking](/next_steps/core_use_cases/personalize_ranking)
+  - [Batch Recommendations](/next_steps/core_use_cases/batch_recommendations)
+  - [Related Items](/next_steps/core_use_cases/related_items)
 
-The [operations/](operations/) folder contains examples on the following topics:
+* Scalable Operations examples for your Amazon Personalize deployments
+    - [MLOps](/next_steps/operations/ml_ops)
+        - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](operations/ml_ops/) folder and follow the README instructions.
+    - [Lambda Examples](/next_steps/operations/lambda_examples)
+        - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](operations/lambda_examples/) folder and follow the README instructions.
 
-* MLOps
-    - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](operations/ml_ops/) folder and follow the README instructions.
-* Lambda Examples
-    - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](operations/lambda_examples/) folder and follow the README instructions.
 
-## Reference Architectures
+* Workshops
+    - [Workshops/](/next_steps/workshops/) folder contains a list of our most current workshops:
+        - POC in a Box
+        - Re:invent 2019
+        - Immersion Days
 
-The [reference_architectures/](reference_architectures/) folder contains reference architectures for the following industries:
-
-* Retail
-* Media and Entertainment
-* Travel and Hospitality 
-
-## Workshops
-
-The [workshops/](workshops/) folder contains a list of our most current workshops:
-
-* POC in a Box
-* Re:invent 2019
-
-## Data Science Tools
-
-The [data_science/](data_science/) folder contains an example on how to approach visualization of the key properties of your input datasets.
-
-The key components we look out for include:
-- Missing data, duplicated events, and repeated item consumptions
-- Power-law distribution of categorical fields
-- Temporal drift analysis for cold-start applicability
-- Analysis on user-session distribution
+* Data Science Tools
+    - The [data_science/](/next_steps/data_science/) folder contains an example on how to approach visualization of the key properties of your input datasets.
+        - Missing data, duplicated events, and repeated item consumptions
+        - Power-law distribution of categorical fields
+        - Temporal drift analysis for cold-start applicability
+        - Analysis on user-session distribution
 
 ## License Summary
 
