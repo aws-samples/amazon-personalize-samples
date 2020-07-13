@@ -78,7 +78,11 @@ To get to the Jupyter interface, simply click `Open JupyterLab` on the far right
 
 ![StackWizard5](static/imgs/img11.png)
 
-Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. To get started navigate to the `amazon-personalize-samples/getting_started/notebooks/1.Building_Your_First_Campaign.ipynb` notebook.
+Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. 
+
+To get started navigate to the first notebook:
+
+`amazon-personalize-samples/getting_started/notebooks/1.Building_Your_First_Campaign.ipynb`
 
 The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor or if you are working independently this is a pretty good video to get started:
 
