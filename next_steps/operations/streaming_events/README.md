@@ -33,8 +33,8 @@ In order to deploy the project you will need to run the following commands:
 
 1. Clone the Amazon Personalize Samples repo 
     - `git clone https://github.com/aws-samples/amazon-personalize-samples.git`
-2. Navigate into the *reference_architectures/personalize-streaming-events* directory
-    - `cd reference_architectures/personalize-streaming-events` 
+2. Navigate into the *next_steps/operations/streaming_events* directory
+    - `cd amazon-personalize-samples/next_steps/operations/streaming_events` 
 3. Build your SAM project. [Installation instructions](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
     - `sam build` 
 4. Deploy your project. SAM offers a guided deployment option, note that you will need to provide your email address as a parameter to receive a notification.
