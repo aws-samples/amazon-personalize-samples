@@ -1,14 +1,27 @@
 # Getting Started
 
-The tutorial below will walk you through building an environment to create a custom dataset, model, and recommendation campaign with Amazon Personalize. If you have any issues with any of the content below please open an issue here in the repository.
+This tutorial will walk you through building an environment to create a custom dataset, model, and recommendation campaign with Amazon Personalize.
 
-## Prerequisites
+## Agenda
+
+The steps below outline the process of building your own recommendation model, improving it, and then cleaning up all of your resources to prevent any unwanted charges. To get started executing these follow the steps in the next section.
+
+1. `1.Building_Your_First_Campaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
+2. `2.View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
+4. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
+
+You can download the Jupyter notebooks from the `/notebooks` folder or deploy the following Cloud Formation template which clones this repo.
+
+If you have any issues with any of the content below please open an issue here in the repository.
+
+
+
+## Environment Prerequisites
 
 Only applies if you are deploying with the CloudFormation template, otherwise consult the IAM permissions needed for your specific task.
 
 1. AWS Account
 2. User with administrator access to the AWS Account
-
 
 ## Building Your Environment
 
@@ -18,6 +31,9 @@ The first step is to deploy a CloudFormation template that will perform much of 
 
 Follow along with the screenshots if you have any questions about these steps.
 
+<details>
+  <summary>Click to expand the instructions</summary>
+  
 ### Cloud Formation Wizard
 
 Start by clicking `Next` at the bottom like shown:
@@ -49,13 +65,7 @@ Now that you have your environment created, you need to save the name of your S3
 ![StackWizard5](static/imgs/img8.png)
 
 
-## Agenda
-
-The steps below outline the process of building your own recommendation model, improving it, and then cleaning up all of your resources to prevent any unwanted charges. To get started executing these follow the steps in the next section.
-
-1. `1.Building_Your_First_Campaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
-2. `2.View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
-4. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
+</details>
 
 
 ## Using the Notebooks
