@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "se-test-1"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-iq67aiu1indy"
+s3_prefix = "se-test-1"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "EventTrackerIdParam=820029aa-b00c-4eff-9e6f-60830bb68508 CampaignARNParam=arn:aws:personalize:us-east-1:144386903708:campaign/airlines-metadata-campaign-14078 S3BucketParam=personalize-events-luis-test KinesisBatchSize=50 ShardCount=1"
+
