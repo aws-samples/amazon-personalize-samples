@@ -25,7 +25,7 @@ exports.handler = (event, context, callback) => {
                 },
             ]
         }
-        console.log("THIS IS THE FUCKING OBJECT = " + JSON.stringify(putEventsParams,null,3))
+        console.log("THIS IS THE OBJECT = " + JSON.stringify(putEventsParams,null,3))
         personalizeevents.putEvents(putEventsParams, function (err, data) {
           if (err) {
                 console.log(err, err.stack); // an error occurred
