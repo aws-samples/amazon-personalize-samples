@@ -1,0 +1,38 @@
+{
+    "datasetGroup": {
+        "name":"ExampleGroup"
+    },
+    "datasets": {
+        "Interactions": {
+            "name":"InteractionsDataset",
+            "schema": {
+              "type": "record",
+              "name": "Interactions",
+              "namespace": "com.amazonaws.personalize.schema",
+              "fields": [
+                {
+                  "name": "USER_ID",
+                  "type": "string"
+                },
+                {
+                  "name": "ITEM_ID",
+                  "type": "string"
+                },
+                {
+                  "name": "TIMESTAMP",
+                  "type": "long"
+                }
+              ],
+              "version": "1.0"
+            }
+        }
+    },
+    "solution": {
+        "name": "ExampleSolution",
+        "performAutoML": true
+    },
+    "campaign": {
+        "name": "ExampleCampaign",
+        "minProvisionedTPS": 1
+    }
+}

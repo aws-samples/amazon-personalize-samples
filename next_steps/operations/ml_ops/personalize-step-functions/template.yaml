@@ -1,161 +1,171 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  personalize-step-functions
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 300
 
 Parameters:
-  EmailAddress:
+  Email:
     Type: String
-    Description: Email Address to be notified on success
-    Default: empty
+    Description: Email to be notified
+    Default: youremail@yourprovider.com
+  ParameterFile:
+    Type: String
+    Description: Parameters file name, which will reside in your S3 parent directory
+    Default: params.json
 
 Resources:
-  CreateSchema:
-    Type:  AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/createschema
-      Handler: createschema.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateDataset:
+
+# ------------------------
+# Data Input Bucket
+# ------------------------
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W41
+            reason: S3 will not be encrypted for the porpose of this block
+          - id: W35
+            reason: S3 will not have logging for the porpose of this block
+          - id: W51
+            reason: S3 will not have a policy for the porpose of this block
+  
+  PersonalizeS3Policy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref InputBucket
+      PolicyDocument: 
+        Statement: 
+          - Sid: PersonalizeAcess
+            Effect: Allow
+            Principal:
+              Service: 'personalize.amazonaws.com'
+            Action: 
+              - 's3:GetObject'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref InputBucket
+                  - /*
+          - Sid: PersonalizeList
+            Effect: Allow
+            Principal:
+              Service: 'personalize.amazonaws.com'
+            Action: 
+              - 's3:ListBucket'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref InputBucket
+
+  S3Lambda:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/createdataset/
-      Handler: dataset.lambda_handler
+      CodeUri: lambdas/s3lambda/
+      Handler: parse.lambda_handler
       Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateDatasetGroup:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/createdatasetgroup/
-      Handler: datasetgroup.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateDatasetImportJob:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/createdatasetimportjob/
-      Handler: datasetimport.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
+      Role: !GetAtt TriggerRole.Arn
       Environment:
         Variables:
-          PERSONALIZE_ROLE: !GetAtt [PersonalizeRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateSolution:
-    Type: AWS::Serverless::Function
+          STEP_FUNCTIONS_ARN: !Ref DeployStateMachine
+          PARAMS_FILE: !Ref ParameterFile
+      Events:
+        S3Bucket:
+          Type: S3
+          Properties:
+            Bucket: !Ref InputBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: prefix
+                  Value: !Ref ParameterFile
+  
+  TriggerRole:
+    Type: AWS::IAM::Role
     Properties:
-      CodeUri: lambdas/createsolution/
-      Handler: solution.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateSolutionVersion:
-    Type: AWS::Serverless::Function
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+# ------------------------
+# SNS Topic
+# ------------------------
+  NotificationTopic:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W47
+            reason: "SNS will not be encrypted for the porpose of this block"
+    Type: AWS::SNS::Topic
     Properties:
-      CodeUri: lambdas/createsolutionversion/
-      Handler: solutionversion.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CreateCampaign:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/createcampaign/
-      Handler: campaign.lambda_handler
-      Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
-      Layers:
-        - !Ref CommonCodeLayer
-  CommonCodeLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-        LayerName: common-code-dependencies
-        Description: Dependencies for take action code
-        ContentUri: dependencies/
-        CompatibleRuntimes:
-          - python3.7
-        LicenseInfo: 'MIT'
-        RetentionPolicy: Retain
-  NotifyTopic:
+      DisplayName: StepsTopic
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+
+  Notify:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambdas/notify/
       Handler: notify.lambda_handler
       Runtime: python3.7
-      Role: !GetAtt [LambdaRole, Arn]
       Environment:
         Variables:
-          SNS_TOPIC_ARN: !Ref SNSTopic
-  SNSTopic:  
-    Type: AWS::SNS::Topic
-    Properties: 
-      Subscription: 
-        - Endpoint: !Ref EmailAddress
-          Protocol: "email"
-      TopicName: !Join [ "-", [ "PersonalizeSuccessNotification", !Ref "AWS::StackName" ] ]
-      
-  LambdaRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - !Sub lambda.${AWS::Region}.amazonaws.com
-            Action: "sts:AssumeRole"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
-        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+          SNS_TOPIC_ARN: !Ref NotificationTopic
       Policies:
-        - PolicyName: LambdaExecutionPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "lambda:InvokeFunction"
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - "personalize:*"
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - "iam:PassRole"
-                Resource: !GetAtt [PersonalizeRole, Arn]
-  PersonalizeRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - personalize.amazonaws.com
-            Action: "sts:AssumeRole"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
-        - arn:aws:iam::aws:policy/CloudWatchFullAccess
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"
+            
+# ------------------------
+# Custom Shared Layer
+# ------------------------
+  SharedLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: shared/
+        CompatibleRuntimes:
+          - python3.7
+        RetentionPolicy: Delete
+
+# ------------------------
+# Create Steps Definition
+# ------------------------
   StatesExecutionRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -174,7 +184,112 @@ Resources:
                 Action:
                   - "lambda:InvokeFunction"
                 Resource: "*"
-  # ----- State Machine ------
+  CreateDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-datasetgroup/
+      Handler: datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDatasetGroup
+                - personalize:DescribeDatasetGroup
+              Resource: "*"
+  CreateDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-dataset/
+      Handler: dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDataset
+                - personalize:DescribeDataset
+                - personalize:CreateSchema
+                - personalize:DescribeSchema
+              Resource: "*"
+  ImportData:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/import-data/
+      Handler: datasetimport.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Environment:
+        Variables:
+          PERSONALIZE_ROLE: !GetAtt [PersonalizeRole, Arn]
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDatasetImportJob
+                - personalize:DescribeDatasetImportJob
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - iam:PassRole
+              Resource: !GetAtt PersonalizeRole.Arn
+  CreateSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-solution/
+      Handler: solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateSolution
+                - personalize:DescribeSolution
+                - personalize:CreateSolutionVersion
+              Resource: "*"
+  WaitSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-solution-version/
+      Handler: wait-version.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeSolutionVersion
+              Resource: "*"
+  CreateCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-campaign/
+      Handler: campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateCampaign
+                - personalize:DescribeCampaign
+              Resource: "*"
+  
   DeployStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
@@ -182,136 +297,290 @@ Resources:
         !Sub
           - |-
             {
-              "Comment": "An automation Pipeline for Amazon Personalize",
-              "StartAt": "Create-Schema",
+              "StartAt": "Create Dataset Group",
               "States": {
-                "Create-Schema": {
-                  "Type": "Task",
-                  "Resource": "${CreateSchemaArn}",
-                  "Retry": [{
-                    "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
-                    "BackoffRate": 1.5,
-                    "MaxAttempts": 100
-                  }],
-                  "Catch": [{
-                    "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
-                  }],
-                  "Next": "Create-DatasetGroup"
-                },
-                "Create-DatasetGroup": {
+                "Create Dataset Group": {
                   "Type": "Task",
                   "Resource": "${CreateDatasetGroupArn}",
+                  "InputPath": "$.params",
+                  "ResultPath": "$.datasetGroupArn",
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
-                    "BackoffRate": 2.0,
-                    "MaxAttempts": 100
-                  }],
-                  "Catch": [{
-                    "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
-                  }],
-                  "Next": "Create-Dataset"
-                },
-                "Create-Dataset": {
-                  "Type": "Task",
-                  "Resource": "${CreateDatasetArn}",
-                  "Retry": [{
-                    "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
+                    "IntervalSeconds": 2,
                     "BackoffRate": 1.5,
                     "MaxAttempts": 100
                   }],
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
                   }],
-                  "Next": "Import-Data"
+                  "Next": "Create Datasets"
                 },
-                "Import-Data": {
-                  "Type": "Task",
-                  "Resource": "${ImportDataArn}",
-                  "Retry": [{
-                    "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
-                    "BackoffRate": 1.5,
-                    "MaxAttempts": 100
-                  }],
+                "Create Datasets": {
+                  "Type": "Parallel",
+                  "Next": "Create Solution",
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Fail"
                   }],
-                  "Next": "Create-Solution"
+                  "ResultPath": "$.datasetImportJobs",
+                  "Branches": [
+                      {
+                        "StartAt": "Create Users Dataset",
+                        "States": {
+                          "Create Users Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Users"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Users Not Available"
+                            }],
+                            "Next": "Import Users Dataset"
+                          },
+                          "Import Users Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Users",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Users Not Available": {
+                            "Type": "Pass",
+                            "Result": "Users dataset not available",
+                            "End": true
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Items Dataset",
+                        "States": {
+                          "Create Items Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Items"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Items Not Available"
+                            }],
+                            "Next": "Import Items Dataset"
+                          },
+                          "Import Items Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Items",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Items Not Available": {
+                            "Type": "Pass",
+                            "Result": "Items dataset not available",
+                            "End": true
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Interactions Dataset",
+                        "States": {
+                          "Create Interactions Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Interactions"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Interactions Not Available"
+                            }],
+                            "Next": "Import Interactions Dataset"
+                          },
+                          "Import Interactions Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Interactions",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Interactions Not Available": {
+                            "Type": "Fail",
+                            "Cause": "Interactions dataset not provided on parameters file.",
+                            "Error": "Interactions dataset not available"
+                          }
+                        }
+                      }
+                  ]
                 },
-                "Create-Solution": {
-                  "Type": "Task",
+                "Create Solution": {
                   "Resource": "${CreateSolutionArn}",
-                  "Retry": [{
-                    "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
-                    "BackoffRate": 1.5,
-                    "MaxAttempts": 100
-                  }],
-                  "Catch": [{
-                    "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
-                  }],
-                  "Next": "Create-Solution-Version"
-                },
-                "Create-Solution-Version": {
                   "Type": "Task",
-                  "Resource": "${CreateSolutionVersionArn}",
+                  "Parameters": {
+                    "solution.$": "$.params.solution",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "ResultPath": "$.solutionVersionArn",
+                  "Next": "Wait Solution Version"
+                },
+                "Wait Solution Version": {
+                  "Type": "Task", 
+                  "Resource": "${WaitSolutionArn}",
+                  "ResultPath": "$.solutionVersionStatus",
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
+                    "IntervalSeconds": 2,
                     "BackoffRate": 1.5,
                     "MaxAttempts": 100
                   }],
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
                   }],
-                  "Next": "Create-Campaign"
+                  "Next": "Create Campaign"
                 },
-                "Create-Campaign": {
+                "Create Campaign": {
                   "Type": "Task",
                   "Resource": "${CreateCampaignArn}",
+                  "Parameters": {
+                    "campaign.$": "$.params.campaign",
+                    "solutionVersionArn.$": "$.solutionVersionArn"
+                  },
+                  "ResultPath": "$.campaignArn",
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 1,
+                    "IntervalSeconds": 2,
                     "BackoffRate": 1.5,
                     "MaxAttempts": 100
                   }],
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
-                    "Next": "Failure"
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
                   }],
-                  "Next": "Notify-Success"
+                  "Next": "Notify Users"
                 },
-                "Notify-Success": {
+                "Notify Users": {
                   "Type": "Task",
-                  "Resource": "${NotifyTopicArn}",
-                  "Next": "Done"
+                  "Resource": "${NotifyArn}",
+                  "End": true
                 },
-                "Failure": {
-                  "Type": "Fail"
-                },
-                "Done": {
-                  "Type": "Succeed"
+                "Fail": {
+                  "Type": "Task",
+                  "Resource": "${NotifyArn}",
+                  "End": true
                 }
               }
             }
-          - CreateSchemaArn: !GetAtt [CreateSchema, Arn]
-            CreateDatasetGroupArn: !GetAtt [CreateDatasetGroup, Arn]
-            CreateDatasetArn: !GetAtt [CreateDataset, Arn]
-            ImportDataArn: !GetAtt [CreateDatasetImportJob, Arn]
-            CreateSolutionArn: !GetAtt [CreateSolution, Arn]
-            CreateSolutionVersionArn: !GetAtt [CreateSolutionVersion, Arn]
-            CreateCampaignArn: !GetAtt [CreateCampaign, Arn]
-            NotifyTopicArn: !GetAtt [NotifyTopic, Arn]
+          - CreateDatasetGroupArn: !GetAtt CreateDatasetGroup.Arn
+            CreateDatasetArn: !GetAtt CreateDataset.Arn
+            ImportDataArn: !GetAtt ImportData.Arn
+            CreateSolutionArn: !GetAtt CreateSolution.Arn
+            CreateCampaignArn: !GetAtt CreateCampaign.Arn
+            WaitSolutionArn: !GetAtt  WaitSolution.Arn
+            NotifyArn: !GetAtt Notify.Arn
 
       RoleArn: !GetAtt [StatesExecutionRole, Arn]
 
-
-# Outputs:
+  PersonalizeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - personalize.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+      Policies:
+        - PolicyName: PersonalizeS3BucketAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: arn:aws:s3:::*
+  
+Outputs:
+  DeployStateMachineArn:
+    Description: The Create StateMachine Arn
+    Value: !Ref DeployStateMachine
+  InputBucketName:
+    Description: The S3 bucket name
+    Value: !Ref InputBucket
+  NotificationTopicArn:
+    Description: The Notification Topic Arn
+    Value: !Ref NotificationTopic
+  
