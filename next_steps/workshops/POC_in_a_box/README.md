@@ -27,26 +27,23 @@ By the end of this POC, you should have picked up the following skills:
 
 The notebooks have been scrubbed of all output before usage, however if you'd like to see a fully worked out example of this process, explore the notebooks in the `completed` folder.
 
-## Workshop Version
-
-The notebooks contain all of the code you need to work through a simple POC, but if you are running a workshop, participants will be more engaged if they have to write some of the code themselves. The notebooks in the `workshop` folder have some cells where the participant is asked to complete a challenge.
 
 ## Process:
 
 1. Deploying your working environment [see below]
 1. Validating and importing user-item-interaction data - 
 `01_Validating_and_Importing_User_Item_Interaction_Data.ipynb`
-1. Validating and importing item-metadata [in development] - 
-`Validating_and_Importing_Item_Metadata.ipynb`
+1. Validating and importing item-metadata - 
+`02_Validating_and_Importing_Item_Metadata.ipynb`
 1. Creating and evaluating your first solutions - 
-`02_Creating_and_Evaluating_Solutions.ipynb`
-1. Importing item / user metadata [in development]
-1. Creating and evaluating related metadata solutions [in development]
-1. Deploying and interacting with campaigns -
-`03_Deploying_Campaigns_and_Interacting.ipynb`
-1. Cleaning up the resources on your AWS account - `04_Clean_Up_Resources.ipynb`
+`03_Creating_and_Evaluating_Solutions.ipynb`
+1. Deploying campaigns and filters -
+`04_Deploying_Campaigns_and_Filters.ipynb`
+1. Deploying campaigns and filters -
+`05_Interacting_with_Campaigns_and_Filters.ipynb`
+1. Cleaning up the resources on your AWS account - `06_Clean_Up_Resources.ipynb`
 
-That shows the usual order of this process, however, if you are operating this as an assisted 2 day on-site POC, it is recommended that you at least import the user-item-interaction data before arriving in person.
+That shows the usual order of this process, however, if you are operating this as an assisted 2 day on-site POC, it is recommended that you at least import the user-item-interaction and item-metadata data before arriving in person.
 
 
 ## Deploying Your Working Environment
@@ -112,13 +109,17 @@ The core data for every algorithm supported in Amazon Personalize is user-item-i
 
 Open `01_Validating_and_Importing_User_Item_Interaction_Data.ipynb` and follow along there.
 
+Once you have completed this, you can move on to imporing metadata.
+
+## Validating and Importing Item Metadata
+
+Amazon Personalize has several algorithms that can give you a results with no metadata. However, the User Personalization and HRNN-Metadata algorithm might be an interesting resource to deploy, depending your dataset. 
+
+Open `02_Validating_and_Importing_Item_Metadata.ipynb` and follow along there.
+
 Once you have completed this, you can move on to creating and evaluating your first solutions.
 
-## Validating and Importing Item Metadata [in development]
-
-Amazon Personalize has several algorithms that can give you a results with no metadata. However, the HRNN-Metadata algorithm might be an interesting resource to deploy, depending your dataset. In case it is, there is an optional item metadata notebook below. It is similar to the process for users, and the only algorithm that supports either data type is HRNN-Metadata.
-
-Open `Validating_and_Importing_Item_Metadata.ipynb` and follow along there to prepare the dataset for the POC/Amazon Personalize.
+It is similar to the process for users, and the only algorithms that supports either data type is User Personalization and HRNN-Metadata.
 
 ## Creating and Evaluating Your First Solutions
 
@@ -130,24 +131,26 @@ In Amazon Personalize there is a concept of a solution, which is a trained model
 
 Something you may notice is that each of these algorithms or recipes solves a critically different problem. The goal is to show you how to build things that address a host of problems from a relatively simple dataset.
 
-Open `02_Creating_and_Evaluating_Solutions.ipynb` and follow along to build these solutions and see their results.
+Open `03_Creating_and_Evaluating_Solutions.ipynb` and follow along to build these solutions and see their results.
 
-### Deploying Your Campaigns and Interacting with Personalize
+### Deploying Your Campaigns and Filters
 
-Once you have a series of trained solutions the next step is to deploy them. This is done inside `03_Deploying_Campaigns_and_Interacting.ipynb`. Here you will learn:
+Once you have a series of trained solutions the next step is to deploy them. This is done inside `04_Deploying_Campaigns_and_Filters.ipynb`
 
+Here you will learn:
 1. Deployment and capacity planning
+1. How to create Item and Event Filters
+
+
+### Interacting with Personalize
+
+Once you have a series of trained solutions the next step is to deploy them. This is done inside `05_Interacting_with_Campaigns_and_Filters.ipynb`. Here you will learn:
+
 1. How to interact with a deployed solution (various approaches)
 1. Real-time interactions
+1. using filters with campaigns
 1. Batch exporting
 
-### Importing Item / User Metadata [in development]
-
-TBD
-
-### Creating and Evaluating Related Metadata Solutions [in development]
-
-TBD
 
 ### Next Steps
 
@@ -157,4 +160,4 @@ More content on AB testing coming soon as well.
 
 ### Cleaning Up
 
-Finished with the POC? If you want to delete all the resources created in your AWS account while following along with these notebooks, please see the `04_Clean_Up_Resources.ipynb` notebook. It will help you identify all of the Personalize resources deployed in your account and shows you how to delete them.
+Finished with the POC? If you want to delete all the resources created in your AWS account while following along with these notebooks, please see the `06_Clean_Up_Resources.ipynb` notebook. It will help you identify all of the Personalize resources deployed in your account and shows you how to delete them.
