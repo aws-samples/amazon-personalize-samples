@@ -12,7 +12,7 @@ Parameters:
 
   DefaultCodeRepo:
     Type: String
-    Default: https://github.com/chrisking/PersonalizePOC.git
+    Default: https://github.com/aws-samples/amazon-personalize-samples.git 
     Description: Enter the url of a git code repository for this lab
     
   InstanceType:
