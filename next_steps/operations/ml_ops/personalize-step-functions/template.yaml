@@ -32,7 +32,6 @@ Resources:
             reason: S3 will not have logging for the porpose of this block
           - id: W51
             reason: S3 will not have a policy for the porpose of this block
-  
   PersonalizeS3Policy:
     Type: AWS::S3::BucketPolicy
     Properties: 
@@ -62,7 +61,6 @@ Resources:
                 - ''
                 - - 'arn:aws:s3:::'
                   - !Ref InputBucket
-
   S3Lambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -85,7 +83,6 @@ Resources:
                 Rules:
                 - Name: prefix
                   Value: !Ref ParameterFile
-  
   TriggerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -116,7 +113,6 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
-
 # ------------------------
 # SNS Topic
 # ------------------------
@@ -132,7 +128,6 @@ Resources:
       Subscription:
         - Endpoint: !Ref Email
           Protocol: email
-
   Notify:
     Type: AWS::Serverless::Function
     Properties:
@@ -288,8 +283,25 @@ Resources:
               Action:
                 - personalize:CreateCampaign
                 - personalize:DescribeCampaign
+                - personalize:UpdateCampaign
               Resource: "*"
-  
+  AttachEventTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/event-tracker/
+      Handler: eventTracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateEventTracker
+                - personalize:DescribeEventTracker
+                - personalize:ListEventTrackers
+              Resource: "*"
   DeployStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
@@ -319,7 +331,7 @@ Resources:
                 },
                 "Create Datasets": {
                   "Type": "Parallel",
-                  "Next": "Create Solution",
+                  "Next": "Create Solutions",
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
                     "ResultPath": "$.serviceError",
@@ -477,42 +489,233 @@ Resources:
                         }
                       }
                   ]
-                },
-                "Create Solution": {
-                  "Resource": "${CreateSolutionArn}",
-                  "Type": "Task",
-                  "Parameters": {
-                    "solution.$": "$.params.solution",
-                    "datasetGroupArn.$": "$.datasetGroupArn"
-                  },
-                  "ResultPath": "$.solutionVersionArn",
-                  "Next": "Wait Solution Version"
-                },
-                "Wait Solution Version": {
-                  "Type": "Task", 
-                  "Resource": "${WaitSolutionArn}",
-                  "ResultPath": "$.solutionVersionStatus",
-                  "Retry": [{
-                    "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 2,
-                    "BackoffRate": 1.5,
-                    "MaxAttempts": 100
-                  }],
+                },        
+                "Create Solutions": {
+                  "Type": "Parallel",
+                  "Next": "Attach Event Tracker",
                   "Catch": [{
                     "ErrorEquals": ["ResourceFailed"],
                     "ResultPath": "$.serviceError",
                     "Next": "Fail"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Fail"
                   }],
-                  "Next": "Create Campaign"
+                  "ResultPath": "$.solutionsCampaignsCreation",
+                  "Branches": [
+                      {
+                        "StartAt": "Create User Personalization Solution",
+                        "States": {
+                          "Create User Personalization Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions.userPersonalization",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait User Personalization Solution Version"
+                          },
+                          "Wait User Personalization Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 60,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Fail"
+                            }],
+                            "Next": "Create User Personalization Campaign"
+                          },
+                          "Create User Personalization Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.userPersonalizationCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Fail"
+                            }],
+                            "End": true
+                          },
+                          "User Personalization Not Available": {
+                            "Type": "Pass",
+                            "Result": "User Personalization solution config not available",
+                            "End": true
+                          },
+                          "User Personalization Fail": {
+                            "Type": "Fail",
+                            "Cause": "User Personalization solution failed at create",
+                            "Error": "User Personalization solution failed"
+                          }
+                        }
+                      },{
+                        "StartAt": "Create SIMS Solution",
+                        "States": {
+                          "Create SIMS Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions.sims",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait SIMS Solution Version"
+                          },
+                          "Wait SIMS Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Fail"
+                            }],
+                            "Next": "Create SIMS Campaign"
+                          },
+                          "Create SIMS Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.simsCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Fail"
+                            }],
+                            "End": true
+                          },
+                          "SIMS Not Available": {
+                            "Type": "Pass",
+                            "Result": "SIMS solution config not available",
+                            "End": true
+                          },
+                          "SIMS Fail": {
+                            "Type": "Fail",
+                            "Cause": "SIMS solution failed at create",
+                            "Error": "SIMS solution failed"
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Personalized Ranking Solution",
+                        "States": {
+                          "Create Personalized Ranking Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions.personalizedRanking",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait Personalized Ranking Solution Version"
+                          },
+                          "Wait Personalized Ranking Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Fail"
+                            }],
+                            "Next": "Create Personalized Ranking Campaign"
+                          },
+                          "Create Personalized Ranking Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.personalizedRankingCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Fail"
+                            }],
+                            "End": true
+                          },
+                          "Personalized Ranking Not Available": {
+                            "Type": "Pass",
+                            "Result": "Personalized Ranking solution config not available",
+                            "End": true
+                          },
+                          "Personalized Ranking Fail": {
+                            "Type": "Fail",
+                            "Cause": "Personalized Ranking solution failed at create",
+                            "Error": "Personalized Ranking solution failed"
+                          }
+                        }
+                      }
+                  ]
                 },
-                "Create Campaign": {
+                "Attach Event Tracker":{
                   "Type": "Task",
-                  "Resource": "${CreateCampaignArn}",
+                  "Resource": "${AttachEventTrackerArn}",
                   "Parameters": {
-                    "campaign.$": "$.params.campaign",
-                    "solutionVersionArn.$": "$.solutionVersionArn"
+                    "eventTracker.$": "$.params.eventTracker",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
                   },
-                  "ResultPath": "$.campaignArn",
+                  "ResultPath": "$.eventTrackerArn",
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
                     "IntervalSeconds": 2,
@@ -544,10 +747,10 @@ Resources:
             CreateSolutionArn: !GetAtt CreateSolution.Arn
             CreateCampaignArn: !GetAtt CreateCampaign.Arn
             WaitSolutionArn: !GetAtt  WaitSolution.Arn
+            AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
             NotifyArn: !GetAtt Notify.Arn
 
       RoleArn: !GetAtt [StatesExecutionRole, Arn]
-
   PersonalizeRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -572,7 +775,7 @@ Resources:
                   - s3:GetObject
                   - s3:ListBucket
                 Resource: arn:aws:s3:::*
-  
+
 Outputs:
   DeployStateMachineArn:
     Description: The Create StateMachine Arn
