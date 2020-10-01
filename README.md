@@ -18,6 +18,8 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
   - [Personalize Ranking](/next_steps/core_use_cases/personalize_ranking)
   - [Batch Recommendations](/next_steps/core_use_cases/batch_recommendations)
   - [Related Items](/next_steps/core_use_cases/related_items)
+  - [SAMPLE](/next_steps/core_use_cases/related_items)
+  
 
 * Scalable Operations examples for your Amazon Personalize deployments
     - [MLOps](/next_steps/operations/ml_ops)
