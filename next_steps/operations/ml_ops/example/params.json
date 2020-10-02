@@ -1,38 +1,89 @@
 {
-    "datasetGroup": {
-        "name":"ExampleGroup"
-    },
-    "datasets": {
-        "Interactions": {
-            "name":"InteractionsDataset",
-            "schema": {
-              "type": "record",
-              "name": "Interactions",
-              "namespace": "com.amazonaws.personalize.schema",
-              "fields": [
+   "datasetGroup":{
+      "name":"MovieLenseDemo1"
+   },
+   "datasets":{
+      "Interactions":{
+          "name":"InteractionsDataset",
+          "schema":{
+                "type":"record",
+                "name":"Interactions",
+                "namespace":"com.amazonaws.personalize.schema",
+                "fields":[
+                    {
+                       "name":"USER_ID",
+                       "type":"string"
+                    },
+                    {
+                       "name":"ITEM_ID",
+                       "type":"string"
+                    },
+                    {
+                       "name":"EVENT_TYPE",
+                       "type":"string"
+                    },
+                    {
+                       "name":"TIMESTAMP",
+                       "type":"long"
+                    }
+                ],
+                "version":"1.0"
+          }
+      },
+      "Items":{
+          "name":"ItemsDataset",
+          "schema":{
+            "type":"record",
+            "name":"Items",
+            "namespace":"com.amazonaws.personalize.schema",
+            "fields":[
                 {
-                  "name": "USER_ID",
-                  "type": "string"
+                   "name":"ITEM_ID",
+                   "type":"string"
                 },
                 {
-                  "name": "ITEM_ID",
-                  "type": "string"
+                   "name":"GENRE",
+                   "type":"string",
+                   "categorical":true
                 },
                 {
-                  "name": "TIMESTAMP",
-                  "type": "long"
+                   "name":"YEAR",
+                   "type":"int"
                 }
-              ],
-              "version": "1.0"
-            }
-        }
-    },
-    "solution": {
-        "name": "ExampleSolution",
-        "performAutoML": true
-    },
-    "campaign": {
-        "name": "ExampleCampaign",
-        "minProvisionedTPS": 1
-    }
+            ],
+            "version":"1.0"
+          }
+      }
+   },
+   "solutions":{
+      "userPersonalization":{
+         "name":"userPersonalizationSolution",
+         "recipeArn":"arn:aws:personalize:::recipe/aws-user-personalization"
+      },
+      "sims":{
+         "name":"simsSolution",
+         "recipeArn":"arn:aws:personalize:::recipe/aws-sims"
+      },
+      "personalizedRanking":{
+         "name":"personalizedRankingSolution",
+         "recipeArn":"arn:aws:personalize:::recipe/aws-personalized-ranking"
+      }
+   },
+   "eventTracker":{
+      "name":"MovieLenseDemoEventTracker"
+   },
+   "campaigns":{
+      "userPersonalizationCampaign":{
+         "name":"userPersonalizationCampaign",
+         "minProvisionedTPS":1
+      },
+      "simsCampaign":{
+         "name":"simsCampaign",
+         "minProvisionedTPS":1
+      },
+      "personalizedRankingCampaign":{
+         "name":"personalizedRankingCampaign",
+         "minProvisionedTPS":1
+      }
+   }
 }
