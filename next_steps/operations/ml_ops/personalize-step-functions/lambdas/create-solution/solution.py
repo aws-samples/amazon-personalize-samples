@@ -31,14 +31,15 @@ def create_solution(solutionArn, params):
 
 
 def lambda_handler(event, context):
+
     solutionArn = ARN.format(
         region=environ['AWS_REGION'],
         account=LOADER.account_id,
-        name=event['solution']['name']
+        name=event['solution']['{}'.format(event['solutionType'])]['name']
     )
 
     event['solution']['datasetGroupArn'] = event['datasetGroupArn']
-    create_solution(solutionArn, event['solution'])
+    create_solution(solutionArn, event['solution']['{}'.format(event['solutionType'])])
 
     solutionVersionArn = LOADER.personalize_cli.create_solution_version(
         solutionArn=solutionArn,

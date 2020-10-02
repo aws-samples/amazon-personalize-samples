@@ -511,7 +511,8 @@ Resources:
                             "Type": "Task",
                             "Resource": "${CreateSolutionArn}",
                             "Parameters": {
-                              "solution.$": "$.params.solutions.userPersonalization",
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "userPersonalization",
                               "datasetGroupArn.$": "$.datasetGroupArn"
                             },
                             "Catch": [{
@@ -578,7 +579,8 @@ Resources:
                             "Type": "Task",
                             "Resource": "${CreateSolutionArn}",
                             "Parameters": {
-                              "solution.$": "$.params.solutions.sims",
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "sims",
                               "datasetGroupArn.$": "$.datasetGroupArn"
                             },
                             "Catch": [{
@@ -645,7 +647,8 @@ Resources:
                             "Type": "Task",
                             "Resource": "${CreateSolutionArn}",
                             "Parameters": {
-                              "solution.$": "$.params.solutions.personalizedRanking",
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "personalizedRanking",
                               "datasetGroupArn.$": "$.datasetGroupArn"
                             },
                             "Catch": [{
