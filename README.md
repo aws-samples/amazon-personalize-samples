@@ -25,7 +25,7 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
     - [MLOps Step function](/next_steps/operations/ml_ops)
         - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](operations/ml_ops/) folder and follow the README instructions.
     - [MLOps Data Science SDK](/next_steps/operations/ml_ops_ds_sdk)
-        - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops](operations/ml_ops_ds_sdk/) folder and follow the README instructions.      
+        - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops_ds_sdk](operations/ml_ops_ds_sdk/) folder and follow the README instructions.      
     - [Lambda Examples](/next_steps/operations/lambda_examples)
         - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](operations/lambda_examples/) folder and follow the README instructions.
 
