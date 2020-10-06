@@ -3,3 +3,4 @@ ml-100k
 .ipynb_checkpoints
 ml-1m
 json_input.*
+.DS_Store
