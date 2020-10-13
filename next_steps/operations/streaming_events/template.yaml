@@ -187,6 +187,64 @@ Resources:
       RestApiId: !Ref ApiGatewayEndpoint
       Schema: {}
 
+
+#API KEY
+  APIKey:
+    DependsOn:
+      - apiGatewayDeployment
+      - APIStage
+    Type: "AWS::ApiGateway::ApiKey"
+    Properties: 
+      Description: "This is an API key"
+      Enabled: true
+      StageKeys:
+      - RestApiId: !Ref ApiGatewayEndpoint
+        StageName: "dev2"
+
+  usagePlan:
+    DependsOn:
+      - APIKey
+      - APIStage
+    Type: 'AWS::ApiGateway::UsagePlan'
+    Properties:
+      ApiStages:
+        - ApiId: !Ref ApiGatewayEndpoint
+          Stage: !Ref APIStage
+      Description: Customer ABC's usage plan
+      UsagePlanName: 'se-usage-plan'
+
+  usagePlanKey:
+    DependsOn:
+      - APIKey
+      - APIStage
+    Type: 'AWS::ApiGateway::UsagePlanKey'
+    Properties:
+      KeyId: !Ref APIKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref usagePlan
+
+
+  APIStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: "dev2"
+      Description: Prod Stage
+      RestApiId: !Ref "ApiGatewayEndpoint"
+      DeploymentId: !Ref apiGatewayDeployment
+
+  apiGatewayDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - GetRecommendations
+      - GetHistory
+      - PutEvents
+      - "LambdaGetRecommendationsMethod"
+      - "LambdaGetHistoryMethod"
+    Properties:
+      RestApiId: !Ref "ApiGatewayEndpoint"
+
+  
+
 # Create /recommendations resource
   RecommendationsResource:
     Type: 'AWS::ApiGateway::Resource'
@@ -208,6 +266,7 @@ Resources:
       - GetHistory
       - PutEvents
     Properties:
+      ApiKeyRequired: "true"
       RestApiId: !Ref ApiGatewayEndpoint
       ResourceId: !Ref RecommendationsResource
       HttpMethod: "GET"
@@ -268,6 +327,7 @@ Resources:
       - GetHistory
       - PutEvents
     Properties:
+      ApiKeyRequired: "true"
       RestApiId: !Ref ApiGatewayEndpoint
       ResourceId: !Ref HistoryResource
       HttpMethod: "GET"
@@ -308,17 +368,6 @@ Resources:
             'method.response.header.Access-Control-Allow-Methods': 'false'
             'method.response.header.Access-Control-Allow-Origin': 'false'
 # Deploy your API endpoint
-  apiGatewayDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-      - "LambdaGetRecommendationsMethod"
-      - "LambdaGetHistoryMethod"
-    Properties:
-      RestApiId: !Ref "ApiGatewayEndpoint"
-      StageName: "se-personalize-dev"
 
 
 # Create the invoke permissions
@@ -384,6 +433,7 @@ Resources:
   KinesisPutEventsMethod:
     Type: "AWS::ApiGateway::Method"
     Properties:
+      ApiKeyRequired: "true"
       RestApiId: !Ref ApiGatewayEndpoint
       ResourceId: !Ref EventsResource
       HttpMethod: "POST"
@@ -463,6 +513,9 @@ Resources:
                 - kinesis:PutRecord
                 - kinesis:PutRecords
               Resource: !GetAtt KinesisStream.Arn 
+
+
+
 
 # Kinesis Delivery Role
   KinesisDeliveryRole:

@@ -1,6 +1,6 @@
 {
    "datasetGroup":{
-      "name":"MovieLenseDemo1"
+      "name":"MovieLensDemo"
    },
    "datasets":{
       "Interactions":{
@@ -70,7 +70,7 @@
       }
    },
    "eventTracker":{
-      "name":"MovieLenseDemoEventTracker"
+      "name":"MovieLensDemoEventTracker"
    },
    "campaigns":{
       "userPersonalizationCampaign":{
