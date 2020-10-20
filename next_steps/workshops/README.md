@@ -2,8 +2,9 @@
 
 This folder contains examples on the following topics:
 
-* POC in a box
-* Re:invent 2019 Workshop
+* [Immersion Day](./Immersion_Day)
+* [POC in a box](./POC_in_a_box)
+* [re:Invent 2019 Workshop](./Reinvent_2019)
 
 
 ## License Summary

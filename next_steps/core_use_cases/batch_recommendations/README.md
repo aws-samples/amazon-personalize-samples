@@ -1,4 +1,4 @@
-Amazon Personalize Ranking
+Amazon Personalize Batch Recommendations
 ---
 
 Use an asynchronous batch workflow to get recommendations from large datasets that do not require real-time updates. For instance, you might create a batch inference job to get product recommendations for all users on an email list, or to get item-to-item similarities (SIMS) across an inventory. To get batch recommendations, you can create a batch inference job by calling CreateBatchInferenceJob.
