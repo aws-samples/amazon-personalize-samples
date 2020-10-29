@@ -33,32 +33,16 @@ exports.handler = (event, context, callback) => {
           else{     
                 console.log(data);           // successful response
                 putEventsParams['eventList'][0]['sentAt']=putEventsParams['eventList'][0]['sentAt'].toTimeString();
-                var dynamoParams = {
-                  TableName: process.env.DDB_TABLE,
-                  Item:{
-                    userId: payload.UserId,
-                    timeStamp: eventDate.toTimeString(),
-                    event: putEventsParams
-                  }
+                const putEventsErrResponse = {
+                    statusCode: 500,
+                    body: JSON.stringify(err),
                 };
-                dynamoClient.put(dynamoParams, function(dynamoErr, dynamoData) {
-                   if (dynamoErr){
-                       console.log(dynamoErr);
-                       const dynamoErrResponse = {
-                            statusCode: 500,
-                            body: JSON.stringify(dynamoErr),
-                        };
-                        callback(null, dynamoErrResponse);
-                   }
-                   else {
-                       console.log(dynamoData);
-                       const response = {
-                            statusCode: 200,
-                            body: JSON.stringify(putEventsParams),
-                        };
-                        callback(null, response);
-                   }
-                });          
+                callback(null, putEventsErrResponse);
+                const response = {
+                    statusCode: 200,
+                    body: JSON.stringify(putEventsParams),
+                };
+                callback(null, response);
           }
         });
     });

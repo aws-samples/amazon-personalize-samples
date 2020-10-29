@@ -41,36 +41,32 @@ In order to deploy the project you will need to run the following commands:
 
 - Navigate to the Amazon CloudFormation [console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1)
 - Select the stack deployed by SAM
-- Navigate to the outputs sections where you will find 3 endpoints:
-    1. Get Recommendations Endpoint
-    2. Get History Endpoint
-    3. Post Events Endopoint
+- Navigate to the outputs sections where you will find 2 endpoints an API Key:
+    1. POST getRecommendations Endpoint
+    2. POST Events Endopoint
+    3. Redirect to the API Gateway console where you can click on the Show Key section to display the API Key
 
-**GET recommendations example:**
+If you are using PostMan or something similar you will need to provide a header with:
+`x-api-key: <YOUR API KEY VALUE>`
 
-*Query Paramater:* userId=USERID
+**POST getRecommendations example:**
 
-*Endpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/recommendations`
+*Body Parameter:* 
+```
+{
+    "userId":"12345"
+    
+}
+```
 
-*Constructed Endpoint:*
+*Endpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/dev2/recommendations`
 
-`https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/recommendations?userId=USERID`
-
-**GET history example:**
-
-*Query Paramater:* userId=USERID
-
-*Endpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/history`
-
-*Constructed Endpoint:* 
-
-`https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/history?userId=USERID`
 
 **POST event example**
 
 For the POST endpoint you need so send an event similar to the following in the *body* of the request:
 
-*Enpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/history`
+*Enpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/dev2/history`
 
 *Body:*
 ```
@@ -88,11 +84,10 @@ For the POST endpoint you need so send an event similar to the following in the 
 
 ## Summary
 
-Now that you have this architecture in your account, you can consume Amazon Personalize recommendations over the API Gateway GET endpoints and stream real time interactions data to the POST endpoint. 
+Now that you have this architecture in your account, you can consume Amazon Personalize recommendations over the API Gateway POST recommendations endpoint and stream real time interactions data to the POST event endpoint. 
 
 There are two additional features to this architecture:
 
-- A Dynamo DB table which includes your user's history. This table contains all the historical recommendations provided by Amazon Personalize to your user, as well as the events that user streamed to the Event Tracker.
 - A S3 bucket containing your events persisted from your Kinesis Stream. You can run analysis on this bucket by using other AWS services such as Glue and Athena. For example you can follow this [blog](https://aws.amazon.com/blogs/big-data/build-and-automate-a-serverless-data-lake-using-an-aws-glue-trigger-for-the-data-catalog-and-etl-jobs/) on how to automate an ETL pipeline.
 
 
