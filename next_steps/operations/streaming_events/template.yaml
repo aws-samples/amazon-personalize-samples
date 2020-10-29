@@ -31,37 +31,37 @@ Parameters:
 
 Resources:
 
-# DDB History table
-  DynamoTable:
-    Type: "AWS::DynamoDB::Table"
-    Properties: 
-      AttributeDefinitions: 
-        - 
-          AttributeName: "userId"
-          AttributeType: "S"
-        - 
-          AttributeName: "timeStamp"
-          AttributeType: "S"
-      KeySchema: 
-        - 
-          AttributeName: "userId"
-          KeyType: "HASH"
-        - 
-          AttributeName: "timeStamp"
-          KeyType: "RANGE"
-      ProvisionedThroughput: 
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: "se-personalize-history-tracking-table"
+# # DDB History table
+#   DynamoTable:
+#     Type: "AWS::DynamoDB::Table"
+#     Properties: 
+#       AttributeDefinitions: 
+#         - 
+#           AttributeName: "userId"
+#           AttributeType: "S"
+#         - 
+#           AttributeName: "timeStamp"
+#           AttributeType: "S"
+#       KeySchema: 
+#         - 
+#           AttributeName: "userId"
+#           KeyType: "HASH"
+#         - 
+#           AttributeName: "timeStamp"
+#           KeyType: "RANGE"
+#       ProvisionedThroughput: 
+#         ReadCapacityUnits: "5"
+#         WriteCapacityUnits: "5"
+#       TableName: "se-personalize-history-tracking-table"
 
 # SSM Parameters
-  TableName:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: se-personalize-streaming-events-table
-      Type: String
-      Value: !Ref DynamoTable
-      Description: SSM parameter containing the DynamoDB table name
+  # TableName:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Name: se-personalize-streaming-events-table
+  #     Type: String
+  #     Value: !Ref DynamoTable
+  #     Description: SSM parameter containing the DynamoDB table name
   EventTrackerId:
     Type: AWS::SSM::Parameter
     Properties:
@@ -93,12 +93,11 @@ Resources:
     Properties:
       CodeUri: lambdas/getrecommendations
       Handler: getrecommendations.handler
-      Runtime: nodejs12.x
+      Runtime: python3.7
       Role: !GetAtt [LambdaRole, Arn]
       Environment:
         Variables:
           CAMPAIGN_ARN: !GetAtt [CampaignARN, Value]
-          DDB_TABLE: !GetAtt [TableName, Value]
   PutEvents:
     DependsOn:
       - LambdaPolicies
@@ -118,19 +117,6 @@ Resources:
       Environment:
         Variables:
           TRACKING_ID: !GetAtt [EventTrackerId, Value]
-          DDB_TABLE: !GetAtt [TableName, Value]
-  GetHistory:
-    DependsOn:
-      - LambdaPolicies
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/gethistory
-      Handler: gethistory.handler
-      Runtime: nodejs12.x
-      Role: !GetAtt [LambdaRole, Arn]
-      Environment:
-        Variables:
-          DDB_TABLE: !GetAtt [TableName, Value]
 # Kinesis Stream
   KinesisStream:
     Type: "AWS::Kinesis::Stream"
@@ -306,67 +292,6 @@ Resources:
             'method.response.header.Access-Control-Allow-Headers': 'false'
             'method.response.header.Access-Control-Allow-Methods': 'false'
             'method.response.header.Access-Control-Allow-Origin': 'false'
-# Create /History resource
-  HistoryResource:
-    Type: 'AWS::ApiGateway::Resource'
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-    Properties:
-      RestApiId: !Ref ApiGatewayEndpoint
-      ParentId: !GetAtt 
-        - ApiGatewayEndpoint
-        - RootResourceId
-      PathPart: history
-# Integrate with your Get History Lambda
-  LambdaGetHistoryMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-    Properties:
-      ApiKeyRequired: "true"
-      RestApiId: !Ref ApiGatewayEndpoint
-      ResourceId: !Ref HistoryResource
-      HttpMethod: "GET"
-      AuthorizationType: "NONE"
-      Integration:
-        IntegrationHttpMethod: "POST"
-        Type: "AWS_PROXY"
-        Uri: !Sub
-          - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations"
-          - lambdaArn: !GetAtt "GetHistory.Arn"      
-# Activate CORS
-  HistoryCORESOptionsMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      AuthorizationType: "NONE"
-      RestApiId: !Ref ApiGatewayEndpoint
-      ResourceId: !Ref HistoryResource
-      HttpMethod: "OPTIONS"
-      Integration:
-        Type: "MOCK"
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-            ResponseTemplates:
-              application/json: ''
-        PassthroughBehavior: "WHEN_NO_MATCH"
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-      MethodResponses:
-        - StatusCode: '200'
-          ResponseModels:
-            'application/json': 'Empty'
-          ResponseParameters:
-            'method.response.header.Access-Control-Allow-Headers': 'false'
-            'method.response.header.Access-Control-Allow-Methods': 'false'
-            'method.response.header.Access-Control-Allow-Origin': 'false'
 # Deploy your API endpoint
 
 
@@ -395,32 +320,7 @@ Resources:
       FunctionName: !GetAtt "GetRecommendations.Arn"
       Principal: "apigateway.amazonaws.com"
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/se-personalize-dev/GET/recommendations"
-# Create the invoke permissions  
-  historyLambdaApiGatewayInvokeGET:
-    Type: "AWS::Lambda::Permission"
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-      - apiGatewayDeployment
-    Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !GetAtt "GetHistory.Arn"
-      Principal: "apigateway.amazonaws.com"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/*/GET/history"
-  StagehistoryLambdaApiGatewayInvokeGET:
-    Type: "AWS::Lambda::Permission"
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-      - apiGatewayDeployment
-    Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !GetAtt "GetHistory.Arn"
-      Principal: "apigateway.amazonaws.com"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/se-personalize-dev/GET/history"
- 
+
 # Create /events resource
   EventsResource:
     Type: 'AWS::ApiGateway::Resource'
@@ -615,23 +515,12 @@ Resources:
               - "kinesis:DescribeStream"
               - "kinesis:DescribeStreamSummary"
             Resource: "*" 
-          - Effect: Allow
-            Action:
-              - "dynamodb:GetItem"
-              - "dynamodb:UpdateItem"
-              - "dynamodb:Scan"
-              - "dynamodb:Query"
-              - "dynamodb:PutItem"
-              - "dynamodb:DeleteItem"
-            Resource: !GetAtt DynamoTable.Arn 
       Roles:
         - !Ref LambdaRole
               
 # Outputs:
 Outputs:
-  GETRecommendationsApiGatewayInvokeURL:
+  POSTRecommendationsApiGatewayInvokeURL:
     Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/se-personalize-dev/recommendations"
-  GETHistoryApiGatewayInvokeURL:
-    Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/se-personalize-dev/history"
   POSTEventsApiGatewayInvokeURL:
     Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/se-personalize-dev/events"
