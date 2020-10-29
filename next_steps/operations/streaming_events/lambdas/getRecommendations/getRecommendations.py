@@ -12,7 +12,8 @@ def handler(event, context):
             userId=payload['userId'],
             # numResults=123,
             # filterArn = 'string',
-            context=payload['context'])
+            # context=payload['context']
+            )
         print(f"RawRecommendations = {response['itemList']}")
         return {'statusCode': '200', 'body': json.dumps(response)}
     except personalize_cli.exceptions.ResourceNotFoundException as e:

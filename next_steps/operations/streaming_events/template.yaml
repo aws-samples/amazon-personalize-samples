@@ -91,10 +91,11 @@ Resources:
       - LambdaPolicies
     Type:  AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/getrecommendations
-      Handler: getrecommendations.handler
+      CodeUri: lambdas/getRecommendations
+      Handler: getRecommendations.handler
       Runtime: python3.7
       Role: !GetAtt [LambdaRole, Arn]
+      MemorySize: 1024
       Environment:
         Variables:
           CAMPAIGN_ARN: !GetAtt [CampaignARN, Value]
@@ -155,7 +156,6 @@ Resources:
   ApiGatewayEndpoint:
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
     Type: "AWS::ApiGateway::RestApi"
     Properties:
@@ -166,7 +166,6 @@ Resources:
     Type: AWS::ApiGateway::Model
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
     Properties:
       ContentType: 'application/json'
@@ -222,10 +221,8 @@ Resources:
     Type: "AWS::ApiGateway::Deployment"
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
       - "LambdaGetRecommendationsMethod"
-      - "LambdaGetHistoryMethod"
     Properties:
       RestApiId: !Ref "ApiGatewayEndpoint"
 
@@ -236,7 +233,6 @@ Resources:
     Type: 'AWS::ApiGateway::Resource'
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
     Properties:
       RestApiId: !Ref ApiGatewayEndpoint
@@ -249,13 +245,12 @@ Resources:
     Type: "AWS::ApiGateway::Method"
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
     Properties:
       ApiKeyRequired: "true"
       RestApiId: !Ref ApiGatewayEndpoint
       ResourceId: !Ref RecommendationsResource
-      HttpMethod: "GET"
+      HttpMethod: "POST"
       AuthorizationType: "NONE"
       Integration:
         IntegrationHttpMethod: "POST"
@@ -300,26 +295,14 @@ Resources:
     Type: "AWS::Lambda::Permission"
     DependsOn:
       - GetRecommendations
-      - GetHistory
       - PutEvents
       - apiGatewayDeployment
     Properties:
       Action: "lambda:InvokeFunction"
       FunctionName: !GetAtt "GetRecommendations.Arn"
       Principal: "apigateway.amazonaws.com"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/*/GET/recommendations"
-  StagerecommendationsLambdaApiGatewayInvokeGET:
-    Type: "AWS::Lambda::Permission"
-    DependsOn:
-      - GetRecommendations
-      - GetHistory
-      - PutEvents
-      - apiGatewayDeployment
-    Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !GetAtt "GetRecommendations.Arn"
-      Principal: "apigateway.amazonaws.com"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/se-personalize-dev/GET/recommendations"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayEndpoint}/*/POST/recommendations"
+  
 
 # Create /events resource
   EventsResource:
