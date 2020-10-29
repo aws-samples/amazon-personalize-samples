@@ -507,3 +507,5 @@ Outputs:
     Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/dev2/recommendations"
   POSTEventsApiGatewayInvokeURL:
     Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/dev2/events"
+  APIKEY:
+    Value: !Sub "https://console.aws.amazon.com/apigateway/home?region=${AWS::Region}#/api-keys/${APIKey}"

@@ -41,9 +41,13 @@ In order to deploy the project you will need to run the following commands:
 
 - Navigate to the Amazon CloudFormation [console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1)
 - Select the stack deployed by SAM
-- Navigate to the outputs sections where you will find 2 endpoints:
+- Navigate to the outputs sections where you will find 2 endpoints an API Key:
     1. POST getRecommendations Endpoint
     2. POST Events Endopoint
+    3. Redirect to the API Gateway console where you can click on the Show Key section to display the API Key
+
+If you are using PostMan or something similar you will need to provide a header with:
+`x-api-key: <YOUR API KEY VALUE>`
 
 **POST getRecommendations example:**
 
