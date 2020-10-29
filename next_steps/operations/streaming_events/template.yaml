@@ -504,6 +504,6 @@ Resources:
 # Outputs:
 Outputs:
   POSTRecommendationsApiGatewayInvokeURL:
-    Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/se-personalize-dev/recommendations"
+    Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/dev2/recommendations"
   POSTEventsApiGatewayInvokeURL:
-    Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/se-personalize-dev/events"
+    Value: !Sub "https://${ApiGatewayEndpoint}.execute-api.${AWS::Region}.amazonaws.com/dev2/events"

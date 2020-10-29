@@ -62,7 +62,7 @@ In order to deploy the project you will need to run the following commands:
 
 For the POST endpoint you need so send an event similar to the following in the *body* of the request:
 
-*Enpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/se-personalize-dev/history`
+*Enpoint:* `https://XXXXXX.execute-api.us-east-1.amazonaws.com/dev2/history`
 
 *Body:*
 ```
