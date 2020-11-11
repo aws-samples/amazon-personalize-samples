@@ -8,7 +8,7 @@ Amazon Personalize is a great platform for operating a recommendation system at 
 |Good Fit	|Bad Fit	|
 |---	|---	|
 |Recommending items to known users. Movies to users based on their watching history.	|Recommendations based on explicit metadata flags. When a new user answers preferences to guide their recommendations.	|
-|Recommending new items to known users. A retail site adding new items for sale to their existing users.	|Low data volumes for users, items, and intereactions( see chart below).	|
+|Recommending new items to known users. A retail site adding new items for sale to their existing users.	|Low data volumes for users, items, and interactions( see chart below).	|
 |Recommending items to new users. A user just signed up and quickly gets recommendations	|Mostly non identified users. An application where the users do not have a historical record of activity.	|
 |Recommending new items to new users. A retail site recommending new items to a new user.	|	|
 |	|	|
@@ -67,6 +67,8 @@ What kind of use cases can be solved and how?
     1. Retraining frequency is determined by the business requirements. How often do you need to learn globally about your users and their behavior with items? How often do you need to include new items? The answers determine how frequently you should train. If you are adding items daily and want them recommended that would be daily. Otherwise, weekly is generally a good fit for many workloads.
 2. How do I add a new user?
     1. If you are using the PutEvents API, the new user exists as soon as you log their first action. If you are not leveraging this, then the user will exist in the system as soon as you have retrained a model that contains their behavior in your interactions dataset.
+    2. If your user is not known(a new anonymous user before signup) you can still work to cold-start them. If you can assign a new UUID for their user and sessionID immediately, then you can continue the process as defined above to cold start a user.
+    3. If that path does not work, you can still generate a new UUID for the sessionID and then continue to specify the sessionID after a valid userID has been generated for them. When you retrain, Personalize will combine the historical data, with put_events data, and when it sees matching sessionIDs it will combine all interactions together for them. This would allow you to specify the history before they had a valid internal userID. 
 3. How do I add a new item?
     1. This is a batch process. Items are added to all models if they exist in the interactions dataset when you retrain. Items can be added to coldstarts by adding the item_metadata entries, described here.
     2. For example, you can organically stream new items into your historical dataset by placing banners for new releases. Anything that causes a user to interact with the new items and for that action to be logged can improve recommendations after the next training.
@@ -101,11 +103,9 @@ What kind of use cases can be solved and how?
 5. Data Science Tools: https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/data_science
 6. MLOps for Personalize: https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/operations/ml_ops
 
-
 ## Demos:
 
 Media: Unicorn Flix - [https://unicornflix.amplify-video.com](https://unicornflix.amplify-video.com/) 
-
 Retail: The Retail Demo Store - GitHub: https://github.com/aws-samples/retail-demo-store; Running instance: [http://retaildemostore.jory.cloud/](http://retaildemostore.jory.cloud/#/)
 
 ## Technology Partners:
