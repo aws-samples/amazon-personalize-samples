@@ -30,10 +30,10 @@ What kind of use cases can be solved and how?
     1. New users (aka cold users) can be added to your existing User-Personalization solutions by leveraging the PutEvents feature. Each new user starts with a representation in the service that returns the popular items. This representation is shifted by the user’s behavior. As they interact with content within the application and the events are sent by the application to Personalize, recommendations are updated without having to re-train the model. This delivers up to date personalization without constant retraining.
 3. **Recommending New Items** `User-Personalization`:
     1. This is incredibly useful when your customer has new items (aka cold items) that need to be showcased to their users with some form of personalization. This allows for the items to be recommended without historical precedent based on metadata factors.
-    2. This can also be used with incremental training and updating of your dataset to more easily cold-start new items. 
+    2. This can also be used with incremental training and updating of your dataset to more easily cold-start new items.
     3. Lastly this approach leverages a bandit like exploration capacity to help you quickly determine which results make sense, and which do not for recommendations, a far better approach than just blindly pushing new content.
 4. **Re-Ordering by Relevance** `Personalized-Ranking`:
-    1. Uses the same HRNN algorithm underneath User-Personalization but takes in a user AND a collection of items. This will then look at the collection of items and rank them in order of most relevant to least for the user. This is great for promoting a pre-selected collection of items and knowing what is the right thing to promote for a particular user. 
+    1. Uses the same HRNN algorithm underneath User-Personalization but takes in a user AND a collection of items. This will then look at the collection of items and rank them in order of most relevant to least for the user. This is great for promoting a pre-selected collection of items and knowing what is the right thing to promote for a particular user.
 5. **Similar Items** `SIMS`:
     1. Pretty simple idea, implemented via item-item collaborative filtering but basically look at how people are interacting with particular things and then determine how similar things are at a global level based on that data. Not user specific at all.
 6. **Most Popular Overall** `Popularity-Count`:
@@ -50,7 +50,7 @@ What kind of use cases can be solved and how?
 3. Batch Inference
     1. Great for exporting large quantities of recommendations to files for caches, for email campaigns, or just general exploration.
 4. AutoScaling Campaigns
-    1. The service will automatically scale to meet your traffic demands if a particular campaign is over-subscribed. It will then also reduce to your requested minimum capacity when the traffic volume abates. 
+    1. The service will automatically scale to meet your traffic demands if a particular campaign is over-subscribed. It will then also reduce to your requested minimum capacity when the traffic volume abates.
 5. Put Events
     1. Allows for applications to update Personalize in real time with changes in intent from user behavior. This means that each subsequent request can adapt to that intent WITHOUT retraining.
 6. Put Items/Put Users
@@ -69,7 +69,7 @@ What kind of use cases can be solved and how?
 2. How do I add a new user?
     1. If you are using the PutEvents API, the new user exists as soon as you log their first action. If you are not leveraging this, then the user will exist in the system as soon as you have retrained a model that contains their behavior in your interactions dataset.
     2. If your user is not known (a new anonymous user before signup) you can still work to cold-start them. If you can assign a new UUID for their user and sessionID immediately, then you can continue the process as defined above to cold start a user.
-    3. If that path does not work, you can still generate a new UUID for the sessionID, call PutEvents without a userID, and then continue to specify the same sessionID after a valid userID has been generated for them. When you retrain, Personalize will combine the historical data, with PutEvents data, and when it sees matching sessionIDs it will combine all prior anonymous interactions together with non-anonymous interactions for the user. This would allow you to specify the history before they had a valid internal userID. 
+    3. If that path does not work, you can still generate a new UUID for the sessionID, call PutEvents without a userID, and then continue to specify the same sessionID after a valid userID has been generated for them. When you retrain, Personalize will combine the historical data, with PutEvents data, and when it sees matching sessionIDs it will combine all prior anonymous interactions together with non-anonymous interactions for the user. This would allow you to specify the history before they had a valid internal userID.
     4. You can add/update users individually or in mini-batches with the PutUsers API. However, only users with interactions will receive personalized recommendations either after (re)training or when cold started with the PutEvents API.
 3. How do I add a new item?
     1. There are two ways to add items to the items dataset: 1/ Add new items to the items dataset by uploading the full dataset using a dataset import job, or 2/ add items individually or in mini-batches using the PutItems API.
@@ -86,13 +86,14 @@ What kind of use cases can be solved and how?
 8. How can I predict the pricing of training?
     1. Unfortunately there really is not a great way to know this beforehand, we do have some testing that has been done on the MovieLens dataset. For example using `User-Personalization` it takes around  6 human hours for the training on 25M interactions but less than 1 human hour to train on 100k interactions. Because training is sharded over multiple hosts, the actual hours are, 53.9 hours for 50M and 2.135 hours for 100k. Billing is done on the actual hours, not the human ones.
 9. What is a TPS hour and how does it relate to pricing / usability?
-    1. Amazon Personalize spins up dedicated compute resources that will remain provisioned in order to meet your expected minimum throughput requirements (Transactions per Second or TPS), they are billed in terms of hours that these resources are allocated, thus a TPS-Hour. 1 TPS-Hour is the amount of compute capacity required to deliver 1 recommendation per second for an entire hour. 
+    1. Amazon Personalize spins up dedicated compute resources that will remain provisioned in order to meet your expected minimum throughput requirements (Transactions per Second or TPS), they are billed in terms of hours that these resources are allocated, thus a TPS-Hour. 1 TPS-Hour is the amount of compute capacity required to deliver 1 recommendation per second for an entire hour.
     2. Usage is measured in 5 minute increments where the maximum of the average number of requests and the minimum provisioned throughput in each increment is used as the TPS-Hour value. Therefore, when the service scales above the minimum provisioned TPS, the customer is only billed for capacity actually consumed. The TPS-Hours for all 5 minute increments are summed during the billing period to determine the total TPS-Hours for billing calculations.
-    3. The service will automatically scale up for you if your traffic exceeds the minimum provisioned TPS on the campaign, and it has proven to be a valuable tool for many of our customers. A capacity buffer is allocated above the minimum provisioned TPS to allow the service to absorb increases in request load while it scales out. 
+    3. The service will automatically scale up for you if your traffic exceeds the minimum provisioned TPS on the campaign, and it has proven to be a valuable tool for many of our customers. A capacity buffer is allocated above the minimum provisioned TPS to allow the service to absorb increases in request load while it scales out.
     4. If your customer knows they are going to have a spike of activity such as a flash sale or promotional event, have them use some automated process to update the provisioned capacity to meet the new need, then throttle it down later if they cannot wait 5-10 minutes for the service to auto-scale for them.
+    5. The Amazon Personalize Monitor project provides a CloudWatch dashboard, custom metrics, utilization alarms, and cost optimization functions for Personalize campaigns: https://github.com/aws-samples/amazon-personalize-monitor
 10. How can I tell if a Personalize model is providing high quality recommendations?
-    1. Personalize provides offline metrics for each solution version that measure the accuracy of predictions from the model against held out data from the interactions dataset. Use these metrics to provide a directional sense of the quality of a solution version against other versions. 
-    2. Online testing (i.e. A/B testing) is always going to be the best measure of the impact of a model on business metrics. 
+    1. Personalize provides offline metrics for each solution version that measure the accuracy of predictions from the model against held out data from the interactions dataset. Use these metrics to provide a directional sense of the quality of a solution version against other versions.
+    2. Online testing (i.e. A/B testing) is always going to be the best measure of the impact of a model on business metrics.
     3. When you are comparing Personalize models against an existing recommendation system, all the historical data is initially biased towards the existing approach. Often the offline metrics do not reflect what a user MAY have done if they were exposed to something else (how could they, the data does not reflect it). So worth noting this effect, and the bandit based exploration Personalize can do to organically learn better from your users. Therefore running an online test for a few weeks **before** actually starting a test to measure results is recommended.
     4. See this blog post for details: https://aws.amazon.com/blogs/machine-learning/using-a-b-testing-to-measure-the-efficacy-of-recommendations-generated-by-amazon-personalize/
 11. How can I optimize for cost?
@@ -101,6 +102,7 @@ What kind of use cases can be solved and how?
     3. Re-Train based on business requirements only.
     4. Rely heavily on auto-scaling by setting the minimum provisioned TPS low unless it negatively impacts your throughput / latency targets.
     5. Consider using batch recommendations when the use-case aligns with a downstream batch process such as email marketing. Since batch recommendations run against a solution version, they do not require a campaign.
+    6. The Amazon Personalize Monitor project provides some cost optimization features for optimizing campaign provisioning as well as alerting and deleting idle/abandoned campaigns: https://github.com/aws-samples/amazon-personalize-monitor
 
 ## Technical Enablement Links:
 
@@ -110,15 +112,16 @@ What kind of use cases can be solved and how?
 4. Use Case Based Notebooks: https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/core_use_cases
 5. Data Science Tools: https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/data_science
 6. MLOps for Personalize: https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/operations/ml_ops
+7. Monitoring/Alerting/Cost Optimization: https://github.com/aws-samples/amazon-personalize-monitor
 
 ## Demos/Workshops:
 
 * Media & Entertainment
     * Unicorn Flix
-        * Running instance: [https://unicornflix.amplify-video.com](https://unicornflix.amplify-video.com/) 
-* Retail 
+        * Running instance: [https://unicornflix.amplify-video.com](https://unicornflix.amplify-video.com/)
+* Retail
     * The Retail Demo Store
-        * Source: https://github.com/aws-samples/retail-demo-store 
+        * Source: https://github.com/aws-samples/retail-demo-store
         * Workshops: https://github.com/aws-samples/retail-demo-store#hands-on-workshops
         * Running instance: [http://retaildemostore.jory.cloud/](http://retaildemostore.jory.cloud/#/)
 
