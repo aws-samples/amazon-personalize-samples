@@ -38,7 +38,7 @@ def lambda_handler(event, context):
         name=event['solution']['{}'.format(event['solutionType'])]['name']
     )
 
-    event['solution']['datasetGroupArn'] = event['datasetGroupArn']
+    event['solution']['{}'.format(event['solutionType'])]['datasetGroupArn'] = event['datasetGroupArn']
     create_solution(solutionArn, event['solution']['{}'.format(event['solutionType'])])
 
     solutionVersionArn = LOADER.personalize_cli.create_solution_version(
