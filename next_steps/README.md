@@ -4,15 +4,7 @@ Notebooks and examples on how to onboard and use various features of Amazon Pers
 
 ## Amazon Personalize Use Cases examples
 
-The [core_use_cases/](core_use_cases/) folder contains detailed examples of the following typical use cases.
-
-* Collaborative filtering based on user-item interaction tables. The intuition behind is that similar users like similar items.
-  - [Offline evaluation with 'hrnn' user-based recommendation.](core_use_cases/personalize_temporal_holdout.ipynb)
-  - [Example of 'sims' item-based recommendation.](core_use_cases/personalize_sims_smell_tests.ipynb)
-  - [How recommendation changes after 'put_events'.](core_use_cases/personalize_putEvents_demo.ipynb)
-* Hybrid recommendation also considering user, item, and event meta-data. The result is to extrapolate to out-of-sample users and items, based on their meta-data features.
-  - [How to use user, item, and event 'meta-data'.](core_use_cases/personalize_metadata_example.ipynb)
-  - [Exploring 'cold-start' or 'future' items.](core_use_cases/personalize_coldstart_demo.ipynb)
+The [core_use_cases/](core_use_cases/) folder contains detailed examples of the most typical use cases.
 
 ## Scalable Operations examples for your Amazon Personalize deployments
 
@@ -20,20 +12,23 @@ The [operations/](operations/) folder contains examples on the following topics:
 
 * MLOps
     - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](operations/ml_ops/) folder and follow the README instructions.
- 
+
 * MLOps Data Science SDK
 This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops_ds_sdk](operations/ml_ops_ds_sdk/) folder and follow the README instructions.
-    
+
 * Lambda Examples
     - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](operations/lambda_examples/) folder and follow the README instructions.
 
+* [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
+    - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
+
 ## Reference Architectures
 
-The [reference_architectures/](reference_architectures/) folder contains reference architectures for the following industries:
+The following reference architectures provide examples of how to apply Amazon Personalize across industries:
 
-* Retail
+* Retail - the [Retail Demo Store](https://github.com/aws-samples/retail-demo-store) is a full stack web application that implements personalization using Personalize in a web application, messaging, and conversation AI interfaces. There are hands-on workshops
 * Media and Entertainment
-* Travel and Hospitality 
+* Travel and Hospitality
 
 ## Workshops
 
