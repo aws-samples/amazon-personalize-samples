@@ -253,11 +253,11 @@ Resources:
                 - personalize:DescribeSolution
                 - personalize:CreateSolutionVersion
               Resource: "*"
-  WaitSolution:
+  WaitSolutionVersion:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/wait-solution-version/
-      Handler: wait-version.lambda_handler
+      CodeUri: lambdas/wait-solution-version
+      Handler: wait-solution-version.lambda_handler
       Runtime: python3.7
       Layers:
         - !Ref SharedLayer
@@ -267,7 +267,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeSolutionVersion
-              Resource: "*"
+              Resource: "*"            
   CreateCampaign:
     Type: AWS::Serverless::Function
     Properties:
@@ -510,21 +510,7 @@ Resources:
               Action:
                 - personalize:DescribeEventTracker
               Resource: "*"            
-  WaitSolutionVersion:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambdas/wait-solution-version
-      Handler: wait-solution-version.lambda_handler
-      Runtime: python3.7
-      Layers:
-        - !Ref SharedLayer
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - personalize:DescribeSolutionVersion
-              Resource: "*"            
+
   AttachEventTracker:
     Type: AWS::Serverless::Function
     Properties:
@@ -1073,7 +1059,7 @@ Resources:
                           },
                           "Wait SIMS Solution Version": {
                             "Type": "Task",
-                            "Resource": "${WaitSolutionArn}",
+                            "Resource": "${WaitSolutionVersionArn}",
                             "ResultPath": "$.solutionVersionStatus",
                             "Retry": [{
                               "ErrorEquals": ["ResourcePending"],
@@ -1141,7 +1127,7 @@ Resources:
                           },
                           "Wait Personalized Ranking Solution Version": {
                             "Type": "Task",
-                            "Resource": "${WaitSolutionArn}",
+                            "Resource": "${WaitSolutionVersionArn}",
                             "ResultPath": "$.solutionVersionStatus",
                             "Retry": [{
                               "ErrorEquals": ["ResourcePending"],
@@ -1229,7 +1215,7 @@ Resources:
             ImportDataArn: !GetAtt ImportData.Arn
             CreateSolutionArn: !GetAtt CreateSolution.Arn
             CreateCampaignArn: !GetAtt CreateCampaign.Arn
-            WaitSolutionArn: !GetAtt  WaitSolution.Arn
+            WaitSolutionVersionArn: !GetAtt  WaitSolutionVersion.Arn
             AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
             NotifyArn: !GetAtt Notify.Arn
 
