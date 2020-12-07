@@ -1007,7 +1007,7 @@ Resources:
                           },
                           "Wait User Personalization Solution Version": {
                             "Type": "Task",
-                            "Resource": "${WaitSolutionArn}",
+                            "Resource": "${WaitSolutionVersionArn}",
                             "ResultPath": "$.solutionVersionStatus",
                             "Retry": [{
                               "ErrorEquals": ["ResourcePending"],
