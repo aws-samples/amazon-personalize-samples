@@ -285,6 +285,246 @@ Resources:
                 - personalize:DescribeCampaign
                 - personalize:UpdateCampaign
               Resource: "*"
+  DeleteCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-campaign/
+      Handler: delete-campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteCampaign
+              Resource: "*"
+  DeleteDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-dataset/
+      Handler: delete-dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteDataset
+              Resource: "*"
+  DeleteDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-datasetgroup/
+      Handler: delete-datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteDatasetGroup
+              Resource: "*"
+  DeleteSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-solution
+      Handler: delete-solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteSolution
+              Resource: "*"
+  DeleteTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-tracker
+      Handler: delete-tracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteTracker
+              Resource: "*"
+  ListCampaigns:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-campaigns
+      Handler: list-campaigns.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListCampaigns
+              Resource: "*"            
+  ListDatasets:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-datasets
+      Handler: list-datasets.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListDatasets
+              Resource: "*"            
+  ListSolutionVersions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-solution-versions
+      Handler: list-solution-versions.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListSolutionVersions
+              Resource: "*"            
+  ListSolutions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-solutions
+      Handler: list-solutions.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListSolutions
+              Resource: "*"            
+  ListTrackers:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-trackers
+      Handler: list-trackers.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListEventTrackers
+              Resource: "*"            
+  WaitDeleteCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-campaign
+      Handler: wait-delete-campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeCampaign
+              Resource: "*"            
+  WaitDeleteDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-dataset
+      Handler: wait-delete-dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeDataset
+              Resource: "*"            
+  WaitDeleteDatasetgroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-datasetgroup
+      Handler: wait-delete-datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeDatasetGroup
+              Resource: "*"            
+  WaitDeleteSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-solution
+      Handler: wait-delete-solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeSolution
+              Resource: "*"            
+  WaitDeleteTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-tracker
+      Handler: wait-delete-tracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeEventTracker
+              Resource: "*"            
+  WaitSolutionVersion:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-solution-version
+      Handler: wait-solution-version.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeSolutionVersion
+              Resource: "*"            
   AttachEventTracker:
     Type: AWS::Serverless::Function
     Properties:
@@ -302,9 +542,249 @@ Resources:
                 - personalize:DescribeEventTracker
                 - personalize:ListEventTrackers
               Resource: "*"
+  DeleteAllDatasetGroupResources:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "StartAt": "List Event Trackers",
+              "States": {
+                "List Event Trackers": {
+                  "Next": "Map Event Trackers",
+                  "Type": "Task",
+                  "Resource": "${ListTrackersArn}",
+                  "ResultPath": "$.eventTrackers"
+                },
+                "Map Event Trackers": {
+                  "Type": "Map",
+                  "Next": "Get List All Solutions Dataset Group Arn",
+                  "ItemsPath": "$.eventTrackers",
+                  "ResultPath": null,
+                  "MaxConcurrency": 3,
+                  "Iterator": {
+                    "StartAt": "Get Event Tracker Arn",
+                    "States": {
+                      "Get Event Tracker Arn": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "eventTrackerArn.$": "$.eventTrackerArn"
+                        },
+                        "Next": "Delete Event Tracker"
+                      },
+                      "Delete Event Tracker": {
+                        "End": true,
+                        "Type": "Task",
+                        "Resource": "${DeleteTrackerArn}"
+                      }
+                    }
+                  }
+                },
+                "Get List All Solutions Dataset Group Arn": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "List All Solutions"
+                },
+                "List All Solutions": {
+                  "Next": "Map All Solutions and Delete Campaigns",
+                  "Type": "Task",
+                  "Resource": "${ListSolutionsArn}",
+                  "ResultPath": "$.solutions"
+                },
+                "Map All Solutions and Delete Campaigns": {
+                  "Type": "Map",
+                  "ItemsPath": "$.solutions",
+                  "MaxConcurrency": 3,
+                  "ResultPath": null,
+                  "Next": "Get List Datasets Params",
+                  "Iterator": {
+                    "StartAt": "Get Parameters List Campaigns",
+                    "States": {
+                      "Get Parameters List Campaigns": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "solutionArn.$": "$.solutionArn"
+                        },
+                        "Next": "List Campaigns"
+                      },
+                      "List Campaigns": {
+                        "Next": "Map and Delete all Campaigns for a Solution",
+                        "Type": "Task",
+                        "Resource": "${ListCampaignsArn}",
+                        "ResultPath": "$.campaigns"
+                      },
+                      "Map and Delete all Campaigns for a Solution": {
+                        "Type": "Map",
+                        "ResultPath": null,
+                        "ItemsPath": "$.campaigns",
+                        "MaxConcurrency": 3,
+                        "Next": "Get Delete Solution Params",
+                        "Iterator": {
+                          "StartAt": "Get Delete Campaign Params",
+                          "States": {
+                            "Get Delete Campaign Params": {
+                              "Type": "Pass",
+                              "Parameters": {
+                                "campaignArn.$": "$.campaignArn"
+                              },
+                              "Next": "Delete Campaign"
+                            },
+                            "Delete Campaign": {
+                              "Next": "Wait for Campaign Delete",
+                              "Type": "Task",
+                              "Resource": "${DeleteCampaignArn}"
+                            },
+                            "Wait for Campaign Delete": {
+                              "End": true,
+                              "Type": "Task",
+                              "Resource": "${WaitDeleteCampaignArn}",
+                              "Retry": [{
+                                "ErrorEquals": ["ResourcePending"],
+                                "IntervalSeconds": 2,
+                                "BackoffRate": 1.5,
+                                "MaxAttempts": 100
+                              }]
+                            }
+                          }
+                        }
+                      },
+                      "Get Delete Solution Params": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "solutionArn.$": "$.solutionArn"
+                        },
+                        "Next": "List Solution Versions"
+                      },
+                      "List Solution Versions": {
+                        "Type": "Task",
+                        "Resource": "${ListSolutionVersionsArn}",
+                        "Next": "Map and Wait for Solution Version Complete",
+                        "ResultPath": "$.solutionVersions"
+                      },
+                      "Map and Wait for Solution Version Complete": {
+                        "Type": "Map",
+                        "ItemsPath": "$.solutionVersions",
+                        "ResultPath": "$.datasetGroupArn",
+                        "MaxConcurrency": 10,
+                        "Next": "Delete Solution",
+                        "Iterator": {
+                          "StartAt": "Wait for Solution Version Complete",
+                          "States": {
+                            "Wait for Solution Version Complete": {
+                              "Type": "Task",
+                              "Resource": "${WaitSolutionVersionArn}",
+                              "End": true,
+                              "Retry": [{
+                                "ErrorEquals": ["ResourcePending"],
+                                "IntervalSeconds": 2,
+                                "BackoffRate": 1.5,
+                                "MaxAttempts": 100
+                              }]
+                            }
+                          }
+                        }
+                      },
+                      "Delete Solution": {
+                        "End": true,
+                        "Type": "Task",
+                        "Resource": "${DeleteSolutionArn}"
+                      }
+                    }
+                  }
+                },
+                "Get List Datasets Params": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "List Datasets"
+                },
+                "List Datasets": {
+                  "Next": "Map and Delete All Datasets",
+                  "Type": "Task",
+                  "Resource": "${ListDatasetsArn}",
+                  "ResultPath": "$.datasets"
+                },
+                "Map and Delete All Datasets": {
+                  "Type": "Map",
+                  "ResultPath": null,
+                  "ItemsPath": "$.datasets",
+                  "MaxConcurrency": 3,
+                  "Next": "Get Delete Dataset Group Params",
+                  "Iterator": {
+                    "StartAt": "Get Parameters Delete Dataset",
+                    "States": {
+                      "Get Parameters Delete Dataset": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "datasetArn.$": "$.datasetArn"
+                        },
+                        "Next": "Delete Dataset from Group"
+                      },
+                      "Delete Dataset from Group": {
+                        "End": true,
+                        "Type": "Task",
+                        "Resource": "${DeleteDatasetArn}"
+                      }
+                    }
+                  }
+                },
+                "Get Delete Dataset Group Params": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "Delete Dataset Group"
+                },
+                "Delete Dataset Group": {
+                  "Type": "Task",
+                  "Resource": "${DeleteDatasetGroupArn}",
+                  "Next": "Wait Delete Dataset Group",
+                  "ResultPath": null
+                },
+                "Wait Delete Dataset Group": {
+                  "Type": "Task",
+                  "Resource": "${WaitDeleteDatasetgroupArn}",
+                  "Next": "Notify Users",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }]
+                },
+                "Notify Users": {
+                  "End": true,
+                  "Type": "Task",
+                  "Resource": "${NotifyLambdaArn}"
+                }
+              }
+            }
+          - DeleteCampaignArn: !GetAtt DeleteCampaign.Arn
+            DeleteDatasetGroupArn: !GetAtt DeleteDatasetGroup.Arn
+            DeleteDatasetArn: !GetAtt DeleteDataset.Arn
+            DeleteSolutionArn: !GetAtt DeleteSolution.Arn
+            DeleteTrackerArn: !GetAtt DeleteTracker.Arn
+            ListCampaignsArn: !GetAtt ListCampaigns.Arn
+            ListDatasetsArn: !GetAtt ListDatasets.Arn
+            ListSolutionVersionsArn: !GetAtt ListSolutionVersions.Arn
+            ListSolutionsArn: !GetAtt ListSolutions.Arn
+            ListTrackersArn: !GetAtt ListTrackers.Arn
+            WaitSolutionVersionArn: !GetAtt WaitSolutionVersion.Arn
+            WaitDeleteCampaignArn: !GetAtt WaitDeleteCampaign.Arn
+            WaitDeleteDatasetArn: !GetAtt WaitDeleteDataset.Arn
+            WaitDeleteDatasetgroupArn: !GetAtt WaitDeleteDatasetgroup.Arn
+            WaitDeleteSolutionArn: !GetAtt WaitDeleteSolution.Arn
+            WaitDeleteTrackerArn: !GetAtt WaitDeleteTracker.Arn
+            NotifyLambdaArn: !GetAtt Notify.Arn
   DeployStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
       DefinitionString:
         !Sub
           - |-
@@ -753,7 +1233,6 @@ Resources:
             AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
             NotifyArn: !GetAtt Notify.Arn
 
-      RoleArn: !GetAtt [StatesExecutionRole, Arn]
   PersonalizeRole:
     Type: "AWS::IAM::Role"
     Properties:
