@@ -674,9 +674,26 @@ Resources:
                         }
                       },
                       "Delete Solution": {
-                        "End": true,
+                        "Next": "Wait for Solution Delete Completion",
                         "Type": "Task",
-                        "Resource": "${DeleteSolutionArn}"
+                        "Resource": "${DeleteSolutionArn}",
+                        "ResultPath": "$.solutionArn"
+                      },
+                      "Wait for Solution Delete Completion": {
+                        "Type": "Task",
+                        "End": true,
+                        "Resource": "${WaitDeleteSolutionArn}",
+                        "Retry": [{
+                          "ErrorEquals": ["ResourcePending"],
+                          "IntervalSeconds": 2,
+                          "BackoffRate": 1.5,
+                          "MaxAttempts": 100
+                        }],
+                        "Catch": [{
+                          "ErrorEquals": ["ResourceFailed"],
+                          "ResultPath": null,
+                          "Next": "Get List Datasets Params"
+                        }]
                       }
                     }
                   }
