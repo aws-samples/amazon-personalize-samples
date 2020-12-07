@@ -510,7 +510,6 @@ Resources:
               Action:
                 - personalize:DescribeEventTracker
               Resource: "*"            
-
   AttachEventTracker:
     Type: AWS::Serverless::Function
     Properties:
