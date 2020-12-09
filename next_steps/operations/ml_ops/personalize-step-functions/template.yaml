@@ -373,7 +373,7 @@ Resources:
           Statement:
             - Effect: Allow
               Action:
-                - personalize:DeleteTracker
+                - personalize:DeleteEventTracker
               Resource: "*"
   ListCampaigns:
     Type: AWS::Serverless::Function
@@ -559,7 +559,7 @@ Resources:
                   "ResultPath": "$.eventTrackers",
                   "Catch": [{
                     "ErrorEquals": [ "States.ALL" ],
-                    "Next": "Fail"
+                    "Next": "Notify Error"
                   }]
                 },
                 "Map Event Trackers": {
@@ -568,6 +568,10 @@ Resources:
                   "ItemsPath": "$.eventTrackers",
                   "ResultPath": null,
                   "MaxConcurrency": 3,
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
                   "Iterator": {
                     "StartAt": "Get Event Tracker Arn",
                     "States": {
@@ -576,20 +580,12 @@ Resources:
                         "Parameters": {
                           "eventTrackerArn.$": "$.eventTrackerArn"
                         },
-                        "Next": "Delete Event Tracker",
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "Next": "Delete Event Tracker"
                       },
                       "Delete Event Tracker": {
-                        "End": true,
                         "Type": "Task",
                         "Resource": "${DeleteTrackerArn}",
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "End": true
                       }
                     }
                   }
@@ -608,7 +604,7 @@ Resources:
                   "ResultPath": "$.solutions",
                   "Catch": [{
                     "ErrorEquals": [ "States.ALL" ],
-                    "Next": "Fail"
+                    "Next": "Notify Error"
                   }]
                 },
                 "Map All Solutions and Delete Campaigns": {
@@ -617,6 +613,10 @@ Resources:
                   "MaxConcurrency": 1,
                   "ResultPath": null,
                   "Next": "Get List Datasets Params",
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
                   "Iterator": {
                     "StartAt": "Get Parameters List Campaigns",
                     "States": {
@@ -631,11 +631,7 @@ Resources:
                         "Next": "Map and Delete all Campaigns for a Solution",
                         "Type": "Task",
                         "Resource": "${ListCampaignsArn}",
-                        "ResultPath": "$.campaigns",
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "ResultPath": "$.campaigns"
                       },
                       "Map and Delete all Campaigns for a Solution": {
                         "Type": "Map",
@@ -657,11 +653,7 @@ Resources:
                               "Next": "Wait for Campaign Delete",
                               "Type": "Task",
                               "ResultPath": null,
-                              "Resource": "${DeleteCampaignArn}",
-                              "Catch": [{
-                                "ErrorEquals": [ "States.ALL" ],
-                                "Next": "Fail"
-                              }]
+                              "Resource": "${DeleteCampaignArn}"
                             },
                             "Wait for Campaign Delete": {
                               "End": true,
@@ -696,11 +688,7 @@ Resources:
                         "Type": "Task",
                         "Resource": "${ListSolutionVersionsArn}",
                         "Next": "Map and Wait for Solution Version Complete",
-                        "ResultPath": "$.solutionVersions",
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "ResultPath": "$.solutionVersions"
                       },
                       "Map and Wait for Solution Version Complete": {
                         "Type": "Map",
@@ -729,11 +717,7 @@ Resources:
                         "Next": "Wait for Solution Delete Completion",
                         "Type": "Task",
                         "Resource": "${DeleteSolutionArn}",
-                        "ResultPath": null,
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "ResultPath": null
                       },
                       "Wait for Solution Delete Completion": {
                         "Type": "Task",
@@ -771,7 +755,7 @@ Resources:
                   "ResultPath": "$.datasets",
                   "Catch": [{
                     "ErrorEquals": [ "States.ALL" ],
-                    "Next": "Fail"
+                    "Next": "Notify Error"
                   }]
                 },
                 "Map and Delete All Datasets": {
@@ -794,11 +778,7 @@ Resources:
                         "Next": "Wait for Dataset Delete",
                         "Type": "Task",
                         "Resource": "${DeleteDatasetArn}",
-                        "ResultPath": null,
-                        "Catch": [{
-                          "ErrorEquals": [ "States.ALL" ],
-                          "Next": "Fail"
-                        }]
+                        "ResultPath": null
                       },
                       "Wait for Dataset Delete": {
                         "Type": "Task",
@@ -837,7 +817,7 @@ Resources:
                   "ResultPath": null,
                   "Catch": [{
                     "ErrorEquals": [ "States.ALL" ],
-                    "Next": "Fail"
+                    "Next": "Notify Error"
                   }]
                 },
                 "Wait Delete Dataset Group": {
@@ -868,10 +848,13 @@ Resources:
                   "Type": "Task",
                   "Resource": "${NotifyDeleteLambdaArn}"
                 },
-                "Fail": {
+                "Notify Error": {
                   "Type": "Task",
                   "Resource": "${NotifyDeleteLambdaArn}",
-                  "End": true
+                  "Next": "Fail"
+                },
+                "Fail": {
+                  "Type": "Fail"
                 }
               }
             }

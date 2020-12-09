@@ -10,6 +10,8 @@ def get_message(event):
         message += f"Service error: {event['statesError']}"
     if 'datasetGroupArn' in event.keys():
         message += f"DatasetGroup deleted: {event['datasetGroupArn']}"
+    if 'Error' in event.keys():
+        message += f"State Machine failed: {event['Cause']}"
     return message
 
 
