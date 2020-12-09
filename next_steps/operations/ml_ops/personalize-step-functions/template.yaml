@@ -144,7 +144,22 @@ Resources:
               Action:
                 - sns:Publish
               Resource: "*"
-            
+  NotifyDelete:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/notify-delete/
+      Handler: notify-delete.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"            
 # ------------------------
 # Custom Shared Layer
 # ------------------------
@@ -548,7 +563,7 @@ Resources:
                   "Next": "Get List All Solutions Dataset Group Arn",
                   "ItemsPath": "$.eventTrackers",
                   "ResultPath": null,
-                  "MaxConcurrency": 3,
+                  "MaxConcurrency": 1,
                   "Iterator": {
                     "StartAt": "Get Event Tracker Arn",
                     "States": {
@@ -583,7 +598,7 @@ Resources:
                 "Map All Solutions and Delete Campaigns": {
                   "Type": "Map",
                   "ItemsPath": "$.solutions",
-                  "MaxConcurrency": 3,
+                  "MaxConcurrency": 1,
                   "ResultPath": null,
                   "Next": "Get List Datasets Params",
                   "Iterator": {
@@ -606,7 +621,7 @@ Resources:
                         "Type": "Map",
                         "ResultPath": null,
                         "ItemsPath": "$.campaigns",
-                        "MaxConcurrency": 3,
+                        "MaxConcurrency": 1,
                         "Next": "Get Delete Solution Params",
                         "Iterator": {
                           "StartAt": "Get Delete Campaign Params",
@@ -621,6 +636,7 @@ Resources:
                             "Delete Campaign": {
                               "Next": "Wait for Campaign Delete",
                               "Type": "Task",
+                              "ResultPath": null,
                               "Resource": "${DeleteCampaignArn}"
                             },
                             "Wait for Campaign Delete": {
@@ -629,10 +645,18 @@ Resources:
                               "Resource": "${WaitDeleteCampaignArn}",
                               "Retry": [{
                                 "ErrorEquals": ["ResourcePending"],
-                                "IntervalSeconds": 2,
+                                "IntervalSeconds": 60,
                                 "BackoffRate": 1.5,
                                 "MaxAttempts": 100
+                              }],
+                              "Catch": [{
+                                "ErrorEquals": ["ResourceNotFoundException"],
+                                "Next": "Campaign Delete Completed"
                               }]
+                            },
+                            "Campaign Delete Completed": {
+                              "End": true,
+                              "Type": "Pass"
                             }
                           }
                         }
@@ -653,8 +677,8 @@ Resources:
                       "Map and Wait for Solution Version Complete": {
                         "Type": "Map",
                         "ItemsPath": "$.solutionVersions",
-                        "ResultPath": "$.datasetGroupArn",
-                        "MaxConcurrency": 10,
+                        "ResultPath": null,
+                        "MaxConcurrency": 1,
                         "Next": "Delete Solution",
                         "Iterator": {
                           "StartAt": "Wait for Solution Version Complete",
@@ -665,7 +689,7 @@ Resources:
                               "End": true,
                               "Retry": [{
                                 "ErrorEquals": ["ResourcePending"],
-                                "IntervalSeconds": 2,
+                                "IntervalSeconds": 60,
                                 "BackoffRate": 1.5,
                                 "MaxAttempts": 100
                               }]
@@ -677,7 +701,7 @@ Resources:
                         "Next": "Wait for Solution Delete Completion",
                         "Type": "Task",
                         "Resource": "${DeleteSolutionArn}",
-                        "ResultPath": "$.solutionArn"
+                        "ResultPath": null
                       },
                       "Wait for Solution Delete Completion": {
                         "Type": "Task",
@@ -685,15 +709,18 @@ Resources:
                         "Resource": "${WaitDeleteSolutionArn}",
                         "Retry": [{
                           "ErrorEquals": ["ResourcePending"],
-                          "IntervalSeconds": 2,
+                          "IntervalSeconds": 60,
                           "BackoffRate": 1.5,
                           "MaxAttempts": 100
                         }],
                         "Catch": [{
-                          "ErrorEquals": ["ResourceFailed"],
-                          "ResultPath": null,
-                          "Next": "Get List Datasets Params"
+                          "ErrorEquals": ["ResourceNotFoundException"],
+                          "Next": "Solution Delete Completed"
                         }]
+                      },
+                      "Solution Delete Completed": {
+                        "Type": "Pass",
+                        "End": true
                       }
                     }
                   }
@@ -715,7 +742,7 @@ Resources:
                   "Type": "Map",
                   "ResultPath": null,
                   "ItemsPath": "$.datasets",
-                  "MaxConcurrency": 3,
+                  "MaxConcurrency": 1,
                   "Next": "Get Delete Dataset Group Params",
                   "Iterator": {
                     "StartAt": "Get Parameters Delete Dataset",
@@ -728,9 +755,30 @@ Resources:
                         "Next": "Delete Dataset from Group"
                       },
                       "Delete Dataset from Group": {
-                        "End": true,
+                        "Next": "Wait for Dataset Delete",
                         "Type": "Task",
-                        "Resource": "${DeleteDatasetArn}"
+                        "Resource": "${DeleteDatasetArn}",
+                        "ResultPath": null
+                      },
+                      "Wait for Dataset Delete": {
+                        "Type": "Task",
+                        "End": true,
+                        "Resource": "${WaitDeleteDatasetArn}",
+                        "Retry": [{
+                          "ErrorEquals": ["ResourcePending"],
+                          "IntervalSeconds": 60,
+                          "BackoffRate": 1.5,
+                          "MaxAttempts": 100
+                        }],
+                        "Catch": [{
+                          "ErrorEquals": ["ResourceNotFoundException"],
+                          "Next": "Dataset Delete Completed",
+                          "ResultPath": null
+                        }]
+                      },
+                      "Dataset Delete Completed": {
+                        "Type": "Pass",
+                        "End": true
                       }
                     }
                   }
@@ -754,15 +802,27 @@ Resources:
                   "Next": "Notify Users",
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
-                    "IntervalSeconds": 2,
+                    "IntervalSeconds": 30,
                     "BackoffRate": 1.5,
                     "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceNotFoundException"],
+                    "Next": "Dataset Group Delete Completed",
+                    "ResultPath": null
                   }]
+                },
+                "Dataset Group Delete Completed": {
+                  "Type": "Pass",
+                  "Next": "Notify Users",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  }
                 },
                 "Notify Users": {
                   "End": true,
                   "Type": "Task",
-                  "Resource": "${NotifyLambdaArn}"
+                  "Resource": "${NotifyDeleteLambdaArn}"
                 }
               }
             }
@@ -782,7 +842,7 @@ Resources:
             WaitDeleteDatasetgroupArn: !GetAtt WaitDeleteDatasetgroup.Arn
             WaitDeleteSolutionArn: !GetAtt WaitDeleteSolution.Arn
             WaitDeleteTrackerArn: !GetAtt WaitDeleteTracker.Arn
-            NotifyLambdaArn: !GetAtt Notify.Arn
+            NotifyDeleteLambdaArn: !GetAtt NotifyDelete.Arn
   DeployStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:

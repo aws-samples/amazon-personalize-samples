@@ -8,7 +8,7 @@ LOADER = Loader()
 def lambda_handler(event, context):
     # return event
     status = LOADER.personalize_cli.describe_dataset(
-        datasetArn=event['datsetArn']
+        datasetArn=event['datasetArn']
     )['dataset']
 
     actions.take_action_delete(status['status'])
