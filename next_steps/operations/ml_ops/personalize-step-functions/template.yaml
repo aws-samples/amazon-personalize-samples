@@ -764,6 +764,10 @@ Resources:
                   "ItemsPath": "$.datasets",
                   "MaxConcurrency": 1,
                   "Next": "Get Delete Dataset Group Params",
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
                   "Iterator": {
                     "StartAt": "Get Parameters Delete Dataset",
                     "States": {
@@ -823,7 +827,7 @@ Resources:
                 "Wait Delete Dataset Group": {
                   "Type": "Task",
                   "Resource": "${WaitDeleteDatasetgroupArn}",
-                  "Next": "Notify Users",
+                  "End": true,
                   "Retry": [{
                     "ErrorEquals": ["ResourcePending"],
                     "IntervalSeconds": 30,
@@ -834,6 +838,9 @@ Resources:
                     "ErrorEquals": ["ResourceNotFoundException"],
                     "Next": "Dataset Group Delete Completed",
                     "ResultPath": null
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
                   }]
                 },
                 "Dataset Group Delete Completed": {
