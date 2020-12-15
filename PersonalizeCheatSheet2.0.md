@@ -214,12 +214,3 @@ The extension can be easily installed into any Magento 2 storefront whether it's
 **Resources**
 
 * Partner website: https://www.hiconversion.com/amazon-personalize/
-
-
-
-## INTERNAL ONLY: Decks: 
-
-1. FCD: https://aws.highspot.com/items/5bff1439659e93667af25e89
-2. Media+Entertainment FCD: https://aws.highspot.com/items/5f62565cbf6c940afae9327f 
-3. 200LvL Deck: https://amazon.awsapps.com/workdocs/index.html#/document/8deeb605f8c099b39ada874c1f9be53dde8b2c62a250e399a564020add659a17
-
