@@ -9,7 +9,7 @@ Amazon Personalize is a great platform for operating a recommendation system at 
 |Recommending items to known users. Movies to users based on their watching history.	|Recommendations based on explicit metadata flags. When a new user answers preferences to guide their recommendations.	|
 |Recommending new items to known users. A retail site adding new items for sale to their existing users.	|Low data volumes for users, items, and interactions( see chart below).	|
 |Recommending items to new users. A user just signed up and quickly gets recommendations	|Mostly non identified users. An application where the users do not have a historical record of activity.	|
-|Recommending new items to new users. A retail site recommending new items to a new user.	|	|
+|Recommending new items to new users. A retail site recommending new items to a new user.	|**Next Best Action Workloads -** Personalize recommends likely items, it does not understand proper workflows and sequences.	|
 
 ### Minimum Suggested Data Volume
 
@@ -214,3 +214,4 @@ The extension can be easily installed into any Magento 2 storefront whether it's
 **Resources**
 
 * Partner website: https://www.hiconversion.com/amazon-personalize/
+
