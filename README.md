@@ -28,6 +28,8 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
         - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](/next_steps/operations/lambda_examples) folder and follow the README instructions.
     - [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
         - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
+    - [Streaming Events](/next_steps/operations/streaming_events)
+        - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](operations/streaming_events/) folder and follow the README instructions.
 
 * Workshops
     - [Workshops/](/next_steps/workshops/) folder contains a list of our most current workshops:
