@@ -11,6 +11,10 @@ This folder contains examples on the following topics:
 * Lambda Examples
     - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](lambda_examples/) folder and follow the README instructions.
 
+* Streaming Events
+    - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](streaming_events/) folder and follow the README instructions.
+
+
 * [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
     - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
 
