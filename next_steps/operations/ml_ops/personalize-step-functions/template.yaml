@@ -542,6 +542,24 @@ Resources:
                 - personalize:DescribeEventTracker
                 - personalize:ListEventTrackers
               Resource: "*"
+              
+  CreateFilters:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-filters/
+      Handler: eventTracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateFilter
+                - personalize:DescribeFilter
+                - personalize:ListFilters
+              Resource: "*"
   DeleteAllDatasetGroupResources:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
@@ -1313,6 +1331,27 @@ Resources:
                   }],
                   "Next": "Notify Users"
                 },
+                "Create Filters":{
+                  "Type": "Task",
+                  "Resource": "${CreateFiltersArn}",
+                  "Parameters": {
+                    "filters.$": "$.params.filters",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "ResultPath": "$.eventTrackerArn",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }],
+                  "Next": "Notify Users"
+                },
                 "Notify Users": {
                   "Type": "Task",
                   "Resource": "${NotifyArn}",
@@ -1332,6 +1371,7 @@ Resources:
             CreateCampaignArn: !GetAtt CreateCampaign.Arn
             WaitSolutionVersionArn: !GetAtt  WaitSolutionVersion.Arn
             AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
+            CreateFiltersArn: !GetAtt  CreateFilters.Arn
             NotifyArn: !GetAtt Notify.Arn
 
   PersonalizeRole:
