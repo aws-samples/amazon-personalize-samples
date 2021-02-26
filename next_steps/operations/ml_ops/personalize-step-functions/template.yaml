@@ -1329,7 +1329,7 @@ Resources:
                     "ResultPath": "$.serviceError",
                     "Next": "Fail"
                   }],
-                  "Next": "Notify Users"
+                  "Next": "Create Filters"
                 },
                 "Create Filters":{
                   "Type": "Task",
