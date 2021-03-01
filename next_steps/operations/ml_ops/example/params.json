@@ -85,5 +85,12 @@
          "name":"personalizedRankingCampaign",
          "minProvisionedTPS":1
       }
-   }
+   },
+   "filters":
+   [
+       {
+            "name":"media-filter-1",
+            "filterExpression":"INCLUDE ItemID WHERE Items.YEAR >= 1970 AND Items.YEAR < 1980"
+       }
+   ]
 }

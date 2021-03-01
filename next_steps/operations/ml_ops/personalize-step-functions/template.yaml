@@ -34,18 +34,18 @@ Resources:
             reason: S3 will not have a policy for the porpose of this block
   PersonalizeS3Policy:
     Type: AWS::S3::BucketPolicy
-    Properties: 
+    Properties:
       Bucket: !Ref InputBucket
-      PolicyDocument: 
-        Statement: 
+      PolicyDocument:
+        Statement:
           - Sid: PersonalizeAcess
             Effect: Allow
             Principal:
               Service: 'personalize.amazonaws.com'
-            Action: 
+            Action:
               - 's3:GetObject'
             Resource:
-              - !Join 
+              - !Join
                 - ''
                 - - 'arn:aws:s3:::'
                   - !Ref InputBucket
@@ -54,10 +54,10 @@ Resources:
             Effect: Allow
             Principal:
               Service: 'personalize.amazonaws.com'
-            Action: 
+            Action:
               - 's3:ListBucket'
             Resource:
-              - !Join 
+              - !Join
                 - ''
                 - - 'arn:aws:s3:::'
                   - !Ref InputBucket
@@ -159,7 +159,7 @@ Resources:
             - Effect: Allow
               Action:
                 - sns:Publish
-              Resource: "*"            
+              Resource: "*"
 # ------------------------
 # Custom Shared Layer
 # ------------------------
@@ -282,7 +282,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeSolutionVersion
-              Resource: "*"            
+              Resource: "*"
   CreateCampaign:
     Type: AWS::Serverless::Function
     Properties:
@@ -389,7 +389,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:ListCampaigns
-              Resource: "*"            
+              Resource: "*"
   ListDatasets:
     Type: AWS::Serverless::Function
     Properties:
@@ -404,7 +404,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:ListDatasets
-              Resource: "*"            
+              Resource: "*"
   ListSolutionVersions:
     Type: AWS::Serverless::Function
     Properties:
@@ -419,7 +419,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:ListSolutionVersions
-              Resource: "*"            
+              Resource: "*"
   ListSolutions:
     Type: AWS::Serverless::Function
     Properties:
@@ -434,7 +434,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:ListSolutions
-              Resource: "*"            
+              Resource: "*"
   ListTrackers:
     Type: AWS::Serverless::Function
     Properties:
@@ -449,7 +449,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:ListEventTrackers
-              Resource: "*"            
+              Resource: "*"
   WaitDeleteCampaign:
     Type: AWS::Serverless::Function
     Properties:
@@ -464,7 +464,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeCampaign
-              Resource: "*"            
+              Resource: "*"
   WaitDeleteDataset:
     Type: AWS::Serverless::Function
     Properties:
@@ -479,7 +479,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeDataset
-              Resource: "*"            
+              Resource: "*"
   WaitDeleteDatasetgroup:
     Type: AWS::Serverless::Function
     Properties:
@@ -494,7 +494,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeDatasetGroup
-              Resource: "*"            
+              Resource: "*"
   WaitDeleteSolution:
     Type: AWS::Serverless::Function
     Properties:
@@ -509,7 +509,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeSolution
-              Resource: "*"            
+              Resource: "*"
   WaitDeleteTracker:
     Type: AWS::Serverless::Function
     Properties:
@@ -524,7 +524,7 @@ Resources:
             - Effect: Allow
               Action:
                 - personalize:DescribeEventTracker
-              Resource: "*"            
+              Resource: "*"
   AttachEventTracker:
     Type: AWS::Serverless::Function
     Properties:
@@ -541,6 +541,24 @@ Resources:
                 - personalize:CreateEventTracker
                 - personalize:DescribeEventTracker
                 - personalize:ListEventTrackers
+              Resource: "*"
+
+  CreateFilters:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-filters/
+      Handler: filters.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateFilter
+                - personalize:DescribeFilter
+                - personalize:ListFilters
               Resource: "*"
   DeleteAllDatasetGroupResources:
     Type: "AWS::StepFunctions::StateMachine"
@@ -1070,7 +1088,7 @@ Resources:
                         }
                       }
                   ]
-                },        
+                },
                 "Create Solutions": {
                   "Type": "Parallel",
                   "Next": "Attach Event Tracker",
@@ -1311,6 +1329,27 @@ Resources:
                     "ResultPath": "$.serviceError",
                     "Next": "Fail"
                   }],
+                  "Next": "Create Filters"
+                },
+                "Create Filters":{
+                  "Type": "Task",
+                  "Resource": "${CreateFiltersArn}",
+                  "Parameters": {
+                    "filters.$": "$.params.filters",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "ResultPath": "$.filterArns",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }],
                   "Next": "Notify Users"
                 },
                 "Notify Users": {
@@ -1332,6 +1371,7 @@ Resources:
             CreateCampaignArn: !GetAtt CreateCampaign.Arn
             WaitSolutionVersionArn: !GetAtt  WaitSolutionVersion.Arn
             AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
+            CreateFiltersArn: !GetAtt  CreateFilters.Arn
             NotifyArn: !GetAtt Notify.Arn
 
   PersonalizeRole:
@@ -1369,4 +1409,3 @@ Outputs:
   NotificationTopicArn:
     Description: The Notification Topic Arn
     Value: !Ref NotificationTopic
-  
