@@ -1,7 +1,7 @@
 
 # Getting Started
 
-ML Ops is gaining a lot of popularity. This example showcases a key piece you can use to construct your automation pipeline. As we can see in the following architecture diagram, you will be deploying an AWS Step Funciton Workflow containing AWS Lambda functions that call Amazon S3, Amazon Personalize, and Amazon SNS APIs.
+ML Ops is gaining a lot of popularity. This example showcases a key piece you can use to construct your automation pipeline. As we can see in the following architecture diagram, you will be deploying an AWS Step Function Workflow containing AWS Lambda functions that call Amazon S3, Amazon Personalize, and Amazon SNS APIs.
 
 
 This package contains the source code of a Step Functions pipeline that is able to perform 
@@ -47,9 +47,9 @@ In order to deploy the project you will need to run the following commands:
     - `sam deploy --guided`
 5. Navigate to your email inbox and confirm your subscription to the SNS topic
 
-The pipeline will query your for an email and a default name for the parameter file.
+The pipeline will query you for an email and a default name for the parameter file.
 
-Once deployed, the solution will create the **InputBucket** which you can find in the CloudFomation stack output. Use it to upload your datasets
+Once deployed, the solution will create the **InputBucket** which you can find in the CloudFormation stack output. Use it to upload your datasets
 using the following structure:
 
 ```bash
@@ -63,7 +63,7 @@ After your datasets are submitted, upload the parameters file in **the root dire
 
 ## Configuration
 
-To use this deployment you will need to propperly setup a **parameter file**. The parameter file 
+To use this deployment you will need to properly setup a **parameter file**. The parameter file 
 contains all the necessary information to create the resources on Amazon Personalize. It fetches
 the parameters using the [boto3 personalize client](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/personalize.html).
 
