@@ -121,7 +121,7 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W47
-            reason: "SNS will not be encrypted for the porpose of this block"
+            reason: "SNS will not be encrypted for the purpose of this block"
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: StepsTopic
