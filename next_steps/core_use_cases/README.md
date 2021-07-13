@@ -32,7 +32,8 @@ In this directory we have examples various use cases
     - Reranks a list of items for a user based on relevance.
 4. [Batch Recommendations](batch_recommendations/)
     - Create recommendations for multiple users or items in a single batch job.
-
+5. [Metadata](metadata/)
+    - Samples for how to prepare and include metadata in your datasets.
 ## License Summary
 
 This sample code is made available under a modified MIT license. See the LICENSE file.
