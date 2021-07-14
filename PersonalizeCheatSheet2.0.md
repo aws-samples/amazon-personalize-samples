@@ -1,4 +1,4 @@
-# Amazon Personalize Cheat Sheet 2.0
+# Amazon Personalize Cheat Sheet
 
 ## Is Amazon Personalize a Good Fit?
 
@@ -7,7 +7,7 @@ Amazon Personalize is a great platform for operating a recommendation system at 
 |Good Fit	|Bad Fit	|
 |---	|---	|
 |Recommending items to known users. Movies to users based on their watching history.	|Recommendations based on explicit metadata flags. When a new user answers preferences to guide their recommendations.	|
-|Recommending new items to known users. A retail site adding new items for sale to their existing users.	|Low data volumes for users, items, and interactions( see chart below).	|
+|Recommending new items to known users. A retail site adding new items for sale to their existing users.	|Low data volumes for users, items, and interactions (see chart below).	|
 |Recommending items to new users. A user just signed up and quickly gets recommendations	|Mostly non identified users. An application where the users do not have a historical record of activity.	|
 |Recommending new items to new users. A retail site recommending new items to a new user.	|**Next Best Action Workloads -** Personalize recommends likely items, it does not understand proper workflows and sequences.	|
 
@@ -55,14 +55,16 @@ What kind of use cases can be solved and how?
     1. Great for exporting large quantities of recommendations to files for caches, for email campaigns, or just general exploration.
 4. AutoScaling Campaigns
     1. The service will automatically scale to meet your traffic demands if a particular campaign is over-subscribed. It will then also reduce to your requested minimum capacity when the traffic volume abates.
-5. Put Events
+5. Unstructured Text as Item Metadata
+    1. Add your product descriptions, video plot synopsis, or article content as an item metadata field and let Personalize use natural language processing (NLP) to extract hidden features from your text to improve the relevance of recommendations.
+6. Put Events
     1. Allows for applications to update Personalize in real time with changes in intent from user behavior. This means that each subsequent request can adapt to that intent WITHOUT retraining.
-6. Put Items/Put Users
+7. Put Items/Put Users
     1. Allows for applications to add/update individual or mini-batches of items or users without having to upload the entire items and users datasets.
     2. See FAQs below for more detail.
-7. KMS Integration
+8. KMS Integration
     1. All data can be encrypted using a customer managed key, all data is encrypted regardless.
-8. No Information Sharing
+9. No Information Sharing
     1. All customer data is fully isolated and is not leveraged in order to improve the recommendations of Amazon or any other party.
     2. Models are private to the customer’s AWS account.
 
