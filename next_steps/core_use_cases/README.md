@@ -34,6 +34,8 @@ In this directory we have examples various use cases
     - Create recommendations for multiple users or items in a single batch job.
 5. [Metadata](metadata/)
     - Samples for how to prepare and include metadata in your datasets.
+5. [Objective Optimization](objective_optimization/objective-optimization.ipynb)
+    - Sample for how to balance business objectives with relevant recommendations using objective optmization.
 ## License Summary
 
 This sample code is made available under a modified MIT license. See the LICENSE file.
