@@ -2,8 +2,11 @@
 
 This folder contains examples on the following topics:
 
-* MLOps
-    - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](ml_ops/) folder and follow the README instructions.
+* [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/)
+    - This AWS Solution allows you to automate the end-to-end process of importing datasets, creating solutions and solution versions, creating and updating campaigns, creating filters, and running batch inference jobs. These processes can be run on-demand or triggered based on a schedule that you define.
+
+* MLOps (legacy)
+    - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](ml_ops) folder and follow the README instructions. This project has been replaced by the [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/) solution.
 
 * Data Science SDK
     - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops_ds_sdk](ml_ops_ds_sdk) folder and follow the README instructions.
@@ -13,7 +16,6 @@ This folder contains examples on the following topics:
 
 * Streaming Events
     - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](streaming_events/) folder and follow the README instructions.
-
 
 * [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
     - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.

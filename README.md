@@ -20,8 +20,10 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
   - [Related Items](/next_steps/core_use_cases/related_items)
 
 * Scalable Operations examples for your Amazon Personalize deployments
-    - [MLOps Step function](/next_steps/operations/ml_ops)
-        - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](/next_steps/operations/ml_ops) folder and follow the README instructions.
+    - [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/)
+        - This AWS Solution allows you to automate the end-to-end process of importing datasets, creating solutions and solution versions, creating and updating campaigns, creating filters, and running batch inference jobs. These processes can be run on-demand or triggered based on a schedule that you define.
+    - [MLOps Step function](/next_steps/operations/ml_ops) (legacy)
+        - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](/next_steps/operations/ml_ops) folder and follow the README instructions. This example has been replaced by the [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/) solution.
     - [MLOps Data Science SDK](/next_steps/operations/ml_ops_ds_sdk)
         - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops_ds_sdk](/next_steps/operations/ml_ops_ds_sdk) folder and follow the README instructions.
     - [Lambda Examples](/next_steps/operations/lambda_examples)
