@@ -32,6 +32,8 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
         - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
     - [Streaming Events](/next_steps/operations/streaming_events)
         - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](operations/streaming_events/) folder and follow the README instructions.
+    - [Filter Rotation](/next_steps/operations/filter_rotator)
+        - This serverless application includes an AWS Lambda function that is executed on a schedule to rotate Personalize filters that use expressions with fixed values that must be changed over time. For example, using a range operator based on a date or time value that is designed to include/exclude items based on a rolling window of time.
 
 * Workshops
     - [Workshops/](/next_steps/workshops/) folder contains a list of our most current workshops:

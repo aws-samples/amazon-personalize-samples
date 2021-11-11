@@ -35,9 +35,10 @@ What kind of use cases can be solved and how?
     3. Lastly this approach leverages a bandit like exploration capacity to help you quickly determine which results make sense, and which do not for recommendations, a far better approach than just blindly pushing new content.
 4. **Re-Ordering by Relevance** `Personalized-Ranking`:
     1. Uses the same HRNN algorithm underneath User-Personalization but takes in a user AND a collection of items. This will then look at the collection of items and rank them in order of most relevant to least for the user. This is great for promoting a pre-selected collection of items and knowing what is the right thing to promote for a particular user.
-5. **Similar Items** `SIMS`:
-    1. Pretty simple idea, implemented via item-item collaborative filtering but basically look at how people are interacting with particular things and then determine how similar things are at a global level based on that data. Not user specific at all.
-6. **Frequently Bought Together** `SIMS`:
+5. **Related Items** `Similar-Items`/`SIMS`:
+    1. `Similar-Items`: Deep learning model that considers both interaction data and item metadata to balance related item recommendations based on interaction history and item metadata similarity. Useful when you have less interaction data but have quality item metadata or when you frequently introduce cold/new items.
+    2. `SIMS`: Pretty simple idea, implemented via item-item collaborative filtering but basically looks at how people are co-interacting with particular items and then determine how similar items are at a global level based on interaction data. Does not consider item or user metadata and is not personalized to each user. Useful when you have a lot of relevant interaction data, do not have a lot of cold items (changing catalog), and/or lack item metadata.
+6. **Frequently Bought Together** `Similar-Items`/`SIMS`:
     1. The key is preparing the right data used to train a model in Personalize and choosing the right recipe. For example, train a SIMS model on purchase data only and, if possible, train only on purchase data where customers have purchased multiple items and/or purchased items across multiple categories. This will bring the desired behavior to the model and create diversity in recommendations (which is what you want for this use case).
     2. SIMS can also be combined with Personalized-Ranking to rerank recommendations from SIMS before presenting them to the user. This provides a personalized order of items that are frequently bought together.
 7. **Most Popular Overall** `Popularity-Count`:
@@ -94,38 +95,40 @@ What kind of use cases can be solved and how?
     2. New items will be incorporated into recommendations after retraining if interactions also exist (all recipes) or cold-starting new item recommendations with or without interactions after the solution has been updated (trainingMode = FULL/UPDATE for aws-user-personalization and HRNN-Coldstart only).
     3. For example, you can organically stream new items into your historical dataset by placing banners for new releases. Anything that causes a user to interact with the new items and for that action to be logged can improve recommendations after the next training.
 4. How do I filter results for certain conditions?
-    1. Using the filters feature for either Interaction ( https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-filters-in-amazon-personalize/ )  or Metadata information ( https://aws.amazon.com/blogs/machine-learning/enhancing-recommendation-filters-by-filtering-on-item-metadata-with-amazon-personalize/ ).
+    1. Using the filters feature for either Interaction (https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-filters-in-amazon-personalize/) or Metadata information ( https://aws.amazon.com/blogs/machine-learning/enhancing-recommendation-filters-by-filtering-on-item-metadata-with-amazon-personalize/ ).
     2. Filtering based on interaction history currently only considers the most recent 100 real-time interactions (PutEvents API) and the most recent 200 historical interactions in the dataset at the time of retraining. All event types are included in the 100/200 limits.
-5. Why should I use Amazon Personalize over a custom solution?
+5. I need to filter items based on a rolling date value but filters do not support dynamic values for range operators. What are my options?
+    1. Range operators currently cannot be used with dynamic values so you must create a filter expression with a fixed value and then rotate the filter periodically to update the fixed value. The [filter rotator](https://github.com/aws-samples/amazon-personalize-samples/tree/master/next_steps/operations/filter_rotator) solution can be used to automate the rotation process.
+6. Why should I use Amazon Personalize over a custom solution?
     1. Assuming your data and use cases are aligned, this is a great way to get a best in class model in front of the end users faster. While handling the operational burden of running a recommendation system at scale, Personalize also frees you up to improve feature engineering, data collection, user experiences, or solve other problems.
-6. I have a use case where my customers purchase or interact with items in my catalog infrequently (e.g. purchasing a car). Is Personalize still a good fit?
-    1. Yes, Personalize can still be put to use effectively for this type of use case. For example, a SIMS model can be trained based on all user activity such as browsing or purchase history and then used for similar item recommendations on item detail pages. This allows you to leverage recent activity across all active users to make relevant recommendations to returning users.
+7. I have a use case where my customers purchase or interact with items in my catalog infrequently (e.g. purchasing a car). Is Personalize still a good fit?
+    1. Yes, Personalize can still be put to use effectively for this type of use case. For example, a SIMS model can be trained based on all user activity such as browsing or purchase history (online and/or offline) and then used for similar item recommendations on item detail pages. This allows you to leverage recent activity across all active users to make relevant recommendations to returning users.
     2. Real-time recommendations are also effective here since Personalize is able to learn from a user’s current interest and adapt recommendations quickly. For example, recommend popular items initially and then quickly personalize recommendations after a few interactions are streamed using the PutEvents API.
-7. Should I use AutoML?
+8. Should I use AutoML?
     1. No, the recipes solve different use cases. Take the time to select the most appropriate recipe for the use-case and skip this feature.
-8. Should I use HPO / How often?
-    1. Infrequently. Take the results of one HPO job and use them explicitly in the solution config for several retrainings. Then run HPO again and repeat. Realistically they should not shift much between training jobs. This approach will keep your training times, and therefore costs, lower than running HPO for all training jobs without sacrificing model accuracy.
-9. How can I predict the pricing of training?
+9. Should I use HPO / How often?
+    1. Infrequently. Take the results of one HPO job and use them explicitly in the solution config for several retrainings. Then run HPO again and repeat. Realistically tuned parameters should not shift much between training jobs. This approach will keep your training times, and therefore costs, lower than running HPO for all training jobs without sacrificing model accuracy.
+10. How can I predict the pricing of training?
     1. Unfortunately there really is not a great way to know this beforehand, we do have some testing that has been done on the MovieLens dataset. For example using `User-Personalization` it takes around  6 human hours for the training on 25M interactions but less than 1 human hour to train on 100k interactions. Because training is sharded over multiple hosts, the actual hours are, 53.9 hours for 50M and 2.135 hours for 100k. Billing is done on the actual hours, not the human ones.
-10. What is a TPS hour and how does it relate to pricing / usability?
+11. What is a TPS hour and how does it relate to pricing / usability?
     1. Amazon Personalize spins up dedicated compute resources that will remain provisioned in order to meet your expected minimum throughput requirements (Transactions per Second or TPS), they are billed in terms of hours that these resources are allocated, thus a TPS-Hour. 1 TPS-Hour is the amount of compute capacity required to deliver 1 recommendation per second for an entire hour.
     2. Usage is measured in 5 minute increments where the maximum of the average number of requests and the minimum provisioned throughput in each increment is used as the TPS-Hour value. Therefore, when the service scales above the minimum provisioned TPS, the customer is only billed for capacity actually consumed. The TPS-Hours for all 5 minute increments are summed during the billing period to determine the total TPS-Hours for billing calculations.
     3. The service will automatically scale up for you if your traffic exceeds the minimum provisioned TPS on the campaign, and it has proven to be a valuable tool for many of our customers. A capacity buffer is allocated above the minimum provisioned TPS to allow the service to absorb increases in request load while it scales out.
     4. If your customer knows they are going to have a spike of activity such as a flash sale or promotional event, have them use some automated process to update the provisioned capacity to meet the new need, then throttle it down later if they cannot wait 5-10 minutes for the service to auto-scale for them.
     5. The Amazon Personalize Monitor project provides a CloudWatch dashboard, custom metrics, utilization alarms, and cost optimization functions for Personalize campaigns: https://github.com/aws-samples/amazon-personalize-monitor
-11. How can I tell if a Personalize model is providing high quality recommendations?
+12. How can I tell if a Personalize model is providing high quality recommendations?
     1. Personalize provides offline metrics for each solution version that measure the accuracy of predictions from the model against held out data from the interactions dataset. Use these metrics to provide a directional sense of the quality of a solution version against other versions.
     2. Online testing (i.e. A/B testing) is always going to be the best measure of the impact of a model on business metrics.
     3. When you are comparing Personalize models against an existing recommendation system, all the historical data is initially biased towards the existing approach. Often the offline metrics do not reflect what a user MAY have done if they were exposed to something else (how could they, the data does not reflect it). So worth noting this effect, and the bandit based exploration Personalize can do to organically learn better from your users. Therefore running an online test for a few weeks **before** actually starting a test to measure results is recommended.
     4. See this blog post for details: https://aws.amazon.com/blogs/machine-learning/using-a-b-testing-to-measure-the-efficacy-of-recommendations-generated-by-amazon-personalize/
-12. How can I optimize for cost?
+13. How can I optimize for cost?
     1. DO NOT USE AUTOML!
     2. DO NOT START WITH HPO - build something working first, optimize last.
     3. Re-Train based on business requirements only. See FAQ question for details.
     4. Rely heavily on auto-scaling by setting the minimum provisioned TPS low unless it negatively impacts your throughput / latency targets.
     5. Consider using batch recommendations when the use-case aligns with a downstream batch process such as email marketing. Since batch recommendations run against a solution version, they do not require a campaign.
     6. The Amazon Personalize Monitor project provides some cost optimization features for optimizing campaign provisioning as well as alerting and deleting idle/abandoned campaigns: https://github.com/aws-samples/amazon-personalize-monitor
-13. How do incremental records influence recommendations for the current user?
+14. How do incremental records influence recommendations for the current user?
     1. Amazon Personalize allows you to import [interactions](https://docs.aws.amazon.com/personalize/latest/dg/importing-interactions.html), [users](https://docs.aws.amazon.com/personalize/latest/dg/importing-users.html), and [items](https://docs.aws.amazon.com/personalize/latest/dg/importing-items.html) incrementally. These can affect recommendations for the current user in different ways depending on whether the a new solution version has been trained and what type of trainingMode was used:
 
 |Increment	|Recipe	|No retraining	|Retraining trainingMode=UPDATE	|Retraining trainingMode=FULL	|Comments	|
