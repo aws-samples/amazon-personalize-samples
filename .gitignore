@@ -7,3 +7,6 @@ json_input.*
 .vscode
 .aws-sam
 *.toml
+__pycache__/
+.pytest_cache
+.venv
