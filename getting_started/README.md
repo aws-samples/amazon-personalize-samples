@@ -1,20 +1,10 @@
 # Getting Started
 
-This tutorial will walk you through building an environment to create a custom dataset, model, and recommendation campaign with Amazon Personalize.
+This tutorial will walk you through how to get started using Amazon Personalize:
 
-## Agenda
-
-The steps below outline the process of building your own recommendation model, improving it, and then cleaning up all of your resources to prevent any unwanted charges. To get started executing these follow the steps in the next section.
-
-1. `1.Building_Your_First_Campaign.ipynb`  - Guides you through building your first campaign and recommendation algorithm. 
-2. `2.View_Campaign_And_Interactions.ipynb` - Showcase how to generate a recommendation and how to modify it with real time intent. 
-4. `Cleanup.ipynb` - Deletes anything that was created so you are not charged for additional resources.
-
-You can download the Jupyter notebooks from the `/notebooks` folder or deploy the following Cloud Formation template which clones this repo.
-
-If you have any issues with any of the content below please open an issue here in the repository.
-
-
+1. Building a work environment (see steps bellow)
+2. Build your first use-case optimized recommenders for Video On Demand and E-commerce
+3. Build your first custom dataset, model, and recommendation campaign
 
 ## Environment Prerequisites
 
@@ -68,7 +58,7 @@ Now that you have your environment created, you need to save the name of your S3
 
 ## Using the Notebooks
 
-Start by navigating to the Amazon SageMaker landing [page](https://console.aws.amazon.com/sagemaker/home?region=us-east-1#/). From the service page click the `Notebook Instances` link on the far left menu bar.
+Start by navigating to the Amazon SageMaker landing [page](https://console.aws.amazon.com/sagemaker/home). From the service page click the `Notebook Instances` link on the far left menu bar.
 
 ![StackWizard5](static/imgs/img10.png)
 
@@ -78,7 +68,13 @@ To get to the Jupyter interface, simply click `Open JupyterLab` on the far right
 
 Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. 
 
-To get started navigate to the first notebook:
+To get started navigate to the first notebook using [domain dataset groups and use-case optimized recommenders](https://docs.aws.amazon.com/personalize/latest/dg/create-domain-dataset-group.html).
+
+`amazon-personalize-samples/getting_started/notebooks/Building_Your_First_Recommender_Video_On_Demand.ipynb`
+
+`amazon-personalize-samples/getting_started/notebooks/Building_Your_First_Recommender_Ecommerce.ipynb`
+
+or using [custom dataset groups](https://docs.aws.amazon.com/personalize/latest/dg/custom-dataset-groups.html):
 
 `amazon-personalize-samples/getting_started/notebooks/1.Building_Your_First_Campaign.ipynb`
 
