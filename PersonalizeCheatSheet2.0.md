@@ -27,6 +27,7 @@ What kind of use cases can be solved and how?
 1. **Personalized Recommendations** `User-Personalization`:
     1. This is a primary use case of Amazon Personalize, using user-item-interaction data to build a recommendation model that directly targets each user, and allows for new users to be added on the fly with PutEvents without re-training. PutEvents also allows for the users to see recommendations that are based on their most recent behavior so you do not lose out on that additional info. Also you can feed in context specific components like device type or location to improve results.
     2. You can also add item and user metadata in order to better enrich the model, or to filter recommendations by attribute.
+    3. For Video On Demand and Retail use-cases, the domain recommenders “Top picks for you” and “Recommended for you” allow you to get up and going quickly and with less operational overhead.
 2. **Recommending Items to New Users** `User-Personalization`:
     1. New users (aka cold users) can be added to your existing User-Personalization solutions by leveraging the PutEvents feature. Each new user starts with a representation in the service that returns the popular items. This representation is shifted by the user’s behavior. As they interact with content within the application and the events are sent by the application to Personalize, recommendations are updated without having to re-train the model. This delivers up to date personalization without constant retraining.
 3. **Recommending New Items** `User-Personalization`:
@@ -38,34 +39,41 @@ What kind of use cases can be solved and how?
 5. **Related Items** `Similar-Items`/`SIMS`:
     1. `Similar-Items`: Deep learning model that considers both interaction data and item metadata to balance related item recommendations based on interaction history and item metadata similarity. Useful when you have less interaction data but have quality item metadata or when you frequently introduce cold/new items.
     2. `SIMS`: Pretty simple idea, implemented via item-item collaborative filtering but basically looks at how people are co-interacting with particular items and then determine how similar items are at a global level based on interaction data. Does not consider item or user metadata and is not personalized to each user. Useful when you have a lot of relevant interaction data, do not have a lot of cold items (changing catalog), and/or lack item metadata.
+    3. For Video On Demand and Retail use-cases, the domain recommenders “Because you watched X”, “More like X”, “Frequently bought together”, and “Customers who viewed X also viewed” allow you to get up and going quickly and with less operational overhead.
 6. **Frequently Bought Together** `Similar-Items`/`SIMS`:
     1. The key is preparing the right data used to train a model in Personalize and choosing the right recipe. For example, train a SIMS model on purchase data only and, if possible, train only on purchase data where customers have purchased multiple items and/or purchased items across multiple categories. This will bring the desired behavior to the model and create diversity in recommendations (which is what you want for this use case).
     2. SIMS can also be combined with Personalized-Ranking to rerank recommendations from SIMS before presenting them to the user. This provides a personalized order of items that are frequently bought together.
+    3. The domain recommender “Frequently bought together” will allow you to get up and going quickly and with less operational overhead.
 7. **Most Popular Overall** `Popularity-Count`:
     1. Not machine learning, just a baseline from counting the most commonly interacted with items. This recipe is useful for popular item recommendations or for creating a baseline of offline metrics that can be used to compare against solution versions created using other user-personalization recipes with the same datasets.
+    2. For Video On Demand and Retail use-cases, the domain recommenders “Most popular”, “Most viewed”, and “Best sellers” allow you to get up and going quickly and with less operational overhead.
+8. **User Segmentation** `Item-Affinity`/`Item-Attribute-Affinity`:
+    1. Create segments of users based on their affinity to specific items in your catalog or their affinity to item attributes. Excellent match with marketing campaigns where you’re looking to target users who will have an interest in specific items you’re looking to promote or items similar to existing items.
 
 ## Killer Features:
 
-1. Contextual Recommendations
+1. [Domain dataset groups](https://docs.aws.amazon.com/personalize/latest/dg/domain-dataset-groups.html): recommenders for Video On Demand and Retail use cases
+    1. A *Domain dataset group* is a Amazon Personalize container for domain specific pre-configured resources, including datasets, recommenders, and filters. Use a Domain dataset group if you have a streaming video or e-commerce application and want to let Amazon Personalize find the best configurations for your recommenders.
+2. Contextual Recommendations
     1. Allows you to scope recommendations to state that varies with the interaction rather than specific to the user or item. Think the user’s current location, device/channel being used, time of day, day of week, etc.
     2. See this blog post for a detailed example: https://aws.amazon.com/blogs/machine-learning/increasing-the-relevance-of-your-amazon-personalize-recommendations-by-leveraging-contextual-information/
-2. Interaction and Metadata Filtering
+3. Interaction and Metadata Filtering
     1. Filter recommendations based on the user’s interaction history or the metadata attributes for the items or current user. Very handy in nearly all Media or Retail workloads. For example, exclude recently purchased or out of stock items or include/exclude recommended items based on category or genre.
     2. See this blog post for details: https://aws.amazon.com/blogs/machine-learning/enhancing-recommendation-filters-by-filtering-on-item-metadata-with-amazon-personalize/
-3. Batch Inference
+4. Batch Inference
     1. Great for exporting large quantities of recommendations to files for caches, for email campaigns, or just general exploration.
-4. AutoScaling Campaigns
+5. AutoScaling Campaigns
     1. The service will automatically scale to meet your traffic demands if a particular campaign is over-subscribed. It will then also reduce to your requested minimum capacity when the traffic volume abates.
-5. Unstructured Text as Item Metadata
+6. Unstructured Text as Item Metadata
     1. Add your product descriptions, video plot synopsis, or article content as an item metadata field and let Personalize use natural language processing (NLP) to extract hidden features from your text to improve the relevance of recommendations.
-6. Put Events
+7. Put Events
     1. Allows for applications to update Personalize in real time with changes in intent from user behavior. This means that each subsequent request can adapt to that intent WITHOUT retraining.
-7. Put Items/Put Users
+8. Put Items/Put Users
     1. Allows for applications to add/update individual or mini-batches of items or users without having to upload the entire items and users datasets.
     2. See FAQs below for more detail.
-8. KMS Integration
+9. KMS Integration
     1. All data can be encrypted using a customer managed key, all data is encrypted regardless.
-9. No Information Sharing
+10. No Information Sharing
     1. All customer data is fully isolated and is not leveraged in order to improve the recommendations of Amazon or any other party.
     2. Models are private to the customer’s AWS account.
 
@@ -128,7 +136,11 @@ What kind of use cases can be solved and how?
     4. Rely heavily on auto-scaling by setting the minimum provisioned TPS low unless it negatively impacts your throughput / latency targets.
     5. Consider using batch recommendations when the use-case aligns with a downstream batch process such as email marketing. Since batch recommendations run against a solution version, they do not require a campaign.
     6. The Amazon Personalize Monitor project provides some cost optimization features for optimizing campaign provisioning as well as alerting and deleting idle/abandoned campaigns: https://github.com/aws-samples/amazon-personalize-monitor
-14. How do incremental records influence recommendations for the current user?
+14. What are the best ways to use caching with Amazon Personalize? How should I integrate Personalize with my existing applications?
+    1. Check out the [Personalization APIs](_https://github.com/aws-samples/personalization-apis_) solution: Real-time low latency API framework that sits between your applications and recommender systems such as Amazon Personalize. Provides best practice implementations of response caching, API gateway configurations, A/B testing with [Amazon CloudWatch Evidently](_https://docs.aws.amazon.com/cloudwatchevidently/latest/APIReference/Welcome.html_), inference-time item metadata, automatic contextual recommendations, and more.
+15. What is the best way to compare Personalize to an existing user experience or another recommendation system?
+    1. A/B testing is the most common technique for evaluating the effectiveness of Personalize against online metrics.  [Amazon CloudWatch Evidently]([_https://docs.aws.amazon.com/cloudwatchevidently/latest/APIReference/Welcome.html_](https://docs.aws.amazon.com/cloudwatchevidently/latest/APIReference/Welcome.html)) is an A/B testing tool from AWS that can be used with Personalize. The [Personalization APIs]([_https://github.com/aws-samples/personalization-apis_](https://github.com/aws-samples/personalization-apis)) project provides a deployable solution and reference architecture.
+16. How do incremental records influence recommendations for the current user?
     1. Amazon Personalize allows you to import [interactions](https://docs.aws.amazon.com/personalize/latest/dg/importing-interactions.html), [users](https://docs.aws.amazon.com/personalize/latest/dg/importing-users.html), and [items](https://docs.aws.amazon.com/personalize/latest/dg/importing-items.html) incrementally. These can affect recommendations for the current user in different ways depending on whether the a new solution version has been trained and what type of trainingMode was used:
 
 |Increment	|Recipe	|No retraining	|Retraining trainingMode=UPDATE	|Retraining trainingMode=FULL	|Comments	|
@@ -183,10 +195,24 @@ Segment helps customers with Personalize in the following ways:
 * Segment CTO video: https://www.youtube.com/watch?v=LQSGz8ryvXU
 * Blog post: https://segment.com/blog/introducing-amazon-personalize/
 * AWS/Segment Workshops
-    * Real-time personalization events: https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/1.2-Real-Time-Events-Segment.ipynb
+    * Real-time personalization events: https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/Lab-5-Real-time-events-Segment.ipynb
     * Customer data platforms and Personalize: https://github.com/aws-samples/retail-demo-store/blob/master/workshop/6-CustomerDataPlatforms/6.1-Segment.ipynb
     * Segment/Personalize (legacy workshop): https://github.com/james-jory/segment-personalize-workshop
 * Documentation: https://segment.com/docs/connections/destinations/catalog/amazon-personalize/
+
+**mParticle** is a Customer Data Platform. They are an AWS Advanced Technology Partner and hold the [Digital Customer Experience](https://aws.amazon.com/advertising-marketing/partner-solutions/) (DCX) and [Retail](https://aws.amazon.com/retail/partner-solutions/) competencies.
+
+mParticle helps customers with Personalize in the following ways:
+
+* Event collection - this is a core capability of mParticle. Customers use mParticle to collect clickstream events across their web app, mobile apps, and other integrations. These events are collected, validated, and fanned out to downstream destinations configured by the customer.
+* Customer/user profile identity resolution - because mParticle sees events across all channels for a customer's users, they are able to create a unified customer profile. This profile/identity is key to being able to deliver omnichannel personalization.
+* Activation across an organization's other marketing tools - because mParticle allows customers to create connections to other marketing tools, attaching personalized recommendations from Personalize to profiles in mParticle allows customers and downstream partners to leverage those recommendations in their tools.
+
+**Resources**
+
+* AWS/mParticle Workshops
+    * Real-time personalization events: https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/Lab-6-Real-time-events-mParticle.ipynb
+    * Customer data platforms and Personalize: https://github.com/aws-samples/retail-demo-store/blob/master/workshop/6-CustomerDataPlatforms/6.2-mParticle.ipynb
 
 ### Analytics/Measurement/Experimentation
 
@@ -239,11 +265,11 @@ The extension can be easily installed into any Magento 2 storefront whether it's
 * Magento Marketplace: https://marketplace.magento.com/customerparadigm-amazon-personalize-extension.html
 
 
-**Shopify:** HiConversion has built a managed integration with Personalize for Shopify storefronts. This means HiConversion is managing Personalize in their AWS environment and Shopify merchants pay HiConversion for personalization capabilities that are powered by Personalize.
+**Shopify:** [Obviyo](https://www.obviyo.com/) (formerly known as HiConversion) has built a managed integration with Personalize for Shopify storefronts. This means Obviyo is managing Personalize in their AWS environment and Shopify merchants pay Obviyo for personalization capabilities that are powered by Personalize.
 
 **Resources**
 
-* Partner website: https://www.hiconversion.com/amazon-personalize/
+* Partner website: https://www.obviyo.com/
 
 **WooCommerce (BETA):** [WP-Engine](https://wpengine.com/) has built a Personalize integration into the AWS for WordPress plugin that allows you to add product recommendations from Personalize to a WooCommerce site in just a few clicks.
 

@@ -12,12 +12,12 @@ The notebooks provided can also serve as a template to building your own models 
 
 The [next_steps/](next_steps/) folder contains detailed examples of the following typical next steps in your Amazon Personalize journey. This folder contains the following advanced content:
 
-
-* Core Use Cases.
+* Core Use Cases
   - [User Personalization](/next_steps/core_use_cases/user_personalization)
   - [Personalize Ranking](/next_steps/core_use_cases/personalized_ranking)
-  - [Batch Recommendations](/next_steps/core_use_cases/batch_recommendations)
   - [Related Items](/next_steps/core_use_cases/related_items)
+  - [Batch Recommendations](/next_steps/core_use_cases/batch_recommendations)
+  - [User Segmentation](/next_steps/core_use_cases/user_segmentation)
 
 * Scalable Operations examples for your Amazon Personalize deployments
     - [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/)
@@ -26,12 +26,14 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
         - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Step Functions. To get started navigate to the [ml_ops](/next_steps/operations/ml_ops) folder and follow the README instructions. This example has been replaced by the [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/) solution.
     - [MLOps Data Science SDK](/next_steps/operations/ml_ops_ds_sdk)
         - This is a project to showcase how to quickly deploy a Personalize Campaign in a fully automated fashion using AWS Data Science SDK. To get started navigate to the [ml_ops_ds_sdk](/next_steps/operations/ml_ops_ds_sdk) folder and follow the README instructions.
+    - [Personalization APIs](https://github.com/aws-samples/personalization-apis)
+        - Real-time low latency API framework that sits between your applications and recommender systems such as Amazon Personalize. Provides best practice implementations of response caching, API gateway configurations, A/B testing with [Amazon CloudWatch Evidently](https://docs.aws.amazon.com/cloudwatchevidently/latest/APIReference/Welcome.html), inference-time item metadata, automatic contextual recommendations, and more.
     - [Lambda Examples](/next_steps/operations/lambda_examples)
         - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](/next_steps/operations/lambda_examples) folder and follow the README instructions.
     - [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
         - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
     - [Streaming Events](/next_steps/operations/streaming_events)
-        - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](operations/streaming_events/) folder and follow the README instructions.
+        - This is a project to showcase how to quickly deploy an API Layer in front of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](operations/streaming_events/) folder and follow the README instructions.
     - [Filter Rotation](/next_steps/operations/filter_rotator)
         - This serverless application includes an AWS Lambda function that is executed on a schedule to rotate Personalize filters that use expressions with fixed values that must be changed over time. For example, using a range operator based on a date or time value that is designed to include/exclude items based on a rolling window of time.
 
