@@ -9,9 +9,9 @@ Completing this tutorial involes the following steps:
 1. Follow the instructions in this file to build your environment and find the notebooks in AWS Sagemaker. This involves deploying an AWS CloudFormation stack that sets up the notebook environment for you.
 2. Run the `Building_the_Magic_Movie_Machine_Recommender.ipynb` notebook on AWS Sagemaker. You deployed this notebook in step one. This notebook guides you through building your first movie recommenders and getting your first recommendations.
 3. Run the `Clean_Up_Resources.ipynb`. This notebook deletes anything that was created in the previous notebook so you are not charged for additional resources. 
-4. Delete the AWS Cloud Formation stack to delete environment resources you created in step 2.
+4. Delete the AWS CloudFormation stack to delete environment resources you created in step 2.
 
-*Note*: You can explore the notebook directly in github. However, to successfully run it you must follow the steps in this file to deploy in a preconfigured environment.
+*Note*: You can explore the notebook directly in github. However, to successfully run it you must follow the steps below to deploy the notebook in a preconfigured environment.
 
 ## Building your Environment 
 Before you can build your own movie recommender, you must building a work environment as follows:
