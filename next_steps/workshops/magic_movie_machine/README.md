@@ -1,30 +1,44 @@
-# Preparing to build the Magic Movie Machine
+![banner](static/imgs/MagicMovieMachine_banner.png)
+# Building your own movie recommender
+This tutorial walks you through building your own movie recommender.
+You will see how you can create resources in Amazon Personalize that generate recommendations, just like the Magic Movie Machine!
 
-This tutorial will walk you through how to build the Magic Movie Machine.
+## Tutorial overview
+Completing this tutorial involes the following steps:
 
-1. Building a work environment (see steps bellow)
-2. Import data and create Amazon Personalize resources.
-2. Build your first use-case optimized recommenders for the Video On Demand domain.
+1. Follow the instructions in this file to build your environment and find the notebooks in AWS Sagemaker. This involves deploying an AWS CloudFormation stack that sets up the notebook environment for you.
+2. Run the `Building_the_Magic_Movie_Machine_Recommender.ipynb` notebook on AWS Sagemaker. You deployed this notebook in step one. This notebook guides you through building your first movie recommenders and getting your first recommendations.
+3. Run the `Clean_Up_Resources.ipynb`. This notebook deletes anything that was created in the previous notebook so you are not charged for additional resources. 
+4. Delete the AWS CloudFormation stack to delete environment resources you created in step 2.
 
-## Environment Prerequisites
+*Note*: You can explore the notebook directly in github. However, to successfully run it you must follow the steps below to deploy the notebook in a preconfigured environment.
 
-Only applies if you are deploying with the CloudFormation template, otherwise consult the IAM permissions needed for your specific task.
+## Building your Environment 
+Before you can build your own movie recommender, you must building a work environment as follows:
 
-1. AWS Account
-2. User with administrator access to the AWS Account
+1. Make sure you have satisfied the environment prerequsites listed below.
+2. Deploy the AWS CloudFormation stack.
+3. Navigate to the Amazon SageMaker console 
 
-## Building Your Environment
+### Environment Prerequisites
+
+To deploy with the CloudFormation template, you must have the following.
+
+1. An AWS Account
+2. A user with administrator access to the AWS Account
+
+### Deploying the Environment
 
 The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
 
 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://amazon-personalize-github-samples.s3.amazonaws.com/PersonalizeDemo.yaml)
 
-Follow along with the screenshots if you have any questions about these steps.
+Follow along with the screenshots below if you have any questions about these steps.
 
 <details>
   <summary>Click to expand the instructions</summary>
   
-### Cloud Formation Wizard
+### Using the AWS CloudFormation Wizard
 
 Start by clicking `Next` at the bottom like shown:
 
@@ -56,7 +70,7 @@ Now that you have your environment created, you need to save the name of your S3
 </details>
 
 
-## Using the Notebooks
+### Using the Notebooks
 
 Start by navigating to the Amazon SageMaker landing [page](https://console.aws.amazon.com/sagemaker/home). From the service page click the `Notebook Instances` link on the far left menu bar.
 
@@ -68,16 +82,16 @@ To get to the Jupyter interface, simply click `Open JupyterLab` on the far right
 
 Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. 
 
-To get started navigate to the first notebook using [domain dataset groups and use-case optimized recommenders](https://docs.aws.amazon.com/personalize/latest/dg/create-domain-dataset-group.html).
+To get started navigate to the next_steps folder > workshops > magic_movie_machine > notebooks > Building the Magic Movie Machine Recommender.pynb
 
 `amazon-personalize-samples/next_steps/workshops/magic_movie_machine/notebooks/Building the Magic Movie Machine Recommender.ipynb`
 
 
-The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor or if you are working independently this is a pretty good video to get started:
+Make sure to choose a kernel that uses Python 3.x (kernel name will end with p3x) before you run the lab. The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks, this is a pretty good video to get started:
 
 https://www.youtube.com/watch?v=Gzun8PpyBCo
 
-## After the Notebooks
+## Deleting environment resources
 
 Once you have completed all of the work in the Notebooks and have completed the cleanup steps there as well, the last thing to do is to delete the stack you created with CloudFormation. To do that, inside the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it.
 
