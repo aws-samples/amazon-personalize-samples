@@ -20,9 +20,6 @@ This topic contains examples on the following topics:
 * Streaming Events
     - This is a project to showcase how to quickly deploy an API Layer infront of your Amazon Personalize Campaign and your Event Tracker endpoint. To get started navigate to the [streaming_events](streaming_events/) folder and follow the README instructions.
 
-* Filter Rotation
-    - This [serverless application](filter_rotator/) includes an AWS Lambda function that is executed on a schedule to rotate Personalize filters that use expressions with fixed values that must be changed over time. For example, using a range operator based on a date or time value that is designed to include/exclude items based on a rolling window of time.
-
 * [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
     - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
 

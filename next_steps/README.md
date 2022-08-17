@@ -28,9 +28,6 @@ The [operations/](operations/) folder contains examples on the following topics:
 * Lambda Examples
     - This folder starts with a basic example of integrating `put_events` into your Personalize Campaigns by using Lambda functions processing new data from S3. To get started navigate to the [lambda_examples](operations/lambda_examples/) folder and follow the README instructions.
 
-* Filter Rotation
-    - This [serverless application](operations/filter_rotator/) includes an AWS Lambda function that is executed on a schedule to rotate Personalize filters that use expressions with fixed values that must be changed over time. For example, using a range operator based on a date or time value that is designed to include/exclude items based on a rolling window of time.
-
 * [Personalize Monitor](https://github.com/aws-samples/amazon-personalize-monitor)
     - This project adds monitoring, alerting, a dashboard, and optimization tools for running Amazon Personalize across your AWS environments.
 

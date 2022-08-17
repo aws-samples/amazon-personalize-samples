@@ -31,21 +31,9 @@ To use the filter above, you would pass the appropriate value(s) for the `$GENRE
 You can learn more about filters on the AWS Personalize blog [here](https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-filters-in-amazon-personalize/) and [here](https://aws.amazon.com/blogs/machine-learning/amazon-personalize-now-supports-dynamic-filters-for-applying-business-rules-to-your-recommendations-on-the-fly/).
 
 ## <a name='Whyisfilterrotationnecessary'></a>Why is filter rotation necessary?
-Filters are great! However, they do have some limitations. One of those limitations is being able to specify a dynamic value for a range query (i.e., `<`, `<=`, `>`, `>=`). For example, the following filter to limit recommendations to new items that were created since a rolling point in the past is **not** supported.
+Filters are great! However, if you need to periodically change filters on a predictable schedule or in a particular way, it can be difficult to implement this functionality.
 
-**THIS WON'T WORK!**
-```
-INCLUDE ItemID WHERE Items.creation_timestamp > $NEW_ITEM_THRESHOLD
-```
-
-The solution to this limitation is to use a filter expression with a hard-coded value for range queries.
-
-**THIS WORKS!**
-```
-INCLUDE ItemID WHERE Items.creation_timestamp > 1633240824
-```
-
-However, this is not very flexible or maintainble since time marches on but your static filter expression does not. The workaround is to update your filter expression periodically to maintain a rolling window of time. Unfortunately filters cannot be updated so a new filter has to be created, your application has to transition to using the new filter, and only then can the previous filter can be safely deleted.
+**NOTE: one of the original purposes for creating this solution was to work around a limitation where dynamic filters could not be used with range operators (i.e., `<`, `<=`, `>`, `>=`). This limitation has been addressed and you can now combine dynamic filters with range operators. Nevertheless, we are keeping this solution around in case it's useful for other purposes.**
 
 The purpose of this serverless application is to make this process easier to maintain by automating the creation and deletion of filters and allowing you to provide a dynamic expression that is resolved to the appropriate hard-coded value when the new filter is created.
 
