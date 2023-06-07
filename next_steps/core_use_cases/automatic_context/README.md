@@ -16,7 +16,7 @@ Prior to running the steps under Instructions, you will need access to an AWS Ac
 
 ### Instructions
 
-1. Click 'Launch Stack' button below to deploy resources into your AWS Account. To directly deploy the stack in other regions, you can [follow these instructions](./create_stack_in_other_regions.md).
+1. Click 'Launch Stack' button below to deploy resources into your AWS Account. If you want to deploy into a different region other than default, change the region drop down in the AWS console before creating the stack.
 
 [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml)
 
