@@ -16,21 +16,15 @@ Prior to running the steps under Instructions, you will need access to an AWS Ac
 
 ### Instructions
 
-1. Click 'Launch Stack' for the AWS region you want to deploy resources into
+1. Click 'Launch Stack' button below to deploy resources into your AWS Account. To directly deploy the stack in other regions, you can [follow these instructions](./create_stack_in_other_regions.md).
 
-|AWS Region                |     Link        |
-|:------------------------|:-----------:|
-|us-east-1 (N. Virgnia)    | [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml) |
-|us-east-2 (Ohio)    | [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml) |
-|us-west-1 (N. California)    | [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml) |
-|eu-west-1 (Dublin)    | [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml) |
-|ap-northeast-1 (Tokyo)    | [<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml) |
+[<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml)
 
-To deploy the stack in other regions, you can [follow these instructions](./create_stack_in_other_regions.md). Please log an issue in this repo if you would like additional regions officially supported.
-1. Click 'Next' for 'Specify template', 'Specify stack details', and 'Configure stack options'. On the 'Review' step, check the box that says 'I acknowledge that AWS CloudFormation might create IAM resources with custom names.' and then click 'Create Stack'. You can view the CloudFormation template directly by looking [here](./templates/personalize-auto-context-template.yml). The stack will take a few minutes to launch. When it completes, you can view the items created by clicking on the Resources tab. 
-2. Once the stack is complete, browse to Amazon SageMaker in the AWS console and click on the 'Domains' tab on the left. 
-3. Click on the pre-created SageMaker domain and launch SageMaker Studio. 
-4. Inside SageMaker Studio's top menu, choose “Git” and choose “Clone a Repository” from the sub-menu. ACTUAL LOCATION TO BE KEYED IN LATER.
+
+2. Click 'Next' for 'Specify template', 'Specify stack details', and 'Configure stack options'. On the 'Review' step, check the box that says 'I acknowledge that AWS CloudFormation might create IAM resources with custom names.' and then click 'Create Stack'. You can view the CloudFormation template directly by looking [here](./templates/personalize-auto-context-template.yml). The stack will take a few minutes to launch. When it completes, you can view the items created by clicking on the Resources tab. 
+3. Once the stack is complete, browse to Amazon SageMaker in the AWS console and click on the 'Domains' tab on the left. 
+4. Click on the pre-created SageMaker domain and launch SageMaker Studio. 
+5. Inside SageMaker Studio's top menu, choose “Git” and choose “Clone a Repository” from the sub-menu. Provide the URL of this repository for the cloning operatiion.
 
 ### Running the Notebooks
 
