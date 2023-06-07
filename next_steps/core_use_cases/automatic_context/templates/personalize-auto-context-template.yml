@@ -1,0 +1,594 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates resources needed for experimenting auto context setting in Amazon Personalize.
+
+
+Mappings:
+  SubnetConfig:
+    PersonalizeAutoContextVPC:
+      cidr: '10.0.0.0/16'
+    PublicSubnetOne:
+      cidr: '10.0.0.0/24'
+
+Resources:
+
+###
+### VPC
+###
+
+  PersonalizeAutoContextVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !FindInMap ['SubnetConfig', 'PersonalizeAutoContextVPC', 'cidr']
+      Tags:
+        - Key: 'Name'
+          Value: !Ref AWS::StackName
+
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'PersonalizeAutoContextVPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicSubnetOne', 'cidr']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: 'Name'
+          Value: !Join [ "-", [ !Ref "AWS::StackName","PublicSubnetOne" ] ]
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref "AWS::StackName","InternetGateway" ] ]
+
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref 'PersonalizeAutoContextVPC'
+      InternetGatewayId: !Ref 'InternetGateway'
+
+  NATIP:
+    Type: AWS::EC2::EIP
+    DependsOn: GatewayAttachment
+    Properties:
+      Domain: vpc
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'PersonalizeAutoContextVPC'
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: [GatewayAttachment, InternetGateway]
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+
+  PublicSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetOne
+      RouteTableId: !Ref PublicRouteTable
+
+###
+### Security Groups
+###
+
+  SageMakerStudioSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for SageMaker studio kernel instances
+      VpcId: !Ref 'PersonalizeAutoContextVPC'
+      SecurityGroupEgress:
+      - IpProtocol: "-1"
+        CidrIp: 0.0.0.0/0
+
+###
+### SSM Parameter Store
+###
+
+  SSMParameterStoreCampaignEndpointArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: /personalize/endpoints/automatic-context-demo-arn
+      Type: String
+      Value: default-value
+
+  SSMParameterStoreFilterArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: /personalize/filters/automatic-context-demo-filter-arn
+      Type: String
+      Value: default-value
+
+###
+### IAM Roles
+###
+
+  SageMakerExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+
+  SageMakerIAMAccessPolicy: 
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "IAMAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - iam:CreateRole
+              - iam:DeleteRole
+              - iam:AttachRolePolicy
+              - iam:DetachRolePolicy
+              - iam:PassRole
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole"
+  
+  SageMakerCloudFormationAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "CloudFormationAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - cloudformation:DescribeStackResource
+            Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole"  
+
+  SageMakerCloudFrontAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "CloudFrontAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - cloudfront:GetDistribution
+            Resource: !Sub  'arn:aws:cloudfront::${AWS::AccountId}:*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole" 
+
+  SageMakerPersonalizeAccessModifyPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "PersonalizeAccessModifyPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - personalize:CreateSchema
+              - personalize:DeleteSchema
+              - personalize:CreateDatasetGroup
+              - personalize:DeleteDatasetGroup
+              - personalize:CreateDataset
+              - personalize:DeleteDataset
+              - personalize:CreateDatasetImportJob
+              - personalize:CreateSolution
+              - personalize:DeleteSolution
+              - personalize:CreateSolutionVersion
+              - personalize:CreateCampaign
+              - personalize:DeleteCampaign
+              - personalize:CreateFilter
+              - personalize:DeleteFilter
+            Resource: !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole"      
+
+  SageMakerPersonalizeAccessReadPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "PersonalizeAccessReadPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - personalize:DescribeDatasetGroup
+              - personalize:DescribeDataset
+              - personalize:DescribeDatasetImportJob
+              - personalize:ListRecipes
+              - personalize:DescribeSolution
+              - personalize:DescribeSolutionVersion
+              - personalize:GetSolutionMetrics
+              - personalize:DescribeCampaign
+              - personalize:DescribeFilter
+              - personalize:GetRecommendations
+            Resource: '*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole"      
+
+  SageMakerSSMAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "SSMAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - ssm:PutParameter
+              - ssm:GetParameter
+            Resource: !Sub  'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole"     
+
+  SageMakerS3AccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "S3AccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - s3:PutBucketPolicy
+              - s3:PutObject
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:DeleteObject
+              - s3:DeleteObjectVersion
+              - s3:DeleteObject
+            Resource: !Sub  'arn:aws:s3:::personalize-auto-context*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole" 
+
+  SageMakerAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "SageMakerAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - sagemaker:*
+            Resource: '*'
+      Roles: 
+        - Ref: "SageMakerExecutionRole" 
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - lambda.amazonaws.com
+            Action: 
+              - "sts:AssumeRole"
+      Description: Lambda execution role
+      Path: "/"
+
+  LambdaPersonalizeAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "PersonalizeAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - personalize:GetRecommendations
+            Resource: '*'
+      Roles: 
+        - Ref: "LambdaExecutionRole"      
+
+  LambdaSSMAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: "SSMAccessPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - ssm:PutParameter
+              - ssm:GetParameter
+            Resource: !Sub  'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*'
+      Roles: 
+        - Ref: "LambdaExecutionRole"     
+
+###
+### LAMBDA
+###
+
+  PersonalizeAutoContextInvoker:
+    Type: "AWS::Lambda::Function"
+    DependsOn: LambdaExecutionRole
+    Properties:
+      ReservedConcurrentExecutions: 50
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 360
+      Runtime: python3.9
+      Code:
+        ZipFile: !Sub
+          - |
+            import boto3
+            from boto3 import client
+            import json
+            import os
+
+            personalize_cli = client('personalize-runtime')
+            ssm = boto3.client('ssm')
+
+            personalize_endpoint_param_name = '/personalize/endpoints/automatic-context-demo-arn'
+            personalize_filter_param_name = '/personalize/filters/automatic-context-demo-filter-arn'
+
+            campaign_arn = 'dummy_value'
+            filter_arn = 'dummy_value'
+
+            get_parameter_response = ssm.get_parameter(
+                Name=personalize_endpoint_param_name
+            )
+
+            if bool(get_parameter_response):
+                campaign_arn = get_parameter_response['Parameter']['Value']
+
+            
+            get_filter_parameter_response = ssm.get_parameter(
+                Name=personalize_filter_param_name
+            )
+
+            if bool(get_filter_parameter_response):
+                filter_arn = get_filter_parameter_response['Parameter']['Value']
+
+            def handler(event, context):
+                isDesktopViewer = event.get('headers').get('CloudFront-Is-Desktop-Viewer')
+                isMobileViewer = event.get('headers').get('CloudFront-Is-Mobile-Viewer')
+                isSmartTVViewer = event.get('headers').get('CloudFront-Is-SmartTV-Viewer')
+                isTabletViewer = event.get('headers').get('CloudFront-Is-Tablet-Viewer')
+                viewerCountry = event.get('headers').get('CloudFront-Viewer-Country')
+                custom_user_id = event.get('queryStringParameters').get('custom-user-id')
+
+                if custom_user_id == "":
+                    custom_user_id = 700
+
+                if isMobileViewer == "true":
+                    device_type = "Phone"
+                elif isSmartTVViewer == "true":
+                    device_type = "TV"
+                elif isTabletViewer == "true":
+                    device_type = "Tablet"
+                elif isDesktopViewer == "true":
+                    device_type = "Desktop"
+                else:
+                    device_type = "Desktop"
+                
+                if viewerCountry == "":
+                    viewerCountry = "US"
+
+                try:
+                    response = personalize_cli.get_recommendations(
+                        campaignArn=campaign_arn,
+                        userId=custom_user_id,
+                        context={'DEVICE_TYPE':device_type},
+                        filterArn = filter_arn,
+                        filterValues={"CONTEXT_COUNTRY" : f"\"{viewerCountry}\""}
+                        )
+                    print(f"RawRecommendations = {response['itemList']}")
+                    return {'statusCode': '200', 'isBase64Encoded': False, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps(response)}
+                except personalize_cli.exceptions.ResourceNotFoundException as e:
+                    print(f"Personalize Error: {e}")
+                    return {'statusCode': '500', 'isBase64Encoded': False, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps("Campaign Not Found")}
+                except personalize_cli.exceptions.InvalidInputException as e:
+                    print(f"Invalid Input Error: {e}")
+                    return {'statusCode': '400', 'isBase64Encoded': False, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps("Invalid Input")}
+                except KeyError as e:
+                    print(f"Key Error: {e}")
+                    return {'statusCode': '400', 'isBase64Encoded': False, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps("Key Error")}	
+          - Region: !Ref AWS::Region
+
+  PersonalizeLambdaAPIGWPermission:
+     Type: AWS::Lambda::Permission
+     Properties:
+       FunctionName: !Ref PersonalizeAutoContextInvoker
+       Action: lambda:InvokeFunction
+       Principal: 'apigateway.amazonaws.com'
+### 
+### API GATEWAY
+###
+
+  PersonalizeAutoContextRestAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: PersonalizeAutoContextRestAPI
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      DisableExecuteApiEndpoint: False
+  
+  PersonalizeAutoContextRestAPIMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      ApiKeyRequired: False
+      RestApiId: !Ref PersonalizeAutoContextRestAPI
+      ResourceId: !GetAtt 
+        - PersonalizeAutoContextRestAPI
+        - RootResourceId
+      HttpMethod: GET
+      MethodResponses:
+        - ResponseModels:
+            application/json: 'Empty'
+          StatusCode: 200
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 
+               - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PersonalizeAutoContextInvokerArn}/invocations'
+               - PersonalizeAutoContextInvokerArn: !GetAtt PersonalizeAutoContextInvoker.Arn
+        ContentHandling: CONVERT_TO_TEXT
+        IntegrationResponses:
+             - StatusCode: 200
+
+  PersonalizeAutoContextAPIGatewayDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    DependsOn:
+         - PersonalizeAutoContextRestAPIMethod
+    Properties:
+      RestApiId: !Ref PersonalizeAutoContextRestAPI
+      StageName: dev
+
+###
+### CloudFront
+###
+
+  PersonalizeACCloudFrontORPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties: 
+      OriginRequestPolicyConfig:
+        Name: PersonalizeACCloudFrontORPolicyConfig
+        HeadersConfig:
+             HeaderBehavior: whitelist
+             Headers:
+              - CloudFront-Is-Tablet-Viewer
+              - CloudFront-Is-Mobile-Viewer
+              - CloudFront-Is-SmartTV-Viewer
+              - CloudFront-Is-Desktop-Viewer
+              - CloudFront-Viewer-Country
+        CookiesConfig:
+             CookieBehavior: none
+        QueryStringsConfig:
+             QueryStringBehavior: whitelist
+             QueryStrings:
+                  - custom-user-id
+
+  PersonalizeACCloudFrontCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: PersonalizeACCloudFrontCachePolicyConfig
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: False
+          EnableAcceptEncodingGzip: False
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  PersonalizeACCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          AllowedMethods: 
+            - GET
+            - HEAD
+          TargetOriginId: !Sub 
+            - '${rest_api_id}.execute-api.${AWS::Region}.amazonaws.com'
+            - rest_api_id: !Ref PersonalizeAutoContextRestAPI
+          ViewerProtocolPolicy: 'allow-all'
+          SmoothStreaming: False
+          CachePolicyId: !Ref PersonalizeACCloudFrontCachePolicy
+          OriginRequestPolicyId: !Ref PersonalizeACCloudFrontORPolicy
+        Enabled: true
+        Origins:
+          - DomainName: !Sub 
+              - '${rest_api_id}.execute-api.${AWS::Region}.amazonaws.com'
+              - rest_api_id: !Ref PersonalizeAutoContextRestAPI
+            Id: !Sub 
+              - '${rest_api_id}.execute-api.${AWS::Region}.amazonaws.com'
+              - rest_api_id: !Ref PersonalizeAutoContextRestAPI
+            OriginPath: '/dev'
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            OriginShield:
+              Enabled: False
+        Comment: 'get recommendations distribution'
+
+###
+### S3 BUCKET
+###
+
+  PersonalizeAutoContextBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join
+        - "-"
+        - - "personalize-auto-context"
+          - !Select
+            - 0
+            - !Split
+              - "-"
+              - !Select
+                - 2
+                - !Split
+                  - "/"
+                  - !Ref "AWS::StackId"
+
+###
+### SageMaker Studio
+###
+
+  StudioDomain:
+    Type: AWS::SageMaker::Domain
+    DependsOn: [SageMakerExecutionRole]
+    Properties:
+      AppNetworkAccessType: PublicInternetOnly
+      AuthMode: IAM
+      DefaultUserSettings:
+        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
+        SecurityGroups: [!Ref SageMakerStudioSecurityGroup]
+      DomainName: "personalize-auto-context-domain"
+      SubnetIds: 
+        - !Ref PublicSubnetOne
+      VpcId: !Ref 'PersonalizeAutoContextVPC'
+
+  UserProfile:
+    Type: AWS::SageMaker::UserProfile
+    DependsOn: [StudioDomain, SageMakerExecutionRole, SageMakerStudioSecurityGroup]
+    Properties:
+      DomainId: !GetAtt StudioDomain.DomainId
+      UserProfileName: "personalize-auto-context-user"
+      UserSettings:
+        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
+        SecurityGroups: [!Ref SageMakerStudioSecurityGroup]
+
+
+  StudioApp:
+    Type: AWS::SageMaker::App
+    DependsOn: [UserProfile, StudioDomain, SageMakerExecutionRole, SageMakerStudioSecurityGroup]
+    Properties:
+      AppName: default
+      AppType: JupyterServer
+      DomainId: !GetAtt StudioDomain.DomainId
+      UserProfileName: "personalize-auto-context-user"
