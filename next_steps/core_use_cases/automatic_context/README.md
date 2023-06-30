@@ -2,7 +2,7 @@
 
 ### Overview:
 
-This is a companion code repository to an AWS blog post on setting automatic user context of device type and dynamic filters on user's country in Amazon Personalize (ADD LINK LATER). In the blog, we discuss the benefits of setting user context like device type, time of day and location automatically with illustrations on how easily it can be setup. In this repository, we provide artifacts that demonstrate the ability of Amazon Personalize APIs to provide customized recommendations based on user's device type derived automatically.
+This is a companion code repository to an AWS blog post on setting automatic user context of device type and dynamic filters on user's country in Amazon Personalize. AWS blog link is [here](https://aws.amazon.com/blogs/machine-learning/recommend-and-dynamically-filter-items-based-on-user-context-in-amazon-personalize/). In the blog, we discuss the benefits of setting user context like device type, time of day and location automatically with illustrations on how easily it can be setup. In this repository, we provide artifacts that demonstrate the ability of Amazon Personalize APIs to provide customized recommendations based on user's device type derived automatically.
 
 ### Architecture
 
