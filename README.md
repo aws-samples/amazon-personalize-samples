@@ -53,6 +53,9 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
 * Demos/Reference Architectures
     - [Retail Demo Store](https://github.com/aws-samples/retail-demo-store)
         - Sample retail web application and workshop platform demonstrating how to deliver omnichannel personalized customer experiences using Amazon Personalize.
+    - [[Live Event Contextualization]](https://github.com/aws-samples/amazon-personalize-live-event-contextualization)
+        - This is a sample code base to illustrate the concept of personalization and contextualization for real-time streaming events. This [blog](https://aws.amazon.com/blogs/media/part-3-contextualized-viewer-engagement-and-monetization-for-live-ott-events/) illustrates the concept   
+   
 
 ## License Summary
 
