@@ -1,0 +1,356 @@
+ITEM_ID,DSTCity,SRCCity,Airline,DurationDays,Season,numberOfSearchByUser,Promotion,DynamicPrice,DiscountForMember,Expired
+-2996180203100007228,Hong Kong,Manila,LeopardSpot Airlines,16,April,18444,No,3287,0,No
+-198685942195013072,London,Bangkok,HawkGlide Express,17,October,3812,No,9493,0,No
+-1023099686133718933,Beijing,Kuala Lumpur,KoalaHug Express,8,November,16503,Yes,2713,0.25,No
+35400463909927393,London,Jakarta,ButterflyWing Express,10,June,12086,No,9118,0,No
+8566475821201526637,Shanghai,Singapore,PeacockPlume Airways,3,October,14729,No,4775,0,No
+715073372130382316,Tokyo,Jakarta,SparrowNest Express,6,March,4873,No,1218,0,No
+-4573627727190337998,Guangzhou,Kuala Lumpur,DolphinDive Express,4,June,12844,Yes,7104,0.15,No
+-3993030390775089019,Seoul,Bangkok,OstrichFeather Express,4,August,9779,Yes,3927,0.4,No
+5213278408454217689,Shanghai,Jakarta,SlothNap Airlines,6,July,7628,Yes,7411,0.5,No
+2266640007346910924,Tokyo,Ho Nai,ZebraStripe Airways,16,April,12164,No,9258,0,No
+751545583359972074,Shanghai,Manila,TigerPounce Express,15,June,15391,No,9280,0,No
+5522642336826682269,New York,Bangkok,PandaBamboo Airlines,15,June,13813,Yes,3728,0.5,No
+-3396032824626073779,Sydney,Jakarta,CobraCoil Airways,8,January,16648,No,4452,0,No
+7405476958381863088,New York,Kuala Lumpur,JaguarRoar Airways,10,May,8183,Yes,9722,0.2,No
+8840550253860725298,Tokyo,Singapore,ElephantTrunk Airways,8,January,4017,Yes,9194,0.5,No
+8211839923559256330,New York,Ho Nai,BearWing Flights,9,July,11012,No,9178,0,No
+-2228815529878729494,London,Bangkok,WhaleTail Airlines,13,August,14206,No,3397,0,No
+-7652392732368158399,Beijing,Singapore,DolphinDive Express,12,November,17442,No,1593,0,No
+711334317282235279,Shanghai,Jakarta,ElephantEar Express,19,June,7214,No,4953,0,No
+-1736004212400561893,London,Jakarta,TigerPounce Express,14,August,18696,Yes,9269,0.2,No
+-1561649140383040128,Guangzhou,Singapore,LynxStride Airlines,19,January,9107,Yes,2853,0.3,No
+-1957530539078173234,Guangzhou,Manila,DolphinDive Express,12,January,11305,Yes,1978,0.25,No
+-7111143329522146280,Seoul,Ho Nai,FoxGlide Express,19,June,6878,Yes,2581,0.25,No
+898358911035106165,Hong Kong,Bangkok,GazelleLeap Airlines,19,September,11916,No,8701,0,No
+-7765279940684620072,Beijing,Jakarta,SlothHang Airlines,12,December,8809,No,1322,0,No
+-3890489623721737255,Sydney,Kuala Lumpur,EagleSoar Airways,6,November,13362,No,1683,0,No
+4073403597283210511,Hong Kong,Manila,ZebraHerd Flights,12,April,12737,Yes,7061,0.2,No
+-5122554968354618410,Shanghai,Kuala Lumpur,ZebraStripe Airways,8,October,9382,Yes,2628,0.4,No
+-6185023338185494107,Tokyo,Manila,DolphinDive Flights,4,January,15733,Yes,1227,0.2,No
+1145207326726227788,Seoul,Singapore,CobraStrike Express,9,January,18857,No,5013,0,No
+-4846625523614010002,Sydney,Jakarta,KoalaTrail Flights,14,April,7115,Yes,9223,0.3,No
+-5713450532251261560,Tokyo,Singapore,FoxGlide Express,8,May,12581,Yes,3055,0.2,No
+-5739816783606588993,Guangzhou,Singapore,JellyfishFloat Airlines,10,October,15089,Yes,8137,0.4,No
+839428496988228950,Shanghai,Jakarta,PenguinSlide Flights,16,October,15192,Yes,3048,0.5,No
+4419666683379634322,Tokyo,Bangkok,LeopardSpot Airlines,14,January,15664,No,9779,0,No
+-7298485875930342196,London,Jakarta,WolfHowl Airways,5,February,11862,No,5734,0,No
+-8822032633661145419,New York,Jakarta,FoxProwl Airlines,8,July,9416,Yes,5453,0.4,No
+-4082004920789919673,Guangzhou,Manila,WolfHowl Airways,13,April,6509,Yes,9705,0.25,No
+3355729132676441302,London,Manila,ToucanBeak Express,12,March,10991,Yes,3127,0.2,No
+-4467641364615375119,Sydney,Bangkok,WhaleTail Airlines,3,August,13993,Yes,3513,0.25,No
+5802317233049848791,Guangzhou,Ho Nai,KangarooBounce Airways,9,August,9852,Yes,4456,0.35,No
+-627998635894164493,Seoul,Jakarta,ToucanBeak Airways,10,April,8842,Yes,1952,0.35,No
+8404212498178907140,Sydney,Kuala Lumpur,ButterflyWing Express,17,February,12662,Yes,5388,0.5,No
+-543671507002614742,Hong Kong,Bangkok,DolphinDive Express,20,September,18454,No,7394,0,No
+2712518541102641230,Hong Kong,Ho Nai,EagleWings Airlines,3,April,4290,No,7551,0,No
+-3624613995462405163,Sydney,Jakarta,ZebraHerd Flights,15,August,3313,Yes,4100,0.5,No
+5334350419588623203,Seoul,Ho Nai,BearWing Flights,5,July,6524,No,1866,0,No
+535213025416644365,New York,Bangkok,HawkGlide Express,14,October,17455,No,8414,0,No
+-7066003954529197637,Beijing,Jakarta,EagleSoar Airways,16,February,18505,No,6936,0,No
+-67390546209314361,Sydney,Jakarta,TigerSkies Aviation,14,December,14250,Yes,7723,0.25,No
+3856671742699488050,London,Jakarta,RaccoonMask Airlines,17,May,10004,Yes,438,0.2,No
+4813836821842962596,Beijing,Jakarta,LionAir,8,November,7902,No,6725,0,No
+3489425503688096186,Tokyo,Singapore,SlothNap Airlines,15,April,6553,No,6791,0,No
+561399153391805208,New York,Ho Nai,PandaBamboo Airlines,3,October,14375,No,1703,0,No
+-5077268140685212435,Shanghai,Ho Nai,RaccoonMask Airlines,11,October,11618,Yes,9806,0.25,No
+8012021418222539194,Guangzhou,Ho Nai,SwanGlide Express,5,January,5583,Yes,7120,0.35,No
+-1842013140484372977,Guangzhou,Jakarta,TigerSkies Aviation,6,December,14241,No,2717,0,No
+-3578365212060964074,Sydney,Singapore,ElephantEar Express,7,March,6172,No,2156,0,No
+7135643867804277601,Hong Kong,Manila,HawkEye Aviation,6,January,19192,Yes,4277,0.15,No
+1638147202869482321,New York,Ho Nai,EagleFeather Airways,5,December,10672,No,552,0,No
+-1091631682235763219,Tokyo,Manila,LizardLeap Airlines,10,December,3189,Yes,9917,0.2,No
+-5726398127645555149,Shanghai,Kuala Lumpur,GorillaGlide Airlines,5,March,12210,Yes,4100,0.4,No
+-986420385754857098,Tokyo,Manila,PolarBearPaw Airways,8,April,4011,Yes,8584,0.3,No
+-2975124982734189192,New York,Manila,JaguarRoar Airways,3,September,10045,No,4549,0,No
+2734255628976282620,Sydney,Singapore,DolphinDive Express,11,December,3471,No,9139,0,No
+-8893971160891214711,Shanghai,Bangkok,TigerSkies Aviation,10,April,7336,No,9469,0,No
+-973209888885852373,Tokyo,Singapore,KangarooKick Express,8,August,7395,Yes,1675,0.4,No
+3550981909305969887,New York,Jakarta,JellyfishFloat Airlines,7,August,18181,Yes,646,0.4,No
+8148786637767369843,Beijing,Bangkok,BearWing Flights,19,February,4774,No,7463,0,No
+-494532646624742022,Tokyo,Singapore,KangarooKick Express,18,August,17739,Yes,8902,0.15,No
+-2576865132299562041,Seoul,Ho Nai,KoalaTrail Flights,3,December,8528,No,3488,0,No
+-1441823677203087719,London,Kuala Lumpur,SparrowView Express,13,July,14183,No,3619,0,No
+6608133574306997391,Hong Kong,Kuala Lumpur,EagleSoar Airways,7,June,16097,No,3435,0,No
+1367659204939997942,Tokyo,Kuala Lumpur,PenguinSlide Flights,13,May,16663,Yes,7513,0.4,No
+5209302775076057926,New York,Bangkok,SparrowSong Airways,13,October,3936,Yes,2722,0.25,No
+-299021947601354413,Beijing,Bangkok,SlothNap Airlines,16,February,10869,Yes,9364,0.2,No
+5236226813386049455,Shanghai,Manila,KangarooBound Airlines,11,December,3513,No,5026,0,No
+5301324275273337023,Seoul,Manila,FalconCrest Flights,8,April,13407,Yes,5376,0.35,No
+-1614919234682146722,Seoul,Singapore,LionessRoam Flights,20,January,9057,No,6933,0,No
+-2765709267991800826,Tokyo,Ho Nai,JaguarStalk Airlines,19,February,15983,Yes,3652,0.25,No
+-8358574774027214945,Guangzhou,Ho Nai,RhinoCharge Airways,14,September,13857,Yes,8637,0.25,No
+-5581574045776414503,London,Bangkok,PantherPounce Flights,8,November,11492,No,7046,0,No
+1461676701117090482,London,Ho Nai,SparrowNest Express,15,March,13970,No,8034,0,No
+-2750327774238244386,Hong Kong,Singapore,PandaPaw Express,18,October,14572,Yes,6158,0.5,No
+503776778844713312,London,Manila,KangarooBound Airlines,14,November,3028,Yes,9810,0.3,No
+-1568112539269495519,Hong Kong,Kuala Lumpur,OstrichFeather Express,15,September,14541,No,7321,0,No
+2584829847636276905,London,Manila,FoxGlide Express,8,August,12224,Yes,1045,0.35,No
+-8351041644372633597,London,Jakarta,EagleWings Airlines,15,April,12449,Yes,9430,0.4,No
+3774364284912130873,Guangzhou,Kuala Lumpur,GiraffeNeck Airways,10,December,17237,Yes,4391,0.2,No
+2225727740626018928,New York,Singapore,HedgehogQuill Express,15,August,16885,Yes,1276,0.5,No
+-4426350679207545294,New York,Kuala Lumpur,ButterflyFlutter Flights,14,November,17579,Yes,3439,0.3,No
+-4293094618691243468,London,Manila,KangarooKick Express,11,November,9928,No,8813,0,No
+-623070732252617284,Sydney,Bangkok,SwanGlide Express,7,March,17961,No,8939,0,No
+-8980994026866066595,London,Bangkok,HawkEye Aviation,18,October,18062,No,3016,0,No
+-3937769831484933733,Guangzhou,Manila,ButterflyWing Express,13,January,16131,Yes,7937,0.4,No
+-5397708456041503349,Sydney,Singapore,ButterflyFlutter Flights,16,February,4712,No,8855,0,No
+6376323777322593886,Hong Kong,Singapore,JaguarStalk Airlines,18,August,15233,No,8924,0,No
+9031126999624642106,Guangzhou,Singapore,EagleSoar Airways,17,May,5136,Yes,2248,0.3,No
+-4238753534048534624,Hong Kong,Bangkok,PantherPounce Flights,5,June,10712,No,5279,0,No
+-3402126118363141264,New York,Bangkok,DolphinDive Express,7,March,5539,No,8294,0,No
+6616792587211459681,New York,Manila,ToucanBeak Airways,13,September,11752,No,6726,0,No
+8068266001193052672,Shanghai,Jakarta,PenguinSlide Flights,18,July,13569,No,4374,0,No
+-3824315595272639838,Beijing,Singapore,CobraStrike Express,4,May,12455,No,9182,0,No
+-8414611762225118825,Guangzhou,Singapore,GiraffeNeck Airlines,5,June,15710,No,9591,0,No
+5246742187731925902,Guangzhou,Bangkok,LeopardSpot Airlines,7,March,4043,No,9734,0,No
+-7537338465225330321,London,Jakarta,BearWing Flights,15,August,15675,No,2381,0,No
+5292148050204638704,Tokyo,Ho Nai,PeacockPlume Airways,7,June,19863,No,5052,0,No
+1489519437534689935,Sydney,Kuala Lumpur,BearWing Flights,19,February,18094,Yes,8317,0.5,No
+7163564348654821685,Guangzhou,Bangkok,BearClaw Airlines,8,January,15875,No,2621,0,No
+-7308994925192957681,Shanghai,Kuala Lumpur,PeacockFeather Airways,7,October,16579,No,4871,0,No
+-2456373814858353360,Shanghai,Jakarta,EagleSoar Airways,18,June,13575,Yes,5057,0.4,No
+-4913396287347801972,Hong Kong,Manila,TigerPounce Airlines,11,May,16231,Yes,9004,0.4,No
+2334352671465608128,Shanghai,Jakarta,GazelleGraze Flights,16,January,11520,No,1736,0,No
+618925213782040309,London,Manila,FoxProwl Airlines,9,March,16341,No,2153,0,No
+-5965606599140718430,Sydney,Bangkok,CheetahSprint Airways,13,January,16060,No,3323,0,No
+5388116092633789263,Tokyo,Ho Nai,TigerPounce Airlines,7,August,5801,Yes,7238,0.35,No
+-2957577016339555090,Hong Kong,Manila,KangarooKick Express,17,August,9883,No,2542,0,No
+-512875472649431453,Guangzhou,Bangkok,DolphinDive Flights,4,June,11685,No,2919,0,No
+-3932799487245175705,New York,Kuala Lumpur,LionAir,10,December,10769,Yes,3579,0.35,No
+2776738010103052915,New York,Bangkok,FoxGlide Express,15,July,9869,No,2682,0,No
+-8160690875017494948,Shanghai,Kuala Lumpur,BearClaw Airlines,14,April,7892,Yes,5094,0.4,No
+6704930045541245289,Beijing,Ho Nai,GazelleLeap Airlines,4,August,15657,No,2063,0,No
+-3266979625014474846,Guangzhou,Manila,FoxGlide Express,19,May,7235,No,9916,0,No
+3353470038224422622,Shanghai,Ho Nai,FoxProwl Airlines,10,October,17014,No,9597,0,No
+7498680365518056067,Hong Kong,Jakarta,KangarooKick Express,9,October,3341,Yes,9946,0.4,No
+-7640040513581378401,Shanghai,Singapore,LizardTail Airways,15,November,5194,Yes,4124,0.5,No
+2568974189607628936,Hong Kong,Manila,JaguarStalk Airlines,17,June,14489,No,8993,0,No
+-8421865736262299886,Guangzhou,Manila,PeacockPlume Airways,10,December,5581,Yes,8956,0.35,No
+-4357522875004826574,Beijing,Jakarta,SwanGlide Express,18,August,11133,Yes,9511,0.4,No
+4009848388182816716,Beijing,Kuala Lumpur,KangarooKick Express,16,November,12391,Yes,3256,0.35,No
+828757260236887878,Seoul,Manila,TigerSkies Aviation,13,August,4821,No,8824,0,No
+5494909791345141602,Shanghai,Jakarta,TigerPounce Airlines,6,March,19497,Yes,7647,0.25,No
+-5358448516624214692,Shanghai,Jakarta,DolphinDive Express,19,June,7659,Yes,5605,0.2,No
+6400538201756896607,Tokyo,Ho Nai,KoalaHug Express,5,June,17647,No,4927,0,No
+5085108441642695110,Tokyo,Ho Nai,PandaPaw Airlines,4,October,9942,Yes,1883,0.4,No
+-8592895408663842145,New York,Singapore,JaguarStalk Airlines,19,December,3736,Yes,7513,0.4,No
+-8040966869474027116,Beijing,Ho Nai,OctopusSky Airlines,20,August,13474,No,2493,0,No
+-318685357981368660,Sydney,Kuala Lumpur,CheetahSprint Airways,4,July,16121,Yes,1278,0.2,No
+-6694693753625250695,Guangzhou,Bangkok,SwanGlide Express,16,September,15403,Yes,7759,0.25,No
+1204806917222218165,Beijing,Jakarta,GorillaGlide Airlines,4,June,15545,No,6289,0,No
+-1731970522663244836,Sydney,Jakarta,ToucanBeak Airways,11,June,9209,Yes,2842,0.5,No
+-6169306137544176574,Shanghai,Manila,LizardTail Airways,9,December,5726,No,6560,0,No
+-6996185063324916754,New York,Jakarta,ElephantEar Express,18,June,15935,Yes,5098,0.2,No
+-2753873745272803532,Hong Kong,Jakarta,LionHeart Airways,8,November,13927,Yes,6271,0.25,No
+-5637501008996513945,Shanghai,Manila,CheetahSprint Airways,4,May,7671,No,4347,0,No
+6281650225244225369,Seoul,Jakarta,JellyfishFloat Flights,14,January,3780,No,9177,0,No
+-3958414387699355967,Beijing,Ho Nai,WolfHowl Airways,4,September,14812,Yes,5644,0.25,No
+-3466874107511088233,Tokyo,Bangkok,KangarooKick Express,18,December,6738,No,2111,0,No
+-632498870356275491,Guangzhou,Singapore,LeopardSpot Airlines,5,January,5064,Yes,1663,0.2,No
+1924670894429981973,Sydney,Ho Nai,JellyfishFloat Airlines,7,April,3610,Yes,1061,0.15,No
+2285188165766250709,London,Manila,ElephantEar Express,9,December,17622,No,349,0,No
+5361289459871278969,Hong Kong,Bangkok,LeopardSpot Airlines,4,November,13484,No,7208,0,No
+7011934855399015258,New York,Singapore,WolfPulse Airlines,16,November,16427,No,8001,0,No
+7228022790598752777,New York,Singapore,PandaBamboo Airlines,9,April,19149,Yes,2864,0.5,No
+4001642564183023482,Seoul,Bangkok,PeacockPlume Airways,14,October,19812,Yes,7429,0.4,No
+7844461540953278111,Beijing,Jakarta,PolarBearPaw Airways,11,January,4556,Yes,1316,0.35,No
+-6686930034043711249,Hong Kong,Kuala Lumpur,JaguarStalk Airlines,7,April,15840,No,7103,0,No
+7557078042780021896,Guangzhou,Singapore,SparrowSong Airways,12,December,12365,Yes,5138,0.5,No
+-2099680542693501423,New York,Manila,ZebraStripe Airways,10,June,6043,No,9333,0,No
+1169137305460770386,Beijing,Manila,PandaPaw Airlines,16,May,6360,Yes,8536,0.35,No
+2548367579035952571,Tokyo,Kuala Lumpur,PandaPaw Airlines,12,November,18672,Yes,655,0.25,No
+8262131641568229241,New York,Manila,ButterflyFlutter Flights,10,November,9237,No,5557,0,No
+-1925479645182017573,Hong Kong,Singapore,GiraffeNeck Airlines,5,March,14875,No,4612,0,No
+7023114128202615856,Seoul,Singapore,KangarooBounce Express,11,November,10319,No,3116,0,No
+3958575842275537908,New York,Manila,LionessRoam Express,15,June,4171,Yes,1183,0.2,No
+-5874174717616573433,Beijing,Jakarta,KangarooKick Express,9,February,5216,Yes,5358,0.2,No
+8489429354034640833,Tokyo,Bangkok,LizardTail Airways,8,February,9867,Yes,5040,0.25,No
+-4120908062060515098,Tokyo,Bangkok,RhinoRise Airlines,20,November,3037,No,8017,0,No
+-4060610583720193641,Sydney,Singapore,PenguinSlide Flights,4,September,16569,No,6686,0,No
+-5115833282643811702,Seoul,Bangkok,OctopusTentacle Express,19,July,18683,Yes,1912,0.35,No
+5970273957314476485,Sydney,Bangkok,GorillaGlide Airlines,7,July,14248,No,6321,0,No
+318817392714503374,Guangzhou,Singapore,KoalaClimb Airways,14,February,9580,No,6015,0,No
+1098989225359349048,London,Kuala Lumpur,SlothHang Airlines,8,September,13137,Yes,8126,0.3,No
+3964148686099428316,Sydney,Kuala Lumpur,KangarooBound Airlines,20,September,17111,Yes,2283,0.5,No
+2495298247900012320,Shanghai,Ho Nai,DolphinDive Flights,18,July,3118,No,6750,0,No
+2002417361248062553,Tokyo,Kuala Lumpur,PenguinSlide Flights,15,March,6344,Yes,3312,0.35,No
+8507474006512034897,Beijing,Bangkok,WolfPulse Airlines,6,February,13816,No,964,0,No
+4217631914009142623,Tokyo,Bangkok,PenguinSlide Flights,12,June,14665,No,5209,0,No
+1178430731127604977,Seoul,Bangkok,DolphinDive Flights,9,March,6640,No,3251,0,No
+-175615857115835950,Shanghai,Bangkok,ZebraHerd Flights,18,June,19967,Yes,9443,0.35,No
+-8866213379939743452,Seoul,Ho Nai,JaguarStalk Airlines,8,March,17381,Yes,2341,0.2,No
+-3962196337721566112,Hong Kong,Bangkok,CheetahSpeed Airlines,4,December,14982,No,6685,0,No
+6967130079372322623,Beijing,Bangkok,JaguarStalk Airlines,9,August,17423,No,6575,0,No
+4889097768863603074,Shanghai,Manila,LionessRoam Express,14,February,12648,No,9480,0,No
+-3663898989785641578,Sydney,Singapore,KoalaHug Express,20,May,9052,Yes,6505,0.25,No
+5217846774305626660,Guangzhou,Manila,SwanGlide Express,10,July,9155,No,4698,0,No
+4697040649736076040,Seoul,Ho Nai,WhaleTail Airlines,7,August,14656,Yes,7818,0.3,No
+7075537449557139006,Hong Kong,Kuala Lumpur,ButterflyFlutter Flights,17,June,15695,Yes,2504,0.25,No
+-2679632854454908338,Sydney,Manila,HawkGlide Express,8,September,9133,Yes,3588,0.15,No
+5225081302126306362,London,Manila,KoalaHug Express,6,May,6949,Yes,2315,0.15,No
+8823084021761368543,Hong Kong,Kuala Lumpur,PeacockPlume Airways,20,March,13000,Yes,2952,0.25,No
+6392265222364550504,Seoul,Ho Nai,LizardTail Airways,14,January,7433,No,6508,0,No
+-8207409100884874593,Sydney,Jakarta,KangarooBound Airlines,15,April,11845,Yes,9173,0.3,No
+957849041154713268,Shanghai,Manila,GazelleGraze Flights,18,August,18534,Yes,9354,0.3,No
+-4293041568465629878,Hong Kong,Kuala Lumpur,TigerPounce Express,10,October,7634,Yes,9171,0.5,No
+-2900654642524470972,Shanghai,Bangkok,SlothHang Airlines,8,February,15299,Yes,5578,0.15,No
+6447454132562829943,New York,Kuala Lumpur,SparrowSong Airways,7,June,6834,No,2483,0,No
+-1524117395521570777,Tokyo,Kuala Lumpur,ToucanBeak Express,3,April,11816,Yes,4599,0.3,No
+5695829968260966163,New York,Jakarta,CheetahSprint Airlines,4,February,14334,No,1478,0,No
+-8262584520240061892,Sydney,Bangkok,BearClaw Airlines,18,July,17104,No,9341,0,No
+-1717378200491195745,Tokyo,Ho Nai,EagleFeather Airways,4,July,9778,No,4051,0,No
+-5649522237925940568,New York,Jakarta,SparrowSong Airways,13,August,7249,No,2366,0,No
+-2512175807971840243,Sydney,Jakarta,CobraStrike Express,8,July,16009,No,3828,0,No
+3741816733974135046,New York,Kuala Lumpur,WhaleTail Airlines,7,August,3210,Yes,8708,0.4,No
+-2388892292987368232,Seoul,Singapore,HawkEye Aviation,10,January,17600,No,4929,0,No
+-5498001121013350067,Hong Kong,Bangkok,RhinoRise Airlines,3,December,18729,Yes,6995,0.25,No
+-5929063575936736381,New York,Singapore,CheetahSprint Airlines,13,April,19156,Yes,7599,0.4,No
+637130345691577465,Sydney,Kuala Lumpur,SparrowView Express,18,September,5250,Yes,3108,0.4,No
+-2457962135487516081,Beijing,Ho Nai,KangarooBound Airlines,17,October,5664,Yes,4111,0.5,No
+4565592581328946858,Sydney,Jakarta,LionHeart Airways,12,December,19411,Yes,1716,0.4,No
+1504273417401418294,New York,Bangkok,OctopusTentacle Express,8,September,8817,No,9570,0,No
+-947731403367861294,Sydney,Kuala Lumpur,SparrowSong Airways,17,October,17708,Yes,7820,0.5,No
+-7193432418888759824,Guangzhou,Ho Nai,ToucanBeak Express,5,May,7685,Yes,8341,0.25,No
+-2885725248044941031,Guangzhou,Singapore,OstrichFeather Express,15,January,7521,Yes,5930,0.3,No
+3781775687662827372,Tokyo,Bangkok,SharkFin Flights,19,November,17943,No,2353,0,No
+7484532957542392182,London,Manila,LynxStride Flights,10,October,19636,No,8454,0,No
+-5569505002496096972,Tokyo,Bangkok,PeacockPlume Airways,8,July,4582,Yes,4387,0.4,No
+-7514994197608030222,Seoul,Ho Nai,SlothNap Airlines,7,June,5247,Yes,9044,0.15,No
+6587853590689718166,Hong Kong,Jakarta,DolphinDive Express,13,December,10127,No,6073,0,No
+4453596903428163769,Shanghai,Jakarta,FoxProwl Airlines,8,July,5574,Yes,8753,0.35,No
+7754113665660292033,Tokyo,Bangkok,OstrichFeather Express,20,December,19396,Yes,7496,0.2,No
+9027344745530148710,Hong Kong,Kuala Lumpur,PenguinSlide Flights,6,July,19723,No,916,0,No
+-4318494021977901935,Beijing,Bangkok,EagleFeather Airways,3,May,15636,Yes,7553,0.5,No
+-5007839255025708696,Tokyo,Ho Nai,KangarooKick Express,18,December,8515,Yes,9214,0.3,No
+-1793294857388784687,Hong Kong,Ho Nai,FoxProwl Airlines,8,August,14648,Yes,5076,0.3,No
+-3679832615611437636,Shanghai,Singapore,ElephantEar Express,13,August,9093,Yes,6624,0.4,No
+5762829942516057459,New York,Manila,GazelleGraze Flights,15,May,17266,No,8323,0,No
+3138647694109868514,Beijing,Manila,PandaPaw Airlines,5,October,8440,No,2681,0,No
+-389851164244842037,Hong Kong,Jakarta,LeopardSpot Airlines,12,July,11397,No,5934,0,No
+-1220652556344166706,Seoul,Jakarta,SlothHang Airlines,16,October,7273,No,4280,0,No
+6348039338874407619,Guangzhou,Manila,PandaBamboo Airlines,4,December,4529,Yes,481,0.3,No
+2883886589725653861,Guangzhou,Bangkok,FalconCrest Flights,18,July,13071,No,2951,0,No
+2822121566271296600,Guangzhou,Jakarta,SparrowNest Express,12,March,15438,Yes,4270,0.4,No
+3439723827827406876,Sydney,Bangkok,ButterflyFlutter Flights,10,May,5588,Yes,3462,0.25,No
+-2197690041643740834,Guangzhou,Jakarta,CheetahSprint Airlines,3,June,4640,Yes,1460,0.3,No
+803245315609835610,Hong Kong,Manila,FalconCrest Flights,18,March,18014,Yes,1529,0.15,No
+4933330662704136969,Sydney,Ho Nai,WhaleSong Airways,17,June,10281,No,3826,0,No
+-8600611768536715616,Guangzhou,Singapore,WolfHowl Airways,17,April,17365,Yes,1961,0.35,No
+-1124616852464943969,New York,Ho Nai,PeacockPlume Airways,10,November,16671,No,8012,0,No
+1976815465758877331,Guangzhou,Jakarta,ZebraStripe Airways,12,March,7589,No,5712,0,No
+7866479765809300854,Seoul,Jakarta,GiraffeJet Airways,16,July,18590,Yes,7679,0.2,No
+5346131922454279916,Tokyo,Bangkok,RhinoCharge Airways,7,January,16690,No,4596,0,No
+6200297644886400411,Beijing,Jakarta,HedgehogQuill Express,9,May,9347,Yes,1877,0.35,No
+5397997905380714235,Tokyo,Bangkok,KoalaClimb Airways,9,May,11011,Yes,4561,0.35,No
+6214533241072638832,Seoul,Kuala Lumpur,CobraCoil Airways,5,February,12952,No,2071,0,No
+5367281535044679438,New York,Bangkok,CobraStrike Express,12,October,14673,Yes,6907,0.35,No
+8318243688891781891,Guangzhou,Ho Nai,SparrowNest Express,19,February,18279,Yes,6704,0.5,No
+-2938147248744333385,Guangzhou,Manila,HawkEye Aviation,5,August,6272,Yes,880,0.5,No
+-7092156920067061307,Seoul,Kuala Lumpur,WolfHowl Airways,4,November,19243,No,5227,0,No
+-1969384435930677805,Tokyo,Bangkok,OctopusTentacle Express,7,January,5400,No,7407,0,No
+7407158997127373237,Sydney,Bangkok,PeacockPlume Airways,11,April,16546,No,1091,0,No
+3613318819106405110,Beijing,Bangkok,CobraCoil Airways,19,December,4868,Yes,5286,0.3,No
+7283287021313433281,Seoul,Ho Nai,HawkGlide Express,6,August,6514,No,5979,0,No
+-4125999651258568503,Beijing,Ho Nai,FalconCrest Flights,5,January,18825,Yes,5738,0.15,No
+6071463568306970286,New York,Kuala Lumpur,CheetahSprint Airways,16,November,8602,No,9128,0,No
+-8102409911365756507,New York,Kuala Lumpur,LionAir,6,June,7806,Yes,9820,0.15,No
+8554802576431901858,Sydney,Bangkok,DolphinDive Express,5,August,19733,Yes,3900,0.4,No
+4872169466453613321,Tokyo,Manila,KoalaClimb Airways,4,December,8118,Yes,7876,0.3,No
+7786688382905606343,Shanghai,Jakarta,KangarooBound Airlines,11,July,3290,No,7929,0,No
+67563155819017621,Tokyo,Manila,PenguinSlide Flights,5,November,16404,Yes,5398,0.4,No
+7694997759884774543,Seoul,Kuala Lumpur,OstrichFeather Express,9,August,15348,No,1825,0,No
+6482461736443773044,Tokyo,Singapore,KoalaHug Express,7,July,19528,No,8747,0,No
+-3547059590390824513,Guangzhou,Kuala Lumpur,OstrichFeather Express,20,October,11595,No,7368,0,No
+2284064103594138952,Tokyo,Singapore,ZebraHerd Flights,20,April,10669,Yes,4554,0.2,No
+-8045561714172557713,Tokyo,Singapore,ButterflyFlutter Flights,9,October,9699,Yes,1196,0.3,No
+6909899268626592787,Hong Kong,Manila,KangarooBounce Airways,12,March,10410,No,4843,0,No
+698834754815828994,Tokyo,Jakarta,CheetahSprint Airways,17,December,4920,Yes,3630,0.25,No
+-1414577320810657869,Sydney,Ho Nai,KangarooBound Airlines,13,November,12349,Yes,2891,0.15,No
+-4745064210226435227,Seoul,Manila,EagleSoar Airways,8,November,14764,Yes,977,0.15,No
+1730340166264438315,Guangzhou,Kuala Lumpur,WolfPulse Airlines,16,October,17481,No,7429,0,No
+5160936956214948106,Beijing,Ho Nai,SlothNap Airlines,20,September,12855,Yes,8848,0.35,No
+-1649321589805386570,New York,Kuala Lumpur,FoxGlide Express,19,January,16208,Yes,4912,0.4,No
+7534919871693827074,Beijing,Jakarta,LynxStride Airlines,11,November,4732,No,8535,0,No
+4363580579718035373,Shanghai,Kuala Lumpur,TigerPounce Express,8,July,18769,No,4917,0,No
+-2886938282812606004,Seoul,Singapore,DolphinFly Airlines,15,November,13505,No,4651,0,No
+3244510364739227983,Guangzhou,Singapore,CheetahSprint Airlines,9,February,13144,Yes,3496,0.15,No
+4112532534432906103,Hong Kong,Manila,OstrichFeather Express,18,August,3740,Yes,8288,0.2,No
+5864510892986824749,Hong Kong,Manila,EagleSoar Airways,19,December,5962,Yes,2479,0.2,No
+4087007673158918239,London,Bangkok,CobraCoil Airways,16,January,18581,No,2181,0,No
+-8185182096971341017,Beijing,Singapore,PantherPounce Flights,18,June,18279,No,7138,0,No
+1330269934893385967,Shanghai,Bangkok,LynxStride Airlines,18,November,16214,Yes,9195,0.35,No
+8437496088843720073,Sydney,Singapore,LeopardSpot Airlines,18,January,16786,Yes,8236,0.2,No
+-8250930918663991846,Shanghai,Ho Nai,KangarooBounce Express,16,October,11800,Yes,7432,0.35,No
+4701256217267719895,Sydney,Kuala Lumpur,TigerPounce Airlines,11,December,7717,Yes,8560,0.4,No
+-3953814578718096702,Hong Kong,Ho Nai,GiraffeNeck Airlines,7,September,18523,Yes,363,0.3,No
+-2600170268177461031,Tokyo,Bangkok,PeacockPlume Airways,9,August,16280,Yes,7700,0.35,No
+-4843228420577447356,Beijing,Kuala Lumpur,OwlGlide Express,20,December,4147,No,1655,0,No
+8575899463012924025,Seoul,Singapore,SparrowView Express,12,November,17599,Yes,9681,0.2,No
+-6163046646491036801,Hong Kong,Manila,TigerSkies Aviation,9,September,10198,No,5499,0,No
+-5388769245793714877,London,Kuala Lumpur,WolfHowl Airways,16,May,16614,No,9615,0,No
+-958959618184640328,Beijing,Manila,GazelleLeap Airlines,13,January,13497,No,2200,0,No
+8343276054082069075,Hong Kong,Kuala Lumpur,WhaleSong Airways,7,August,12868,Yes,2297,0.25,No
+-5674971604938560866,Seoul,Singapore,ElephantEar Express,17,July,4441,No,718,0,No
+9124500959944204298,New York,Ho Nai,DolphinDive Flights,13,February,16116,No,9014,0,No
+3467698901602041344,Hong Kong,Singapore,CheetahSprint Airlines,15,February,8955,Yes,8317,0.5,No
+-3202410782026637885,London,Bangkok,KangarooBounce Express,15,February,8702,Yes,3573,0.5,No
+3778381910543230953,New York,Manila,JaguarStalk Airlines,13,November,14162,Yes,5843,0.15,No
+-4927808041388426308,Hong Kong,Jakarta,PeacockPlume Airways,20,May,18387,Yes,840,0.2,No
+8036769101785836215,Tokyo,Jakarta,PeacockFeather Airways,11,January,8371,Yes,2885,0.2,No
+4798621091131646451,Beijing,Singapore,GiraffeNeck Airways,8,July,18415,Yes,7198,0.15,No
+5614567891962581180,New York,Singapore,RhinoRise Airlines,5,December,19681,Yes,4551,0.4,No
+-8444468370869631762,Tokyo,Singapore,ToucanBeak Express,6,January,16175,Yes,5962,0.2,No
+-2997752551828867601,Tokyo,Jakarta,ButterflyWing Express,3,March,9771,No,2712,0,No
+6521426870474479735,Guangzhou,Ho Nai,SharkFin Flights,11,January,17022,No,5718,0,No
+5324622811348359142,Tokyo,Manila,KoalaClimb Airways,14,September,10853,Yes,2435,0.25,No
+-4172205442865315910,Hong Kong,Jakarta,ElephantEar Express,17,February,15657,No,1027,0,No
+-5113055619875483354,Guangzhou,Kuala Lumpur,WhaleSong Airways,12,July,19382,Yes,3998,0.3,No
+7382200161814827945,Shanghai,Bangkok,KangarooBounce Airways,18,March,12621,No,7712,0,No
+-5459936767367702611,New York,Singapore,LizardLeap Airlines,15,September,17337,Yes,9041,0.35,No
+7944088498669125243,Shanghai,Bangkok,WhaleSong Airways,20,August,15943,No,2412,0,No
+-3994899962938104327,Sydney,Jakarta,BearWing Flights,16,June,12926,No,4902,0,No
+3363057588567322930,Seoul,Bangkok,OctopusTentacle Express,8,June,18536,Yes,7216,0.2,No
+-1588299177730288137,London,Manila,BearClaw Airlines,18,April,15851,Yes,6797,0.25,No
+-8898434666788493776,Guangzhou,Manila,KangarooKick Express,4,March,16718,Yes,4765,0.4,No
+4428505006590077583,Guangzhou,Kuala Lumpur,WolfHowl Airways,20,March,5337,No,2975,0,No
+-8575528014646478318,Seoul,Ho Nai,KoalaHug Express,7,February,5498,No,3000,0,No
+6880963279622514981,Tokyo,Manila,EagleWings Airlines,19,March,12784,Yes,5249,0.35,No
+-6030953029365481582,New York,Kuala Lumpur,BearClaw Airlines,3,July,6071,No,2048,0,No
+7262941092084869061,Beijing,Singapore,KoalaHug Express,9,February,18336,Yes,8890,0.5,No
+430853350937266294,Tokyo,Ho Nai,SparrowNest Express,8,November,5760,Yes,3441,0.35,No
+5893476040605368853,Seoul,Manila,ToucanBeak Express,3,August,5432,No,3573,0,No
+7465394155791722123,Shanghai,Ho Nai,ZebraStripe Airways,8,September,15251,No,3219,0,No
+-7258460956758203177,Hong Kong,Manila,WhaleSong Airways,18,March,6178,No,3336,0,No
+9172996366017049994,Shanghai,Kuala Lumpur,ZebraStripe Airways,15,December,16459,Yes,1316,0.2,No
+-981222705484472134,London,Kuala Lumpur,PeacockPlume Airways,13,September,11618,Yes,6954,0.25,No
+-7987555850016584146,Sydney,Singapore,SlothNap Airlines,17,November,5188,No,6631,0,No
+-21257174423322111,Hong Kong,Singapore,FoxGlide Express,15,September,4381,No,9674,0,No
+-8772169901745331528,Guangzhou,Bangkok,LeopardSpot Airlines,3,May,4615,No,2830,0,No
+-4828662950952049054,Hong Kong,Jakarta,BearWing Flights,3,November,7106,No,8512,0,No
+-3044234839021103651,Tokyo,Manila,KoalaClimb Airways,8,June,10849,Yes,1303,0.4,No
+4638197374946490223,London,Singapore,EagleSoar Airways,8,July,14079,No,6109,0,No
+8132711164354469793,Shanghai,Kuala Lumpur,LionessRoam Express,7,February,15199,Yes,9907,0.2,No
+-1391924503641314110,Hong Kong,Jakarta,LizardTail Airways,7,June,17492,Yes,3914,0.3,No
+-8400165282630228187,Sydney,Bangkok,KangarooKick Express,11,September,16157,No,2527,0,No
+1182080388123273681,Beijing,Bangkok,RaccoonMask Airlines,10,November,13117,Yes,7332,0.15,No
+6278922336770262768,New York,Jakarta,DolphinDive Flights,10,April,11817,Yes,1408,0.35,No
+-811412536083684679,Seoul,Manila,EagleWings Airlines,8,December,14227,No,1890,0,No
+-3391593213960510701,Seoul,Jakarta,GiraffeNeck Airways,14,November,15949,Yes,9850,0.5,No
+8538519748781168967,Tokyo,Kuala Lumpur,ToucanBeak Express,3,February,19050,Yes,9808,0.5,No
+7438237250675912592,New York,Bangkok,GazelleGraze Flights,10,February,14537,No,3313,0,No
+2283137187446148070,New York,Ho Nai,KangarooBounce Airways,10,February,7654,Yes,7014,0.15,No
+-2154388996669542588,Guangzhou,Kuala Lumpur,PandaBamboo Airlines,4,February,19845,No,2089,0,No
+2762008354549877458,Sydney,Manila,PeacockPlume Airways,9,October,19601,No,1311,0,No
+3082610122078059368,Hong Kong,Singapore,LizardTail Airways,8,July,8940,No,1248,0,No
+5218897872934101726,Tokyo,Jakarta,PolarBearIce Airlines,15,March,13966,Yes,6424,0.5,No
+267048800086358946,Hong Kong,Bangkok,GiraffeNeck Airways,6,August,3645,Yes,3526,0.4,No
+3349971518461743161,Tokyo,Bangkok,SlothNap Airlines,8,February,13403,No,8925,0,No
+-8148755846559914516,New York,Ho Nai,PolarBearPaw Airways,19,March,3183,Yes,1642,0.2,No
+4055284004275247818,Guangzhou,Bangkok,GazelleGraze Flights,19,June,8878,Yes,5966,0.5,No
+6899057758831617561,Hong Kong,Singapore,LeopardSpot Airlines,3,December,17149,No,8329,0,No
+0,0,0,0,0,0,18061,No,4443,0,No
+No,No,No,No,No,No,9149,Yes,6520,0.2,No
+0,0,0,0,0,0,3515,No,2648,0,No
+0,0,0,0,0,0,10304,No,398,0,No
+No,No,No,No,No,No,14107,Yes,1022,0.25,No
