@@ -19,6 +19,9 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
   - [Batch Recommendations](/next_steps/core_use_cases/batch_recommendations)
   - [User Segmentation](/next_steps/core_use_cases/user_segmentation)
 
+* Generative AI
+  - [Personalized marketing campaigns](/next_steps/generative_ai/personalized_marketing_campaign/)
+
 * Scalable Operations examples for your Amazon Personalize deployments
     - [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/)
         - This AWS Solution allows you to automate the end-to-end process of importing datasets, creating solutions and solution versions, creating and updating campaigns, creating filters, and running batch inference jobs. These processes can be run on-demand or triggered based on a schedule that you define.
@@ -54,8 +57,8 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
     - [Retail Demo Store](https://github.com/aws-samples/retail-demo-store)
         - Sample retail web application and workshop platform demonstrating how to deliver omnichannel personalized customer experiences using Amazon Personalize.
     - [Live Event Contextualization](https://github.com/aws-samples/amazon-personalize-live-event-contextualization)
-        - This is a sample code base to illustrate the concept of personalization and contextualization for real-time streaming events. This [blog](https://aws.amazon.com/blogs/media/part-3-contextualized-viewer-engagement-and-monetization-for-live-ott-events/) illustrates the concept   
-   
+        - This is a sample code base to illustrate the concept of personalization and contextualization for real-time streaming events. This [blog](https://aws.amazon.com/blogs/media/part-3-contextualized-viewer-engagement-and-monetization-for-live-ott-events/) illustrates the concept
+
 
 ## License Summary
 

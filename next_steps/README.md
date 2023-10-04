@@ -6,6 +6,10 @@ Notebooks and examples on how to onboard and use various features of Amazon Pers
 
 The [core_use_cases/](core_use_cases/) folder contains detailed examples of the most typical use cases.
 
+## Generative AI
+
+The [generative_ai/](generative_ai/) folder contains examples of combining foundation models with Amazon Personalize.
+
 ## Scalable Operations examples for your Amazon Personalize deployments
 
 The [operations/](operations/) folder contains examples on the following topics:
