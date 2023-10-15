@@ -16,8 +16,11 @@ Only applies if you are deploying with the CloudFormation template, otherwise co
 ## Building Your Environment
 
 The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
-
-[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizeDemo&templateURL=https://amazon-personalize-github-samples.s3.amazonaws.com/PersonalizeDemo.yaml)
+| Region | Launch stack |
+|--------|--------------|
+| US East (N. Virginia) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://amazon-personalize-github-samples.s3.amazonaws.com/PersonalizeDemo.yaml) |
+| Europe (Ireland) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://amazon-personalize-github-samples.s3.amazonaws.com/PersonalizeDemo.yaml) |
+| Asia Pacific (Sydney) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=PersonalizeDemo&templateURL=https://amazon-personalize-github-samples.s3.amazonaws.com/PersonalizeDemo.yaml) |
 
 Follow along with the screenshots if you have any questions about these steps.
 
@@ -70,19 +73,17 @@ Clicking the open link will take a few seconds to redirect you to the Jupyter sy
 
 To get started navigate to the first notebook using [domain dataset groups and use-case optimized recommenders](https://docs.aws.amazon.com/personalize/latest/dg/create-domain-dataset-group.html).
 
-`amazon-personalize-samples/getting_started/notebooks/Building_Your_First_Recommender_Video_On_Demand.ipynb`
+* [Building your first recommender for Video on Demand](notebooks_managed_domains/Building_Your_First_Recommender_Video_On_Demand.ipynb)
 
-`amazon-personalize-samples/getting_started/notebooks/Building_Your_First_Recommender_Ecommerce.ipynb`
+* [Building your first recommender for Ecommerce](notebooks_managed_domains/Building_Your_First_Recommender_Ecommerce.ipynb)
 
 or using [custom dataset groups](https://docs.aws.amazon.com/personalize/latest/dg/custom-dataset-groups.html):
 
-`amazon-personalize-samples/getting_started/notebooks/1.Building_Your_First_Campaign.ipynb`
+* [Building your first Campaign](notebooks_managed_domains/1.Building_Your_First_Campaign.ipynb)
 
-The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor or if you are working independently this is a pretty good video to get started:
+The rest of the lab will take place via the Jupyter notebooks, simply read each block before executing it and moving onto the next. If you have any questions about how to use the notebooks please ask your instructor.
 
-https://www.youtube.com/watch?v=Gzun8PpyBCo
-
-## After the Notebooks
+## Cleanup Resources
 
 Once you have completed all of the work in the Notebooks and have completed the cleanup steps there as well, the last thing to do is to delete the stack you created with CloudFormation. To do that, inside the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it.
 
