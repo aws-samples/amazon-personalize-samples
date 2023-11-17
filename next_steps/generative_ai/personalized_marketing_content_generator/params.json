@@ -1,0 +1,120 @@
+{
+  "datasetGroup": {
+    "serviceConfig": {
+      "name": "personalize-demo",
+      "domain": "VIDEO_ON_DEMAND"
+    }
+  },
+  "datasets": {
+    "interactions": {
+      "dataset": {
+        "serviceConfig": {
+          "name": "workshop_interactions"
+        }
+      },
+      "schema": {
+        "serviceConfig": {
+          "name": "workshop_interactions_schema",
+          "domain": "VIDEO_ON_DEMAND",
+          "schema": {
+            "type": "record",
+            "name": "interactions",
+            "namespace": "com.amazonaws.personalize.schema",
+            "fields": [
+              {
+                "name": "USER_ID",
+                "type": "string"
+              },
+              {
+                "name": "ITEM_ID",
+                "type": "string"
+              },
+              {
+                "name": "EVENT_TYPE",
+                "type": "string"
+              },
+              {
+                "name": "TIMESTAMP",
+                "type": "long"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "items": {
+      "dataset": {
+        "serviceConfig": {
+          "name": "workshop_items"
+        }
+      },
+      "schema": {
+        "serviceConfig": {
+          "name": "workshop_items_schema",
+          "domain": "VIDEO_ON_DEMAND",
+          "schema": {
+            "type": "record",
+            "name": "items",
+            "namespace": "com.amazonaws.personalize.schema",
+            "fields": [
+              {
+                "name": "ITEM_ID",
+                "type": "string"
+              },
+              {
+                "name": "TITLE",
+                "type": "string"
+              },
+              {
+                "name": "YEAR",
+                "type": "int"
+              },
+              {
+                "name": "IMDB_RATING",
+                "type": "int"
+              },
+              {
+                "name": "IMDB_NUMBEROFVOTES",
+                "type": "int"
+              },
+              {
+                "name": "PLOT",
+                "type": "string",
+                "textual": true
+              },
+              {
+                "name": "US_MATURITY_RATING_STRING",
+                "type": "string"
+              },
+              {
+                "name": "US_MATURITY_RATING",
+                "type": "int"
+              },
+              {
+                "name": "GENRES",
+                "type": "string",
+                "categorical": true
+              },
+              {
+                "name": "CREATION_TIMESTAMP",
+                "type": "long"
+              },
+              {
+                "name": "PROMOTION",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "recommenders": [
+    {
+      "serviceConfig": {
+        "name": "workshop_top_picks_for_you",
+        "recipeArn": "arn:aws:personalize:::recipe/aws-vod-top-picks"
+      }
+    }
+  ]
+}
