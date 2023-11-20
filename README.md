@@ -21,6 +21,7 @@ The [next_steps/](next_steps/) folder contains detailed examples of the followin
 
 * Generative AI
   - [Personalized marketing campaigns](/next_steps/generative_ai/personalized_marketing_campaign/)
+  - [Amazon Personalize Langchain extensions](https://github.com/aws-samples/amazon-personalize-langchain-extensions)
 
 * Scalable Operations examples for your Amazon Personalize deployments
     - [Maintaining Personalized Experiences with Machine Learning](https://aws.amazon.com/solutions/implementations/maintaining-personalized-experiences-with-ml/)
