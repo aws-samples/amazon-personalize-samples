@@ -42,7 +42,7 @@ For this example you require:
 
 The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template. Be sure to enter a CloudFront stack name in lowercase letters (numbers and hyphens are okay too).
 
-With this deployment option, the CloudFormation template will import this GitHub repository into an Amazon SageMaker Notebook it creates in your account. This notebook can be found in the AWS Console under Notebooks/Notebook Instanes. This CloudFormation template will also create the roles with required permissions to do this demo. The CloudFormation template used can be found at [personalizeSimpleCFMarketingContentGen.yml](./personalizeSimpleCFMarketingContentGen.yml).
+With this deployment option, the CloudFormation template will import this GitHub repository into an Amazon SageMaker Notebook it creates in your account. This notebook can be found in the AWS Console under Notebooks/Notebook Instances. This CloudFormation template will also create the roles with required permissions to do this demo. The CloudFormation template used can be found at [personalizeSimpleCFMarketingContentGen.yml](./personalizeSimpleCFMarketingContentGen.yml).
 
 | Region | Region Code | Launch stack | 
 |--------|--------|--------------|
@@ -53,8 +53,8 @@ With this deployment option, the CloudFormation template will import this GitHub
 ## Cleanup Resources
 
 In order to cleanup the resources, you must do 2 steps:
-1. Cleanup resources created during the workshop. To do this, run [the cleanup notebook](./02_Clean_Up.ipynb).
-2. Delete the stack you created with CloudFormation. To do this, in the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it. Then Click the `Delete` button on the demo stack you created.
+1. Cleanup resources created during the demo. To do this, run [the cleanup notebook](./02_Clean_Up.ipynb).
+2. Delete the stack you created with CloudFormation. To do this, in the AWS Console again click the `Services` link at the top, and this time enter in `CloudFormation` and click the link for it. Then Click the `Delete` button on the stack you created.
 
 Once you see `Delete Completed` you know that all resources created have been deleted.
 
