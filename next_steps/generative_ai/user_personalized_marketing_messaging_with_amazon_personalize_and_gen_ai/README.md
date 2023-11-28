@@ -4,18 +4,12 @@
 
 **Industry: Media & Entertainment (M&E)**
 
-**Horizontal Use Case: Personalization**
-
-This example helps solve a use case where you are sending marketing emails to a user base using automatically generated text and want to recommend content (in this case movies) using a personalization engine.
-
-This design pattern is broadly applicable to use cases where LLM's are generating personalized messages with an infinite number of combinations of user meta data and personalized product recommendations.
-
 # Key Technologies
 
 - Amazon Bedrock
   - Claude model
 - Amazon Personalize
-  - Real time product recommendations
+  - Real-time item recommendations
   
 # Getting Started
 
@@ -28,7 +22,7 @@ This demo will walk you through how to create personalized marketing content (fo
 
 3. Train an Amazon Personalize 'Top picks for you' Recommender to get personalized recommendations for each user.
 4. Generate a prompt that includes the user's preferences, recommendations, and demographics.
-5. Generate a custom email for each user with [Amazon Bedrock](https://aws.amazon.com/bedrock/).
+5. Generate a personalized email for each user with [Amazon Bedrock](https://aws.amazon.com/bedrock/).
 
 ## Environment Prerequisites
 
