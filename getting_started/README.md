@@ -18,15 +18,15 @@ Only applies if you are deploying with the CloudFormation template, otherwise co
 The first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
 | Region | Launch stack |
 |--------|--------------|
-| US East (N. Virginia) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-samples-getting-started/personalize_getting_started.yaml) |
-| Europe (Ireland) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://personalize-solution-staging-eu-west-1.s3.amazonaws.com/personalize-samples-getting-started/personalize_getting_started.yaml) |
-| Asia Pacific (Sydney) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=PersonalizeDemo&templateURL=https://personalize-solution-staging-ap-southeast-2.s3.amazonaws.com/personalize-samples-getting-started/personalize_getting_started.yaml) |
+| US East (N. Virginia) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-getting-started/personalize_getting_started.yaml) |
+| Europe (Ireland) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=PersonalizeDemo&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-getting-started/personalize_getting_started.yaml) |
+| Asia Pacific (Sydney) | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=PersonalizeDemo&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-getting-started/personalize_getting_started.yaml) |
 
 Follow along with the screenshots if you have any questions about these steps.
 
 <details>
   <summary>Click to expand the instructions</summary>
-  
+
 ### Cloud Formation Wizard
 
 Start by clicking `Next` at the bottom like shown:
@@ -69,7 +69,7 @@ To get to the Jupyter interface, simply click `Open JupyterLab` on the far right
 
 ![StackWizard5](static/imgs/img11.png)
 
-Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left. 
+Clicking the open link will take a few seconds to redirect you to the Jupyter system but once there you should see a collection of files on your left.
 
 To get started navigate to the first notebook using [domain dataset groups and use-case optimized recommenders](https://docs.aws.amazon.com/personalize/latest/dg/create-domain-dataset-group.html).
 
