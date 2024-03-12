@@ -15,9 +15,7 @@
                 "arn:aws:s3:::*personalize*",
                 "arn:aws:s3:::*personalize*/*",
                 "arn:aws:s3:::*personalize*",
-                "arn:aws:s3:::*Personalize*/*",
-                "arn:aws:s3:::retail-demo-store-us-east-1*",
-                "arn:aws:s3:::retail-demo-store-us-east-1/*"
+                "arn:aws:s3:::*Personalize*/*"
             ]
         },
         {
