@@ -10,14 +10,14 @@
   - Claude model
 - Amazon Personalize
   - Real-time item recommendations
-  
+
 # Getting Started
 
 This demo will walk you through how to create personalized marketing content (for instance emails) for each user using Amazon Personalize and Amazon Bedrock.
 
 1. Building a work environment (follow the steps bellow)
 2. Format your data to use with [Amazon Personalize](https://aws.amazon.com/personalize/). We used the following data for model training:
-* Interations data: we use the ml-latest-small dataset from the [Movielens](https://grouplens.org/datasets/movielens/) project as a proxy for user-item interactions. 
+* Interations data: we use the ml-latest-small dataset from the [Movielens](https://grouplens.org/datasets/movielens/) project as a proxy for user-item interactions.
 * Item data: in order provide additional metadata, and also to provide a consistent experience for our users we leverage a subset of the IMDb Essential Metadata for Movies/TV/OTT dataset. IMDb is the world's most popular and authoritative source for information on movies, TV shows, and celebrities and powers entertainment experiences around the world. IMDb has [multiple datasets available in the Amazon Data Exchange](https://aws.amazon.com/marketplace/seller-profile?id=0af153a3-339f-48c2-8b42-3b9fa26d3367). <br><img src="./images/IMDb_Logo_Rectangle.png" alt="IMDb logo" style="width:50px;"/></br>
 
 3. Train an Amazon Personalize 'Top picks for you' Recommender to get personalized recommendations for each user.
@@ -38,11 +38,11 @@ The first step is to deploy a CloudFormation template that will perform much of 
 
 With this deployment option, the CloudFormation template will import this GitHub repository into an Amazon SageMaker Notebook it creates in your account. This notebook can be found in the AWS Console under Notebooks/Notebook Instances. This CloudFormation template will also create the roles with required permissions to do this demo. The CloudFormation template used can be found at [personalizeSimpleCFMarketingContentGen.yml](./personalizeSimpleCFMarketingContentGen.yml).
 
-| Region | Region Code | Launch stack | 
+| Region | Region Code | Launch stack |
 |--------|--------|--------------|
-| US East (N. Virginia) | us-east-1 | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=PersonalizeExample&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
-| Europe (Ireland) | eu-west-1 | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=PersonalizeExample&templateURL=https://personalize-solution-staging-eu-west-1.s3.eu-west-1.amazonaws.com/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
-| Asia Pacific (Sydney) | ap-southeast-2 |[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=PersonalizeExample&templateURL=https://personalize-solution-staging-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
+| US East (N. Virginia) | us-east-1 | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=PersonalizeExample&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
+| Europe (Ireland) | eu-west-1 | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=PersonalizeExample&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
+| Asia Pacific (Sydney) | ap-southeast-2 |[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=PersonalizeExample&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-samples-genai-marketing-content/personalizeSimpleCFMarketingContentGen.yml) |
 
 ## Cleanup Resources
 

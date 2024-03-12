@@ -12,7 +12,7 @@ If you are not familiar with Amazon Personalize you can learn more about this to
 * [GitHub Sample Notebooks](https://github.com/aws-samples/amazon-personalize-samples)
 * [Product Docs](https://docs.aws.amazon.com/personalize/latest/dg/what-is-personalize.html)
 
-## Goals 
+## Goals
 
 By the end of this POC, you should have picked up the following skills:
 
@@ -31,11 +31,11 @@ The notebooks have been scrubbed of all output before usage, however if you'd li
 ## Process:
 
 1. Deploying your working environment [see below]
-1. Validating and importing user-item-interaction data - 
+1. Validating and importing user-item-interaction data -
 `01_Validating_and_Importing_User_Item_Interaction_Data.ipynb`
-1. Validating and importing item-metadata - 
+1. Validating and importing item-metadata -
 `02_Validating_and_Importing_Item_Metadata.ipynb`
-1. Creating and evaluating your first solutions - 
+1. Creating and evaluating your first solutions -
 `03_Creating_and_Evaluating_Solutions.ipynb`
 1. Deploying campaigns and filters -
 `04_Deploying_Campaigns_and_Filters.ipynb`
@@ -50,7 +50,7 @@ That shows the usual order of this process, however, if you are operating this a
 
 As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup work for you. In another browser window or tab, login to your AWS account. Once you have done that, open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
 
-[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizePOC&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/poc-in-a-box/PersonalizePOC.yaml)
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=PersonalizePOC&templateURL=https://d2peeor3oplhc6.cloudfront.net/poc-in-a-box/PersonalizePOC.yaml)
 
 Follow along with the screenshots below if you have any questions about deploying the stack.
 
@@ -105,7 +105,7 @@ This will open the Jupyter environment for your POC; think of it as a web based 
 
 ## Validating and Importing User-Item-Interaction Data
 
-The core data for every algorithm supported in Amazon Personalize is user-item-interaction data; this notebook will guide you through the process of identifying this data, then formatting it for the service, defining your schema, and lastly importing it. 
+The core data for every algorithm supported in Amazon Personalize is user-item-interaction data; this notebook will guide you through the process of identifying this data, then formatting it for the service, defining your schema, and lastly importing it.
 
 Open `01_Validating_and_Importing_User_Item_Interaction_Data.ipynb` and follow along there.
 
@@ -113,7 +113,7 @@ Once you have completed this, you can move on to imporing metadata.
 
 ## Validating and Importing Item Metadata
 
-Amazon Personalize has several algorithms that can give you a results with no metadata. However, the User Personalization and HRNN-Metadata algorithm might be an interesting resource to deploy, depending your dataset. 
+Amazon Personalize has several algorithms that can give you a results with no metadata. However, the User Personalization and HRNN-Metadata algorithm might be an interesting resource to deploy, depending your dataset.
 
 Open `02_Validating_and_Importing_Item_Metadata.ipynb` and follow along there.
 

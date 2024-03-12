@@ -18,12 +18,12 @@ Prior to running the steps under Instructions, you will need access to an AWS Ac
 
 1. Click 'Launch Stack' button below to deploy resources into your AWS Account. If you want to deploy into a different region other than default, change the region drop down in the AWS console before creating the stack.
 
-[<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml)
+[<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-auto-context/personalize-auto-context-template.yml)
 
 
-2. Click 'Next' for 'Specify template', 'Specify stack details', and 'Configure stack options'. On the 'Review' step, check the box that says 'I acknowledge that AWS CloudFormation might create IAM resources with custom names.' and then click 'Create Stack'. You can view the CloudFormation template directly by looking [here](./templates/personalize-auto-context-template.yml). The stack will take a few minutes to launch. When it completes, you can view the items created by clicking on the Resources tab. 
-3. Once the stack is complete, browse to Amazon SageMaker in the AWS console and click on the 'Domains' tab on the left. 
-4. Click on the pre-created SageMaker domain and launch SageMaker Studio. 
+2. Click 'Next' for 'Specify template', 'Specify stack details', and 'Configure stack options'. On the 'Review' step, check the box that says 'I acknowledge that AWS CloudFormation might create IAM resources with custom names.' and then click 'Create Stack'. You can view the CloudFormation template directly by looking [here](./templates/personalize-auto-context-template.yml). The stack will take a few minutes to launch. When it completes, you can view the items created by clicking on the Resources tab.
+3. Once the stack is complete, browse to Amazon SageMaker in the AWS console and click on the 'Domains' tab on the left.
+4. Click on the pre-created SageMaker domain and launch SageMaker Studio.
 5. Inside SageMaker Studio's top menu, choose “Git” and choose “Clone a Repository” from the sub-menu. Provide the URL of this repository for the cloning operatiion.
 
 ### Running the Notebooks
@@ -42,7 +42,7 @@ There are a series of notebooks which should be run in order. Follow the step-by
 
 ### Clean up - IMPORTANT
 To destroy the AWS resources created as part of this example, complete the following two steps:
-1. Run all cells in [notebooks/3.Cleanup.ipynb](./notebooks/3.Cleanup.ipynb) 
+1. Run all cells in [notebooks/3.Cleanup.ipynb](./notebooks/3.Cleanup.ipynb)
 2. Go to CloudFormation in the AWS console, select `personalize-auto-context-stack` and click 'Delete'.
 3. Explicitly delete the SageMaker created EFS volume, its security groups and Elastic Network Interfaces.
 
