@@ -18,7 +18,7 @@ Prior to running the steps under Instructions, you will need access to an AWS Ac
 
 1. Click 'Launch Stack' button below to deploy resources into your AWS Account. If you want to deploy into a different region other than default, change the region drop down in the AWS console before creating the stack.
 
-[<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://d2peeor3oplhc6.cloudfront.net/personalize-auto-context/personalize-auto-context-template.yml)
+[<img src="./images/cloudformation-launch-stack.png">](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=personalize-auto-context-stack&templateURL=https://personalize-solution-staging-us-east-1.s3.amazonaws.com/personalize-auto-context/personalize-auto-context-template.yml)
 
 
 2. Click 'Next' for 'Specify template', 'Specify stack details', and 'Configure stack options'. On the 'Review' step, check the box that says 'I acknowledge that AWS CloudFormation might create IAM resources with custom names.' and then click 'Create Stack'. You can view the CloudFormation template directly by looking [here](./templates/personalize-auto-context-template.yml). The stack will take a few minutes to launch. When it completes, you can view the items created by clicking on the Resources tab.
