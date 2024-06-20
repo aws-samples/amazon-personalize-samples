@@ -1,0 +1,6 @@
+requests
+six
+regex
+pytest
+pytest-mock
+simpleeval==0.9.11
