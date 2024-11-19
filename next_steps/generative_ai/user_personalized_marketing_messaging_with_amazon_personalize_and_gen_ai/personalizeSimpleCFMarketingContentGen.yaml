@@ -236,6 +236,9 @@ Resources:
                 - "s3:GetObject*"
                 - "s3:ListBucket" 
                 - "s3:GetBucketPolicy"
+                - "s3:DeleteObject"
+                - "s3:GetBucketVersioning"
+                - "s3:DeleteObjectVersion"
               Resource:
                 - !Sub arn:aws:s3:::${S3Bucket}
                 - !Sub arn:aws:s3:::${S3Bucket}/*
