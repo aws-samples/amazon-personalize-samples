@@ -232,7 +232,10 @@ Resources:
             -
               Effect: Allow
               Action:
-                - "s3:*"
+                - "s3:ListBucket"
+                - "s3:GetObject*"
+                - "s3:ListBucket" 
+                - "s3:GetBucketPolicy"
               Resource:
                 - !Sub arn:aws:s3:::${S3Bucket}
                 - !Sub arn:aws:s3:::${S3Bucket}/*
@@ -246,7 +249,8 @@ Resources:
             - 
               Effect: Allow
               Action:
-                - "bedrock:*"
+                - "bedrock:InvokeModel"
+                - "bedrock:InvokeModelWithResponseStream"
               Resource:
                 - "*"
         Roles: 
