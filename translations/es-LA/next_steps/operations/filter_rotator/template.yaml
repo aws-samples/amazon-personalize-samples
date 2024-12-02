@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Amazon Personalize filter rotatation utility that automatically creates and deletes filters using templates you provide
+
+Parameters:
+  PersonalizeDatasetGroupArn:
+    Type: String
+    Description: Dataset Group Arn to rotate filters within.
+
+  PersonalizeCurrentFilterNameTemplate:
+    Type: String
+    Description: >
+      Filter name template for the filter that should currently exist. This template is used to either match an existing filter that
+      is considered current or trigger the creation of a filter if it does not exist.
+
+  PersonalizeCurrentFilterExpressionTemplate:
+    Type: String
+    Description: >
+      Filter expression template for the filter that should currently exist. When the current filter does not exist, a filter is created
+      using this value as the template for the new filter's expression.
+
+  PersonalizeDeleteFilterMatchTemplate:
+    Type: String
+    Description: >
+      Filter match template for filter(s) that should be automatically deleted. Any existing filter(s) matching this template will be deleted.
+
+  RotationSchedule:
+    Type: String
+    Description: How often you want to rotation script to run. Can be either a cron or rate expression.
+    Default: "rate(1 day)"
+
+  Timezone:
+    Type: String
+    Description: Set the timezone of the rotator function's Lambda environment to match your local timezone.
+    Default: UTC
+
+  PublishFilterEvents:
+    Type: String
+    Description: Whether to publish events to the default Amazon EventBridge bus when created filters become active and when existing filters are deleted.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Environment:
+      Variables:
+        LOG_LEVEL: INFO
+        POWERTOOLS_LOGGER_LOG_EVENT: true
+        POWERTOOLS_LOGGER_SAMPLE_RATE: 0
+
+Resources:
+  PersonalizeFilterRotatorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function that rotates Personalize filters based on user-defined criteria
+      Timeout: 900  # In case we have to wait a while for filter to become active
+      CodeUri: src/filter_rotator_function
+      Handler: filter_rotator.lambda_handler
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPython:3
+      Policies:
+        - Statement:
+          - Sid: PersonalizePolicy
+            Effect: Allow
+            Action:
+              - personalize:CreateFilter
+              - personalize:DeleteFilter
+              - personalize:DescribeFilter
+              - personalize:ListFilters
+            Resource: !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*'
+          - Sid: EventBridgePolicy
+            Effect: Allow
+            Action:
+              - events:PutEvents
+            Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'
+      Environment:
+        Variables:
+          PUBLISH_FILTER_EVENTS: !Ref PublishFilterEvents
+          TZ: !Ref Timezone
+          POWERTOOLS_SERVICE_NAME: personalize_filter_rotator
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Description: Triggers Personalize filter rotation
+            Input: !Sub '{"datasetGroupArn": "${PersonalizeDatasetGroupArn}","currentFilterNameTemplate": "${PersonalizeCurrentFilterNameTemplate}","currentFilterExpressionTemplate": "${PersonalizeCurrentFilterExpressionTemplate}","deleteFilterMatchTemplate": "${PersonalizeDeleteFilterMatchTemplate}"}'
+            Schedule: !Ref RotationSchedule
+            Enabled: True
+
+Outputs:
+  PersonalizeFilterRotatorFunction:
+    Description: "Personalize filter rotator Function ARN"
+    Value: !GetAtt PersonalizeFilterRotatorFunction.Arn

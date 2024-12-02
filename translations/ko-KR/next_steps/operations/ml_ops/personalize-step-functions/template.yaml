@@ -1,0 +1,1411 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+
+Globals:
+  Function:
+    Timeout: 300
+
+Parameters:
+  Email:
+    Type: String
+    Description: Email to be notified
+    Default: youremail@yourprovider.com
+  ParameterFile:
+    Type: String
+    Description: Parameters file name, which will reside in your S3 parent directory
+    Default: params.json
+
+Resources:
+
+# ------------------------
+# Data Input Bucket
+# ------------------------
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W41
+            reason: S3 will not be encrypted for the porpose of this block
+          - id: W35
+            reason: S3 will not have logging for the porpose of this block
+          - id: W51
+            reason: S3 will not have a policy for the porpose of this block
+  PersonalizeS3Policy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref InputBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PersonalizeAcess
+            Effect: Allow
+            Principal:
+              Service: 'personalize.amazonaws.com'
+            Action:
+              - 's3:GetObject'
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref InputBucket
+                  - /*
+          - Sid: PersonalizeList
+            Effect: Allow
+            Principal:
+              Service: 'personalize.amazonaws.com'
+            Action:
+              - 's3:ListBucket'
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref InputBucket
+  S3Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/s3lambda/
+      Handler: parse.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt TriggerRole.Arn
+      Environment:
+        Variables:
+          STEP_FUNCTIONS_ARN: !Ref DeployStateMachine
+          PARAMS_FILE: !Ref ParameterFile
+      Events:
+        S3Bucket:
+          Type: S3
+          Properties:
+            Bucket: !Ref InputBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: prefix
+                  Value: !Ref ParameterFile
+  TriggerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+# ------------------------
+# SNS Topic
+# ------------------------
+  NotificationTopic:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W47
+            reason: "SNS will not be encrypted for the purpose of this block"
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: StepsTopic
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+  Notify:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/notify/
+      Handler: notify.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"
+  NotifyDelete:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/notify-delete/
+      Handler: notify-delete.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: "*"
+# ------------------------
+# Custom Shared Layer
+# ------------------------
+  SharedLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: shared/
+        CompatibleRuntimes:
+          - python3.7
+        RetentionPolicy: Delete
+
+# ------------------------
+# Create Steps Definition
+# ------------------------
+  StatesExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+  CreateDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-datasetgroup/
+      Handler: datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDatasetGroup
+                - personalize:DescribeDatasetGroup
+              Resource: "*"
+  CreateDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-dataset/
+      Handler: dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDataset
+                - personalize:DescribeDataset
+                - personalize:CreateSchema
+                - personalize:DescribeSchema
+              Resource: "*"
+  ImportData:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/import-data/
+      Handler: datasetimport.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Environment:
+        Variables:
+          PERSONALIZE_ROLE: !GetAtt [PersonalizeRole, Arn]
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateDatasetImportJob
+                - personalize:DescribeDatasetImportJob
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - iam:PassRole
+              Resource: !GetAtt PersonalizeRole.Arn
+  CreateSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-solution/
+      Handler: solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateSolution
+                - personalize:DescribeSolution
+                - personalize:CreateSolutionVersion
+              Resource: "*"
+  WaitSolutionVersion:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-solution-version
+      Handler: wait-solution-version.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeSolutionVersion
+              Resource: "*"
+  CreateCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-campaign/
+      Handler: campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateCampaign
+                - personalize:DescribeCampaign
+                - personalize:UpdateCampaign
+              Resource: "*"
+  DeleteCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-campaign/
+      Handler: delete-campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteCampaign
+              Resource: "*"
+  DeleteDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-dataset/
+      Handler: delete-dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteDataset
+              Resource: "*"
+  DeleteDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-datasetgroup/
+      Handler: delete-datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteDatasetGroup
+              Resource: "*"
+  DeleteSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-solution
+      Handler: delete-solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteSolution
+              Resource: "*"
+  DeleteTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/delete-tracker
+      Handler: delete-tracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DeleteEventTracker
+              Resource: "*"
+  ListCampaigns:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-campaigns
+      Handler: list-campaigns.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListCampaigns
+              Resource: "*"
+  ListDatasets:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-datasets
+      Handler: list-datasets.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListDatasets
+              Resource: "*"
+  ListSolutionVersions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-solution-versions
+      Handler: list-solution-versions.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListSolutionVersions
+              Resource: "*"
+  ListSolutions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-solutions
+      Handler: list-solutions.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListSolutions
+              Resource: "*"
+  ListTrackers:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/list-trackers
+      Handler: list-trackers.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:ListEventTrackers
+              Resource: "*"
+  WaitDeleteCampaign:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-campaign
+      Handler: wait-delete-campaign.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeCampaign
+              Resource: "*"
+  WaitDeleteDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-dataset
+      Handler: wait-delete-dataset.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeDataset
+              Resource: "*"
+  WaitDeleteDatasetgroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-datasetgroup
+      Handler: wait-delete-datasetgroup.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeDatasetGroup
+              Resource: "*"
+  WaitDeleteSolution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-solution
+      Handler: wait-delete-solution.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeSolution
+              Resource: "*"
+  WaitDeleteTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/wait-delete-tracker
+      Handler: wait-delete-tracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:DescribeEventTracker
+              Resource: "*"
+  AttachEventTracker:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/event-tracker/
+      Handler: eventTracker.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateEventTracker
+                - personalize:DescribeEventTracker
+                - personalize:ListEventTrackers
+              Resource: "*"
+
+  CreateFilters:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/create-filters/
+      Handler: filters.lambda_handler
+      Runtime: python3.7
+      Layers:
+        - !Ref SharedLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - personalize:CreateFilter
+                - personalize:DescribeFilter
+                - personalize:ListFilters
+              Resource: "*"
+  DeleteAllDatasetGroupResources:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "StartAt": "List Event Trackers",
+              "States": {
+                "List Event Trackers": {
+                  "Next": "Map Event Trackers",
+                  "Type": "Task",
+                  "Resource": "${ListTrackersArn}",
+                  "ResultPath": "$.eventTrackers",
+                  "Catch": [{
+                    "ErrorEquals": [ "States.ALL" ],
+                    "Next": "Notify Error"
+                  }]
+                },
+                "Map Event Trackers": {
+                  "Type": "Map",
+                  "Next": "Get List All Solutions Dataset Group Arn",
+                  "ItemsPath": "$.eventTrackers",
+                  "ResultPath": null,
+                  "MaxConcurrency": 3,
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
+                  "Iterator": {
+                    "StartAt": "Get Event Tracker Arn",
+                    "States": {
+                      "Get Event Tracker Arn": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "eventTrackerArn.$": "$.eventTrackerArn"
+                        },
+                        "Next": "Delete Event Tracker"
+                      },
+                      "Delete Event Tracker": {
+                        "Type": "Task",
+                        "Resource": "${DeleteTrackerArn}",
+                        "End": true
+                      }
+                    }
+                  }
+                },
+                "Get List All Solutions Dataset Group Arn": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "List All Solutions"
+                },
+                "List All Solutions": {
+                  "Next": "Map All Solutions and Delete Campaigns",
+                  "Type": "Task",
+                  "Resource": "${ListSolutionsArn}",
+                  "ResultPath": "$.solutions",
+                  "Catch": [{
+                    "ErrorEquals": [ "States.ALL" ],
+                    "Next": "Notify Error"
+                  }]
+                },
+                "Map All Solutions and Delete Campaigns": {
+                  "Type": "Map",
+                  "ItemsPath": "$.solutions",
+                  "MaxConcurrency": 1,
+                  "ResultPath": null,
+                  "Next": "Get List Datasets Params",
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
+                  "Iterator": {
+                    "StartAt": "Get Parameters List Campaigns",
+                    "States": {
+                      "Get Parameters List Campaigns": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "solutionArn.$": "$.solutionArn"
+                        },
+                        "Next": "List Campaigns"
+                      },
+                      "List Campaigns": {
+                        "Next": "Map and Delete all Campaigns for a Solution",
+                        "Type": "Task",
+                        "Resource": "${ListCampaignsArn}",
+                        "ResultPath": "$.campaigns"
+                      },
+                      "Map and Delete all Campaigns for a Solution": {
+                        "Type": "Map",
+                        "ResultPath": null,
+                        "ItemsPath": "$.campaigns",
+                        "MaxConcurrency": 1,
+                        "Next": "Get Delete Solution Params",
+                        "Iterator": {
+                          "StartAt": "Get Delete Campaign Params",
+                          "States": {
+                            "Get Delete Campaign Params": {
+                              "Type": "Pass",
+                              "Parameters": {
+                                "campaignArn.$": "$.campaignArn"
+                              },
+                              "Next": "Delete Campaign"
+                            },
+                            "Delete Campaign": {
+                              "Next": "Wait for Campaign Delete",
+                              "Type": "Task",
+                              "ResultPath": null,
+                              "Resource": "${DeleteCampaignArn}"
+                            },
+                            "Wait for Campaign Delete": {
+                              "End": true,
+                              "Type": "Task",
+                              "Resource": "${WaitDeleteCampaignArn}",
+                              "Retry": [{
+                                "ErrorEquals": ["ResourcePending"],
+                                "IntervalSeconds": 60,
+                                "BackoffRate": 1.5,
+                                "MaxAttempts": 100
+                              }],
+                              "Catch": [{
+                                "ErrorEquals": ["ResourceNotFoundException"],
+                                "Next": "Campaign Delete Completed"
+                              }]
+                            },
+                            "Campaign Delete Completed": {
+                              "End": true,
+                              "Type": "Pass"
+                            }
+                          }
+                        }
+                      },
+                      "Get Delete Solution Params": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "solutionArn.$": "$.solutionArn"
+                        },
+                        "Next": "List Solution Versions"
+                      },
+                      "List Solution Versions": {
+                        "Type": "Task",
+                        "Resource": "${ListSolutionVersionsArn}",
+                        "Next": "Map and Wait for Solution Version Complete",
+                        "ResultPath": "$.solutionVersions"
+                      },
+                      "Map and Wait for Solution Version Complete": {
+                        "Type": "Map",
+                        "ItemsPath": "$.solutionVersions",
+                        "ResultPath": null,
+                        "MaxConcurrency": 1,
+                        "Next": "Delete Solution",
+                        "Iterator": {
+                          "StartAt": "Wait for Solution Version Complete",
+                          "States": {
+                            "Wait for Solution Version Complete": {
+                              "Type": "Task",
+                              "Resource": "${WaitSolutionVersionArn}",
+                              "End": true,
+                              "Retry": [{
+                                "ErrorEquals": ["ResourcePending"],
+                                "IntervalSeconds": 60,
+                                "BackoffRate": 1.5,
+                                "MaxAttempts": 100
+                              }]
+                            }
+                          }
+                        }
+                      },
+                      "Delete Solution": {
+                        "Next": "Wait for Solution Delete Completion",
+                        "Type": "Task",
+                        "Resource": "${DeleteSolutionArn}",
+                        "ResultPath": null
+                      },
+                      "Wait for Solution Delete Completion": {
+                        "Type": "Task",
+                        "End": true,
+                        "Resource": "${WaitDeleteSolutionArn}",
+                        "Retry": [{
+                          "ErrorEquals": ["ResourcePending"],
+                          "IntervalSeconds": 60,
+                          "BackoffRate": 1.5,
+                          "MaxAttempts": 100
+                        }],
+                        "Catch": [{
+                          "ErrorEquals": ["ResourceNotFoundException"],
+                          "Next": "Solution Delete Completed"
+                        }]
+                      },
+                      "Solution Delete Completed": {
+                        "Type": "Pass",
+                        "End": true
+                      }
+                    }
+                  }
+                },
+                "Get List Datasets Params": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "List Datasets"
+                },
+                "List Datasets": {
+                  "Next": "Map and Delete All Datasets",
+                  "Type": "Task",
+                  "Resource": "${ListDatasetsArn}",
+                  "ResultPath": "$.datasets",
+                  "Catch": [{
+                    "ErrorEquals": [ "States.ALL" ],
+                    "Next": "Notify Error"
+                  }]
+                },
+                "Map and Delete All Datasets": {
+                  "Type": "Map",
+                  "ResultPath": null,
+                  "ItemsPath": "$.datasets",
+                  "MaxConcurrency": 1,
+                  "Next": "Get Delete Dataset Group Params",
+                  "Catch": [{
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }],
+                  "Iterator": {
+                    "StartAt": "Get Parameters Delete Dataset",
+                    "States": {
+                      "Get Parameters Delete Dataset": {
+                        "Type": "Pass",
+                        "Parameters": {
+                          "datasetArn.$": "$.datasetArn"
+                        },
+                        "Next": "Delete Dataset from Group"
+                      },
+                      "Delete Dataset from Group": {
+                        "Next": "Wait for Dataset Delete",
+                        "Type": "Task",
+                        "Resource": "${DeleteDatasetArn}",
+                        "ResultPath": null
+                      },
+                      "Wait for Dataset Delete": {
+                        "Type": "Task",
+                        "End": true,
+                        "Resource": "${WaitDeleteDatasetArn}",
+                        "Retry": [{
+                          "ErrorEquals": ["ResourcePending"],
+                          "IntervalSeconds": 60,
+                          "BackoffRate": 1.5,
+                          "MaxAttempts": 100
+                        }],
+                        "Catch": [{
+                          "ErrorEquals": ["ResourceNotFoundException"],
+                          "Next": "Dataset Delete Completed",
+                          "ResultPath": null
+                        }]
+                      },
+                      "Dataset Delete Completed": {
+                        "Type": "Pass",
+                        "End": true
+                      }
+                    }
+                  }
+                },
+                "Get Delete Dataset Group Params": {
+                  "Type": "Pass",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "Next": "Delete Dataset Group"
+                },
+                "Delete Dataset Group": {
+                  "Type": "Task",
+                  "Resource": "${DeleteDatasetGroupArn}",
+                  "Next": "Wait Delete Dataset Group",
+                  "ResultPath": null,
+                  "Catch": [{
+                    "ErrorEquals": [ "States.ALL" ],
+                    "Next": "Notify Error"
+                  }]
+                },
+                "Wait Delete Dataset Group": {
+                  "Type": "Task",
+                  "Resource": "${WaitDeleteDatasetgroupArn}",
+                  "End": true,
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 30,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceNotFoundException"],
+                    "Next": "Dataset Group Delete Completed",
+                    "ResultPath": null
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "Next": "Notify Error"
+                  }]
+                },
+                "Dataset Group Delete Completed": {
+                  "Type": "Pass",
+                  "Next": "Notify Users",
+                  "Parameters": {
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  }
+                },
+                "Notify Users": {
+                  "End": true,
+                  "Type": "Task",
+                  "Resource": "${NotifyDeleteLambdaArn}"
+                },
+                "Notify Error": {
+                  "Type": "Task",
+                  "Resource": "${NotifyDeleteLambdaArn}",
+                  "Next": "Fail"
+                },
+                "Fail": {
+                  "Type": "Fail"
+                }
+              }
+            }
+          - DeleteCampaignArn: !GetAtt DeleteCampaign.Arn
+            DeleteDatasetGroupArn: !GetAtt DeleteDatasetGroup.Arn
+            DeleteDatasetArn: !GetAtt DeleteDataset.Arn
+            DeleteSolutionArn: !GetAtt DeleteSolution.Arn
+            DeleteTrackerArn: !GetAtt DeleteTracker.Arn
+            ListCampaignsArn: !GetAtt ListCampaigns.Arn
+            ListDatasetsArn: !GetAtt ListDatasets.Arn
+            ListSolutionVersionsArn: !GetAtt ListSolutionVersions.Arn
+            ListSolutionsArn: !GetAtt ListSolutions.Arn
+            ListTrackersArn: !GetAtt ListTrackers.Arn
+            WaitSolutionVersionArn: !GetAtt WaitSolutionVersion.Arn
+            WaitDeleteCampaignArn: !GetAtt WaitDeleteCampaign.Arn
+            WaitDeleteDatasetArn: !GetAtt WaitDeleteDataset.Arn
+            WaitDeleteDatasetgroupArn: !GetAtt WaitDeleteDatasetgroup.Arn
+            WaitDeleteSolutionArn: !GetAtt WaitDeleteSolution.Arn
+            WaitDeleteTrackerArn: !GetAtt WaitDeleteTracker.Arn
+            NotifyDeleteLambdaArn: !GetAtt NotifyDelete.Arn
+  DeployStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "StartAt": "Create Dataset Group",
+              "States": {
+                "Create Dataset Group": {
+                  "Type": "Task",
+                  "Resource": "${CreateDatasetGroupArn}",
+                  "InputPath": "$.params",
+                  "ResultPath": "$.datasetGroupArn",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }],
+                  "Next": "Create Datasets"
+                },
+                "Create Datasets": {
+                  "Type": "Parallel",
+                  "Next": "Create Solutions",
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Fail"
+                  }],
+                  "ResultPath": "$.datasetImportJobs",
+                  "Branches": [
+                      {
+                        "StartAt": "Create Users Dataset",
+                        "States": {
+                          "Create Users Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Users"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Users Not Available"
+                            }],
+                            "Next": "Import Users Dataset"
+                          },
+                          "Import Users Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Users",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Users Not Available": {
+                            "Type": "Pass",
+                            "Result": "Users dataset not available",
+                            "End": true
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Items Dataset",
+                        "States": {
+                          "Create Items Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Items"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Items Not Available"
+                            }],
+                            "Next": "Import Items Dataset"
+                          },
+                          "Import Items Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Items",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Items Not Available": {
+                            "Type": "Pass",
+                            "Result": "Items dataset not available",
+                            "End": true
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Interactions Dataset",
+                        "States": {
+                          "Create Interactions Dataset": {
+                            "Type": "Task",
+                            "Resource": "${CreateDatasetArn}",
+                            "Parameters": {
+                              "datasets.$": "$.params.datasets",
+                              "datasetGroupName.$": "$.params.datasetGroup.name",
+                              "datasetGroupArn.$": "$.datasetGroupArn",
+                              "datasetType": "Interactions"
+                            },
+                            "ResultPath": "$.datasetArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Interactions Not Available"
+                            }],
+                            "Next": "Import Interactions Dataset"
+                          },
+                          "Import Interactions Dataset": {
+                            "Type": "Task",
+                            "Resource": "${ImportDataArn}",
+                            "Parameters": {
+                              "date.$": "$.currentDate",
+                              "datasetType": "Interactions",
+                              "datasetArn.$": "$.datasetArn",
+                              "bucket.$": "$.bucket"
+                            },
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "End": true
+                          }, "Interactions Not Available": {
+                            "Type": "Fail",
+                            "Cause": "Interactions dataset not provided on parameters file.",
+                            "Error": "Interactions dataset not available"
+                          }
+                        }
+                      }
+                  ]
+                },
+                "Create Solutions": {
+                  "Type": "Parallel",
+                  "Next": "Attach Event Tracker",
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Fail"
+                  }],
+                  "ResultPath": "$.solutionsCampaignsCreation",
+                  "Branches": [
+                      {
+                        "StartAt": "Create User Personalization Solution",
+                        "States": {
+                          "Create User Personalization Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "userPersonalization",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait User Personalization Solution Version"
+                          },
+                          "Wait User Personalization Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionVersionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 60,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Fail"
+                            }],
+                            "Next": "Create User Personalization Campaign"
+                          },
+                          "Create User Personalization Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.userPersonalizationCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "User Personalization Fail"
+                            }],
+                            "End": true
+                          },
+                          "User Personalization Not Available": {
+                            "Type": "Pass",
+                            "Result": "User Personalization solution config not available",
+                            "End": true
+                          },
+                          "User Personalization Fail": {
+                            "Type": "Fail",
+                            "Cause": "User Personalization solution failed at create",
+                            "Error": "User Personalization solution failed"
+                          }
+                        }
+                      },{
+                        "StartAt": "Create SIMS Solution",
+                        "States": {
+                          "Create SIMS Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "sims",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait SIMS Solution Version"
+                          },
+                          "Wait SIMS Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionVersionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Fail"
+                            }],
+                            "Next": "Create SIMS Campaign"
+                          },
+                          "Create SIMS Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.simsCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "SIMS Fail"
+                            }],
+                            "End": true
+                          },
+                          "SIMS Not Available": {
+                            "Type": "Pass",
+                            "Result": "SIMS solution config not available",
+                            "End": true
+                          },
+                          "SIMS Fail": {
+                            "Type": "Fail",
+                            "Cause": "SIMS solution failed at create",
+                            "Error": "SIMS solution failed"
+                          }
+                        }
+                      },{
+                        "StartAt": "Create Personalized Ranking Solution",
+                        "States": {
+                          "Create Personalized Ranking Solution": {
+                            "Type": "Task",
+                            "Resource": "${CreateSolutionArn}",
+                            "Parameters": {
+                              "solution.$": "$.params.solutions",
+                              "solutionType": "personalizedRanking",
+                              "datasetGroupArn.$": "$.datasetGroupArn"
+                            },
+                            "Catch": [{
+                              "ErrorEquals": ["KeyError"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Not Available"
+                            }],
+                            "ResultPath": "$.solutionVersionArn",
+                            "Next": "Wait Personalized Ranking Solution Version"
+                          },
+                          "Wait Personalized Ranking Solution Version": {
+                            "Type": "Task",
+                            "Resource": "${WaitSolutionVersionArn}",
+                            "ResultPath": "$.solutionVersionStatus",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Fail"
+                            }],
+                            "Next": "Create Personalized Ranking Campaign"
+                          },
+                          "Create Personalized Ranking Campaign": {
+                            "Type": "Task",
+                            "Resource": "${CreateCampaignArn}",
+                            "Parameters": {
+                              "campaign.$": "$.params.campaigns.personalizedRankingCampaign",
+                              "solutionVersionArn.$": "$.solutionVersionArn"
+                            },
+                            "ResultPath": "$.campaignArn",
+                            "Retry": [{
+                              "ErrorEquals": ["ResourcePending"],
+                              "IntervalSeconds": 2,
+                              "BackoffRate": 1.5,
+                              "MaxAttempts": 100
+                            }],
+                            "Catch": [{
+                              "ErrorEquals": ["ResourceFailed"],
+                              "ResultPath": "$.serviceError",
+                              "Next": "Personalized Ranking Fail"
+                            }],
+                            "End": true
+                          },
+                          "Personalized Ranking Not Available": {
+                            "Type": "Pass",
+                            "Result": "Personalized Ranking solution config not available",
+                            "End": true
+                          },
+                          "Personalized Ranking Fail": {
+                            "Type": "Fail",
+                            "Cause": "Personalized Ranking solution failed at create",
+                            "Error": "Personalized Ranking solution failed"
+                          }
+                        }
+                      }
+                  ]
+                },
+                "Attach Event Tracker":{
+                  "Type": "Task",
+                  "Resource": "${AttachEventTrackerArn}",
+                  "Parameters": {
+                    "eventTracker.$": "$.params.eventTracker",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "ResultPath": "$.eventTrackerArn",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }],
+                  "Next": "Create Filters"
+                },
+                "Create Filters":{
+                  "Type": "Task",
+                  "Resource": "${CreateFiltersArn}",
+                  "Parameters": {
+                    "filters.$": "$.params.filters",
+                    "datasetGroupArn.$": "$.datasetGroupArn"
+                  },
+                  "ResultPath": "$.filterArns",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Fail"
+                  }],
+                  "Next": "Notify Users"
+                },
+                "Notify Users": {
+                  "Type": "Task",
+                  "Resource": "${NotifyArn}",
+                  "End": true
+                },
+                "Fail": {
+                  "Type": "Task",
+                  "Resource": "${NotifyArn}",
+                  "End": true
+                }
+              }
+            }
+          - CreateDatasetGroupArn: !GetAtt CreateDatasetGroup.Arn
+            CreateDatasetArn: !GetAtt CreateDataset.Arn
+            ImportDataArn: !GetAtt ImportData.Arn
+            CreateSolutionArn: !GetAtt CreateSolution.Arn
+            CreateCampaignArn: !GetAtt CreateCampaign.Arn
+            WaitSolutionVersionArn: !GetAtt  WaitSolutionVersion.Arn
+            AttachEventTrackerArn: !GetAtt  AttachEventTracker.Arn
+            CreateFiltersArn: !GetAtt  CreateFilters.Arn
+            NotifyArn: !GetAtt Notify.Arn
+
+  PersonalizeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - personalize.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonPersonalizeFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+      Policies:
+        - PolicyName: PersonalizeS3BucketAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: arn:aws:s3:::*
+
+Outputs:
+  DeployStateMachineArn:
+    Description: The Create StateMachine Arn
+    Value: !Ref DeployStateMachine
+  InputBucketName:
+    Description: The S3 bucket name
+    Value: !Ref InputBucket
+  NotificationTopicArn:
+    Description: The Notification Topic Arn
+    Value: !Ref NotificationTopic

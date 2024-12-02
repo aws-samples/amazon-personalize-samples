@@ -1,6 +1,6 @@
 # Amazon Personalize Samples
 
-Notebooks and examples on how to onboard and use various features of Amazon Personalize
+Notebooks and examples on how to onboard and use various features of Amazon Personalize. This content is also available in four languages: Spanish, French, Korean and Chinese. The [translations/](translations/) folder contains the content in respective languages in thier folders.
 
 ## Getting Started with the Amazon Personalize
 
