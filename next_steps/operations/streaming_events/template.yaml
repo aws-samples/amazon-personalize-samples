@@ -93,7 +93,7 @@ Resources:
     Properties:
       CodeUri: lambdas/getRecommendations
       Handler: getRecommendations.handler
-      Runtime: python3.7
+      Runtime: python3.10
       Role: !GetAtt [LambdaRole, Arn]
       MemorySize: 1024
       Environment:
@@ -106,7 +106,7 @@ Resources:
     Properties:
       CodeUri: lambdas/putevents
       Handler: putevents.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs20.x
       Role: !GetAtt [LambdaRole, Arn]
       Events:
         Stream:
