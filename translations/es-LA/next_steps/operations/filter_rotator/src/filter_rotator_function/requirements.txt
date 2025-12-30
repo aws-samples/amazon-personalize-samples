@@ -1,0 +1,2 @@
+# Note: AWS Lambda Power Tools is also required but is satisfied by a Lambda layer at runtime (see template.yaml)
+simpleeval==0.9.11
