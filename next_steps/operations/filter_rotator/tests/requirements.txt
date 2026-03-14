@@ -3,4 +3,4 @@ six
 regex
 pytest
 pytest-mock
-simpleeval==0.9.11
+simpleeval==1.0.5
